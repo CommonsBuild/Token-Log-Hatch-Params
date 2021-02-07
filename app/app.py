@@ -16,14 +16,33 @@ impact_hours_data = ImpactHoursData()
 impact_rewards = ImpactHoursFormula(impact_hours_data.total_impact_hours, impact_hour_data_1)
 # impact_rewards_view = pn.Row(impact_rewards, pn.Column(impact_rewards.impact_rewards, impact_rewards.funding_pools), impact_rewards.payout_view)
 
+
+i = ImpactHoursData()
+impact_data_view = pn.Row(i.impact_hours_accumulation)
+
+react.main[:4, :6] = impact_data_view
+
+impact_hours_rewards = ImpactHoursFormula(i.total_impact_hours, impact_hour_data_1)
+impact_rewards_view = pn.Row(pn.Column(impact_hours_rewards.impact_hours_rewards, impact_hours_rewards.funding_pools), impact_hours_rewards.payout_view)
+
+
+react.main[4:8, :6] = impact_rewards_view
+
+cstk_data = read_cstk_data()
+h = Hatch(cstk_data)
+hatch_view = pn.Row( h.hatch_raise_view)
+
+react.main[8:12, :6] = hatch_view
+
 cstk_data = read_cstk_data()
 hatch = Hatch(cstk_data)
-hatch_view = pn.Row(hatch, hatch.hatch_raise_view)
+hatch_view = pn.Row(hatch.hatch_raise_view)
 
-react.sidebar.append(impact_hours_data)
-react.sidebar.append(impact_rewards)
+
+react.sidebar.append(i)
+react.sidebar.append(impact_hours_rewards) 
+react.sidebar.append(h)
 react.sidebar.append(hatch)
-
 # Unlike other templates the `ReactTemplate.main` area acts like a GridSpec 
 # react.main[:4, :6] = pn.Card(hv.DynamicMap(sine), title='Sine')
 # react.main[:4, 6:] = pn.Card(hv.DynamicMap(cosine), title='Cosine')
