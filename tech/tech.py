@@ -9,6 +9,8 @@ import hvplot.pandas
 import holoviews as hv
 import numpy as np
 from scipy.stats.mstats import gmean
+import sys
+sys.path.append('../')
 import os
 pn.extension()
 
@@ -59,7 +61,7 @@ class ImpactHoursData(param.Parameterized):
     historic = pd.read_csv('data/IHPredictions.csv').query('Model=="Historic"')
     optimistic =  pd.read_csv('data/IHPredictions.csv').query('Model=="Optimistic"')
     predicted_hours = param.Number(0.5, bounds=(-.5,1.5), step=0.05)
-    total_impact_hours = param.Integer(step=100)
+    #total_impact_hours = param.Integer(step=100)
     
     def __init__(self, **params):
         super(ImpactHoursData, self).__init__(**params)
@@ -91,7 +93,8 @@ class ImpactHoursData(param.Parameterized):
         
         self.total_impact_hours = int(predicted['Total IH'].max()) 
 
-        return pn.Column(historic_curve * historic_bar * predicted_curve * predicted_bar * optimistic_curve * optimistic_bar, f"<b>Predicted Impact Hours: </b>{round(self.total_impact_hours)}") 
+        #return pn.Column(historic_curve * historic_bar * predicted_curve * predicted_bar * optimistic_curve * optimistic_bar, f"<b>Predicted Impact Hours: </b>{round(self.total_impact_hours)}") 
+        return pn.Column(historic_curve * historic_bar * predicted_curve * predicted_bar * optimistic_curve * optimistic_bar) 
 
     
 class ImpactHoursFormula(param.Parameterized):
@@ -100,9 +103,9 @@ class ImpactHoursFormula(param.Parameterized):
     This formala was a collaboration of Sem and Griff for the TEC hatch impact hours formula. 
     https://forum.tecommons.org/t/impact-hour-rewards-deep-dive/90/5
     """
-    total_impact_hours = param.Number(step=100)
+    #total_impact_hours = param.Number(step=100)
     minimum_raise = param.Number(5, bounds=(1, 100), step=1)
-    raise_horizon = param.Number(0.012, bounds=(0,1), step=0.001)
+    hour_slope = param.Number(0.012, bounds=(0,1), step=0.001)
     maximum_impact_hour_rate = param.Number(0.01, bounds=(0,10), step=0.01)
     target_raise = param.Number(500, bounds=(20,1000), step=1)
     maximum_raise = param.Number(1000, bounds=(20,1000), step=1)
@@ -114,7 +117,7 @@ class ImpactHoursFormula(param.Parameterized):
         super(ImpactHoursFormula, self).__init__(**params)
         self.total_impact_hours = total_impact_hours
         self.impact_hour_data = impact_hour_data
-#         self.maximum_raise = self.total_impact_hours * self.raise_horizon * 10
+#         self.maximum_raise = self.total_impact_hours * self.hour_slope * 10
 #         self.param['maximum_raise'].bounds =  (self.maximum_raise / 10, self.maximum_raise * 10)
 #         self.param['maximum_raise'].step = self.maximum_raise / 10
         
@@ -128,7 +131,7 @@ class ImpactHoursFormula(param.Parameterized):
         return self.impact_hour_data.hvplot.table()
 
     def impact_hours_rewards(self):
-        expected_raise = self.total_impact_hours * self.raise_horizon
+        expected_raise = self.total_impact_hours * self.hour_slope
         if expected_raise > self.maximum_raise:
             expected_raise = self.maximum_raise
 #         self.param['maximum_raise'].bounds =  (expected_raise, expected_raise * 10)
@@ -142,7 +145,7 @@ class ImpactHoursFormula(param.Parameterized):
 
         R = self.maximum_impact_hour_rate
 
-        m = self.raise_horizon
+        m = self.hour_slope
         
         H = self.total_impact_hours
 
@@ -160,16 +163,17 @@ class ImpactHoursFormula(param.Parameterized):
             target_impact_hour_rate = df[df['Total XDAI Raised'] > self.target_raise].iloc[0]['Impact Hour Rate']
         except:
             target_impact_hour_rate = df['Impact Hour Rate'].max()
-        impact_hours_plot = df.hvplot.area(title='Expected and Target Raise', x='Total XDAI Raised',  xformatter='%.0f', hover=True)
+        impact_hours_plot = df.hvplot.area(title='Target Raise', x='Total XDAI Raised',  xformatter='%.0f', hover=True)
         
-        return impact_hours_plot * hv.VLine(expected_raise) * hv.HLine(expected_impact_hour_rate) * hv.VLine(self.target_raise) * hv.HLine(target_impact_hour_rate)
+        #return impact_hours_plot * hv.VLine(expected_raise) * hv.HLine(expected_impact_hour_rate) * hv.VLine(self.target_raise) * hv.HLine(target_impact_hour_rate)
+        return impact_hours_plot * hv.VLine(self.target_raise) * hv.HLine(target_impact_hour_rate)
 
     def funding_pools(self):
         x = np.linspace(self.minimum_raise, self.maximum_raise)
 
         R = self.maximum_impact_hour_rate
 
-        m = self.raise_horizon
+        m = self.hour_slope
         
         H = self.total_impact_hours
 
@@ -184,7 +188,7 @@ class ImpactHoursFormula(param.Parameterized):
         minimum_cultural_tribute = self.total_impact_hours * minimum_rate
         
         # Expected Results
-        expected_raise = self.total_impact_hours * self.raise_horizon
+        expected_raise = self.total_impact_hours * self.hour_slope
         try:
             expected_rate = df[df['Total XDAI Raised'] > expected_raise].iloc[0]['Impact Hour Rate']
         except:
@@ -215,7 +219,7 @@ class ImpactHoursFormula(param.Parameterized):
     
 class Hatch(param.Parameterized):
     # CSTK Ratio
-    total_cstk_tokens = param.Number()
+    #total_cstk_tokens = param.Number()
     hatch_oracle_ratio = param.Number(0.005, bounds=(0.001, 1), step=0.001)
     
     # Min and Target Goals
@@ -277,11 +281,11 @@ class Hatch(param.Parameterized):
         
         self.total_target_tech_tokens = int(stats.loc['target_goal']['Total TECH Tokens'])
 
-        return pn.Column(cap_plot * max_plot * min_plot * target_plot, raise_bars, stats.sort_values('Total XDAI Staked',ascending=False).apply(round).reset_index().hvplot.table())
-    
+        #return pn.Column(cap_plot * max_plot * min_plot * target_plot, raise_bars, stats.sort_values('Total XDAI Staked',ascending=False).apply(round).reset_index().hvplot.table())
+        return pn.Column(raise_bars, stats.sort_values('Total XDAI Staked',ascending=False).apply(round).reset_index().hvplot.table())
     
 class DandelionVoting(param.Parameterized):
-    total_tokens = param.Number(17e6)
+    #total_tokens = param.Number(17e6)
     support_required = param.Number(0.6, bounds=(0.5,0.9), step=0.01)
     minimum_accepted_quorum = param.Number(0.02, bounds=(0.01,1), step=0.01)
     vote_duration_days = param.Number(3, bounds=(1,14), step=1)
