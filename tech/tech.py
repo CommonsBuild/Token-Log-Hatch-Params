@@ -9,8 +9,6 @@ import hvplot.pandas
 import holoviews as hv
 import numpy as np
 from scipy.stats.mstats import gmean
-import sys
-sys.path.append('../')
 import os
 pn.extension()
 
