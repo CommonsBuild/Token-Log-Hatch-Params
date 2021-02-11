@@ -75,6 +75,7 @@ class ImpactHoursData(param.Parameterized):
         x = 'End Date'
 
         historic = self.historic.set_index('Round')
+        historic = historic[historic['Total IH'] != self.optimistic.set_index('Round')['Total IH']]
         optimistic = self.optimistic[self.optimistic["Actual / Predicted"] == "Predicted"].set_index('Round')
         predicted = optimistic.copy()
         predicted['Total IH'] = self.predicted_hours * historic[historic["Actual / Predicted"] == "Predicted"]['Total IH'] + (1 - self.predicted_hours) * optimistic['Total IH']
