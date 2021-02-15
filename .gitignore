@@ -1,5 +1,5 @@
 scratch/
-.ipynb_checkpoints/
+.ipynb_checkpoints
 *.egg-info/
 *.DS_Store
 

@@ -109,7 +109,7 @@ class ImpactHoursFormula(param.Parameterized):
     target_raise = param.Number(500, bounds=(20,1000), step=1)
     maximum_raise = param.Number(1000, bounds=(20,1000), step=1)
     
-    expected_impact_hour_rate = param.Number()
+    #expected_impact_hour_rate = param.Number()
     target_impact_hour_rate = param.Number()
     
     def __init__(self, total_impact_hours, impact_hour_data, **params):
@@ -125,7 +125,7 @@ class ImpactHoursFormula(param.Parameterized):
 #         self.param['target_raise'].step = self.maximum_raise / 10
 
     def payout_view(self):
-        self.impact_hour_data['Expected Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * self.expected_impact_hour_rate
+        #self.impact_hour_data['Expected Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * self.expected_impact_hour_rate
         self.impact_hour_data['Target Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * self.target_impact_hour_rate
         return self.impact_hour_data.hvplot.table()
 
@@ -209,9 +209,9 @@ class ImpactHoursFormula(param.Parameterized):
         # Funding Pools and Tribute
         funding = pd.DataFrame.from_dict({
             'Mimimum': [minimum_cultural_tribute, minimum_raise-minimum_cultural_tribute],
-            'Expected': [expected_cultural_tribute, expected_raise-expected_cultural_tribute],
+            #'Expected': [expected_cultural_tribute, expected_raise-expected_cultural_tribute],
             'Target': [target_cultural_tribute, target_raise-target_cultural_tribute]}, orient='index', columns=['Culture Tribute', 'Funding Pool'])
-        funding_plot = funding.hvplot.bar(title="Expected and Target Funding Pools", stacked=True, ylim=(0,self.maximum_raise),  yformatter='%.0f').opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
+        funding_plot = funding.hvplot.bar(title="Target Funding Pools", stacked=True, ylim=(0,self.maximum_raise),  yformatter='%.0f').opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
 
         return funding_plot
     
@@ -222,9 +222,9 @@ class Hatch(param.Parameterized):
     hatch_oracle_ratio = param.Number(0.005, bounds=(0.001, 1), step=0.001)
     
     # Min and Target Goals
-    max_raise = param.Number(0.75, bounds=(0.5,1), step=0.01)
-    min_raise = param.Number(0.05, bounds=(0.01,0.5), step=0.01)
-    target_raise = param.Number(0.50, bounds=(0.01,1), step=0.01) 
+    max_raise = param.Number(1000, bounds=(20,1000), step=1)
+    min_raise = param.Number(5, bounds=(1, 100), step=1)
+    target_raise = param.Number(500, bounds=(20,1000), step=1)
     
     # Hatch params
     hatch_period_days = param.Integer(15, bounds=(5, 30), step=2)
@@ -241,10 +241,10 @@ class Hatch(param.Parameterized):
         self.total_cstk_tokens = cstk_data['CSTK Tokens Capped'].sum()
     
     def min_goal(self):
-        return self.min_raise * self.total_cstk_tokens * self.hatch_oracle_ratio
+        return self.min_raise
     
     def max_goal(self):
-        return self.max_raise * self.total_cstk_tokens * self.hatch_oracle_ratio
+        return self.max_raise
 
     def wxdai_range(self):
         return pn.Row(pn.Pane("Cap on wxdai staked: "), self.hatch_oracle_ratio * self.total_cstk_tokens)
@@ -258,13 +258,13 @@ class Hatch(param.Parameterized):
 
         cap_plot = self.cstk_data.hvplot.area(title="Raise Targets Per Hatcher", x='CSTK Token Holders', y='Cap raise', yformatter='%.0f', label="Cap Raise", ylabel="XDAI Staked")
 
-        self.cstk_data['max_goal'] = self.cstk_data['Cap raise'] * self.max_raise
+        self.cstk_data['max_goal'] = self.max_raise
         max_plot = self.cstk_data.hvplot.area(x='CSTK Token Holders', y='max_goal', yformatter='%.0f', label="Max Raise")
 
-        self.cstk_data['min_goal'] = self.cstk_data['Cap raise'] * self.min_raise
+        self.cstk_data['min_goal'] = self.min_raise
         min_plot = self.cstk_data.hvplot.area(x='CSTK Token Holders', y='min_goal', yformatter='%.0f', label="Min Raise")
 
-        self.cstk_data['target_goal'] = self.cstk_data['Cap raise'] * self.target_raise 
+        self.cstk_data['target_goal'] = self.target_raise 
         target_plot = self.cstk_data.hvplot.line(x='CSTK Token Holders', y='target_goal', yformatter='%.0f', label="Target Raise")
         
         bar_data = pd.DataFrame(self.cstk_data.iloc[:,3:].sum().sort_values(), columns=['Total'])
