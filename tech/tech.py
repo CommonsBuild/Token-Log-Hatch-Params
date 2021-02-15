@@ -103,11 +103,11 @@ class ImpactHoursFormula(param.Parameterized):
     https://forum.tecommons.org/t/impact-hour-rewards-deep-dive/90/5
     """
     #total_impact_hours = param.Number(step=100)
+    target_raise = param.Number(500, bounds=(20,1000), step=1)
+    maximum_raise = param.Number(1000, bounds=(20,1000), step=1)
     minimum_raise = param.Number(5, bounds=(1, 100), step=1)
     hour_slope = param.Number(0.012, bounds=(0,1), step=0.001)
     maximum_impact_hour_rate = param.Number(0.01, bounds=(0,10), step=0.01)
-    target_raise = param.Number(500, bounds=(20,1000), step=1)
-    maximum_raise = param.Number(1000, bounds=(20,1000), step=1)
     
     #expected_impact_hour_rate = param.Number()
     target_impact_hour_rate = param.Number()
@@ -162,10 +162,10 @@ class ImpactHoursFormula(param.Parameterized):
             target_impact_hour_rate = df[df['Total XDAI Raised'] > self.target_raise].iloc[0]['Impact Hour Rate']
         except:
             target_impact_hour_rate = df['Impact Hour Rate'].max()
-        impact_hours_plot = df.hvplot.area(title='Target Raise', x='Total XDAI Raised',  xformatter='%.0f', hover=True)
+        impact_hours_plot = df.hvplot.area(title='Impact Hour Rate', x='Total XDAI Raised',  xformatter='%.0f', hover=True)
         
         #return impact_hours_plot * hv.VLine(expected_raise) * hv.HLine(expected_impact_hour_rate) * hv.VLine(self.target_raise) * hv.HLine(target_impact_hour_rate)
-        return impact_hours_plot * hv.VLine(self.target_raise) * hv.HLine(target_impact_hour_rate)
+        return impact_hours_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(target_impact_hour_rate).opts(color='#E31212')
 
     def funding_pools(self):
         x = np.linspace(self.minimum_raise, self.maximum_raise)
@@ -217,15 +217,15 @@ class ImpactHoursFormula(param.Parameterized):
     
     
 class Hatch(param.Parameterized):
+    # Min and Target Goals
+    target_raise = param.Number(500, bounds=(20,1000), step=1)
+    max_raise = param.Number(1000, bounds=(20,1000), step=1)
+    min_raise = param.Number(5, bounds=(1, 100), step=1)
+
     # CSTK Ratio
     #total_cstk_tokens = param.Number()
     hatch_oracle_ratio = param.Number(0.005, bounds=(0.001, 1), step=0.001)
-    
-    # Min and Target Goals
-    max_raise = param.Number(1000, bounds=(20,1000), step=1)
-    min_raise = param.Number(5, bounds=(1, 100), step=1)
-    target_raise = param.Number(500, bounds=(20,1000), step=1)
-    
+       
     # Hatch params
     hatch_period_days = param.Integer(15, bounds=(5, 30), step=2)
     
@@ -281,7 +281,8 @@ class Hatch(param.Parameterized):
         self.total_target_tech_tokens = int(stats.loc['target_goal']['Total TECH Tokens'])
 
         #return pn.Column(cap_plot * max_plot * min_plot * target_plot, raise_bars, stats.sort_values('Total XDAI Staked',ascending=False).apply(round).reset_index().hvplot.table())
-        return pn.Column(raise_bars, stats.sort_values('Total XDAI Staked',ascending=False).apply(round).reset_index().hvplot.table())
+        #return pn.Column(raise_bars, stats.sort_values('Total XDAI Staked',ascending=False).apply(round).reset_index().hvplot.table())
+        return raise_bars
     
 class DandelionVoting(param.Parameterized):
     #total_tokens = param.Number(17e6)
