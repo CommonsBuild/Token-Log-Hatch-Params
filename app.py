@@ -84,8 +84,6 @@ def update_params_by_url_query(import_params_button):
         d.rage_quit_hours = float(queries['rqh'])
     if 'tfx' in queries:
         d.tollgate_fee_xdai = float(queries['tfx'])
-    
-       
 
 @pn.depends(results_button, watch=True)
 def update_result_score(results_button):
@@ -135,19 +133,14 @@ Play with my parameters [here](http://localhost:5006/app?ihminr={ihf_minimum_rai
     markdown_panel = pn.pane.Markdown(string_data)
     return markdown_panel
 
-"""
-@pn.depends(hatch, watch=True)
-def mirror_min_max_raise(impact_hours_rewards):
-    print("TESTING")
-"""
 # Front-end
 react.main[:1, :4] = pn.Column(import_description, import_params_button)
 react.main[:2, 4:12] = i.impact_hours_accumulation
-react.main[2:6, :4] = impact_hours_rewards 
+react.main[2:6, :4] = impact_hours_rewards
 react.main[2:6, 4:12] = impact_rewards_view
-react.main[6:9, :4] = hatch 
+react.main[6:9, :4] = hatch
 react.main[6:9, 4:12] = hatch.hatch_raise_view
-react.main[9:11, :4] = d 
+react.main[9:11, :4] = d
 react.main[9:11, 4:12] = d.vote_pass_view
 react.main[11:11, :4] = pn.Column(share_button, url)
 react.main[11:11, 4:12] = results_button
