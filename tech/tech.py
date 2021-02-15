@@ -59,7 +59,7 @@ class ImpactHoursData(param.Parameterized):
     historic = pd.read_csv('data/IHPredictions.csv').query('Model=="Historic"')
     optimistic =  pd.read_csv('data/IHPredictions.csv').query('Model=="Optimistic"')
     predicted_hours = param.Number(0.5, bounds=(-.5,1.5), step=0.05)
-    total_impact_hours = param.Integer(step=100)
+    #total_impact_hours = param.Integer(step=100)
     
     def __init__(self, **params):
         super(ImpactHoursData, self).__init__(**params)
@@ -75,6 +75,7 @@ class ImpactHoursData(param.Parameterized):
         x = 'End Date'
 
         historic = self.historic.set_index('Round')
+        historic = historic[historic['Total IH'] != self.optimistic.set_index('Round')['Total IH']]
         optimistic = self.optimistic[self.optimistic["Actual / Predicted"] == "Predicted"].set_index('Round')
         predicted = optimistic.copy()
         predicted['Total IH'] = self.predicted_hours * historic[historic["Actual / Predicted"] == "Predicted"]['Total IH'] + (1 - self.predicted_hours) * optimistic['Total IH']
@@ -91,7 +92,8 @@ class ImpactHoursData(param.Parameterized):
         
         self.total_impact_hours = int(predicted['Total IH'].max()) 
 
-        return pn.Column(historic_curve * historic_bar * predicted_curve * predicted_bar * optimistic_curve * optimistic_bar, f"<b>Predicted Impact Hours: </b>{round(self.total_impact_hours)}") 
+        #return pn.Column(historic_curve * historic_bar * predicted_curve * predicted_bar * optimistic_curve * optimistic_bar, f"<b>Predicted Impact Hours: </b>{round(self.total_impact_hours)}") 
+        return pn.Column(historic_curve * historic_bar * predicted_curve * predicted_bar * optimistic_curve * optimistic_bar) 
 
     
 class ImpactHoursFormula(param.Parameterized):
@@ -100,21 +102,21 @@ class ImpactHoursFormula(param.Parameterized):
     This formala was a collaboration of Sem and Griff for the TEC hatch impact hours formula. 
     https://forum.tecommons.org/t/impact-hour-rewards-deep-dive/90/5
     """
-    total_impact_hours = param.Number(step=100)
-    minimum_raise = param.Number(5, bounds=(1, 100), step=1)
-    raise_horizon = param.Number(0.012, bounds=(0,1), step=0.001)
-    maximum_impact_hour_rate = param.Number(0.01, bounds=(0,10), step=0.01)
+    #total_impact_hours = param.Number(step=100)
     target_raise = param.Number(500, bounds=(20,1000), step=1)
     maximum_raise = param.Number(1000, bounds=(20,1000), step=1)
+    minimum_raise = param.Number(5, bounds=(1, 100), step=1)
+    hour_slope = param.Number(0.012, bounds=(0,1), step=0.001)
+    maximum_impact_hour_rate = param.Number(0.01, bounds=(0,10), step=0.01)
     
-    expected_impact_hour_rate = param.Number()
+    #expected_impact_hour_rate = param.Number()
     target_impact_hour_rate = param.Number()
     
     def __init__(self, total_impact_hours, impact_hour_data, **params):
         super(ImpactHoursFormula, self).__init__(**params)
         self.total_impact_hours = total_impact_hours
         self.impact_hour_data = impact_hour_data
-#         self.maximum_raise = self.total_impact_hours * self.raise_horizon * 10
+#         self.maximum_raise = self.total_impact_hours * self.hour_slope * 10
 #         self.param['maximum_raise'].bounds =  (self.maximum_raise / 10, self.maximum_raise * 10)
 #         self.param['maximum_raise'].step = self.maximum_raise / 10
         
@@ -123,12 +125,12 @@ class ImpactHoursFormula(param.Parameterized):
 #         self.param['target_raise'].step = self.maximum_raise / 10
 
     def payout_view(self):
-        self.impact_hour_data['Expected Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * self.expected_impact_hour_rate
+        #self.impact_hour_data['Expected Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * self.expected_impact_hour_rate
         self.impact_hour_data['Target Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * self.target_impact_hour_rate
         return self.impact_hour_data.hvplot.table()
 
     def impact_hours_rewards(self):
-        expected_raise = self.total_impact_hours * self.raise_horizon
+        expected_raise = self.total_impact_hours * self.hour_slope
         if expected_raise > self.maximum_raise:
             expected_raise = self.maximum_raise
 #         self.param['maximum_raise'].bounds =  (expected_raise, expected_raise * 10)
@@ -142,7 +144,7 @@ class ImpactHoursFormula(param.Parameterized):
 
         R = self.maximum_impact_hour_rate
 
-        m = self.raise_horizon
+        m = self.hour_slope
         
         H = self.total_impact_hours
 
@@ -160,16 +162,17 @@ class ImpactHoursFormula(param.Parameterized):
             target_impact_hour_rate = df[df['Total XDAI Raised'] > self.target_raise].iloc[0]['Impact Hour Rate']
         except:
             target_impact_hour_rate = df['Impact Hour Rate'].max()
-        impact_hours_plot = df.hvplot.area(title='Expected and Target Raise', x='Total XDAI Raised',  xformatter='%.0f', hover=True)
+        impact_hours_plot = df.hvplot.area(title='Impact Hour Rate', x='Total XDAI Raised',  xformatter='%.0f', hover=True)
         
-        return impact_hours_plot * hv.VLine(expected_raise) * hv.HLine(expected_impact_hour_rate) * hv.VLine(self.target_raise) * hv.HLine(target_impact_hour_rate)
+        #return impact_hours_plot * hv.VLine(expected_raise) * hv.HLine(expected_impact_hour_rate) * hv.VLine(self.target_raise) * hv.HLine(target_impact_hour_rate)
+        return impact_hours_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(target_impact_hour_rate).opts(color='#E31212')
 
     def funding_pools(self):
         x = np.linspace(self.minimum_raise, self.maximum_raise)
 
         R = self.maximum_impact_hour_rate
 
-        m = self.raise_horizon
+        m = self.hour_slope
         
         H = self.total_impact_hours
 
@@ -184,7 +187,7 @@ class ImpactHoursFormula(param.Parameterized):
         minimum_cultural_tribute = self.total_impact_hours * minimum_rate
         
         # Expected Results
-        expected_raise = self.total_impact_hours * self.raise_horizon
+        expected_raise = self.total_impact_hours * self.hour_slope
         try:
             expected_rate = df[df['Total XDAI Raised'] > expected_raise].iloc[0]['Impact Hour Rate']
         except:
@@ -206,23 +209,23 @@ class ImpactHoursFormula(param.Parameterized):
         # Funding Pools and Tribute
         funding = pd.DataFrame.from_dict({
             'Mimimum': [minimum_cultural_tribute, minimum_raise-minimum_cultural_tribute],
-            'Expected': [expected_cultural_tribute, expected_raise-expected_cultural_tribute],
+            #'Expected': [expected_cultural_tribute, expected_raise-expected_cultural_tribute],
             'Target': [target_cultural_tribute, target_raise-target_cultural_tribute]}, orient='index', columns=['Culture Tribute', 'Funding Pool'])
-        funding_plot = funding.hvplot.bar(title="Expected and Target Funding Pools", stacked=True, ylim=(0,self.maximum_raise),  yformatter='%.0f').opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
+        funding_plot = funding.hvplot.bar(title="Target Funding Pools", stacked=True, ylim=(0,self.maximum_raise),  yformatter='%.0f').opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
 
         return funding_plot
     
     
 class Hatch(param.Parameterized):
-    # CSTK Ratio
-    total_cstk_tokens = param.Number()
-    hatch_oracle_ratio = param.Number(0.005, bounds=(0.001, 1), step=0.001)
-    
     # Min and Target Goals
-    max_raise = param.Number(0.75, bounds=(0.5,1), step=0.01)
-    min_raise = param.Number(0.05, bounds=(0.01,0.5), step=0.01)
-    target_raise = param.Number(0.50, bounds=(0.01,1), step=0.01) 
-    
+    target_raise = param.Number(500, bounds=(20,1000), step=1)
+    max_raise = param.Number(1000, bounds=(20,1000), step=1)
+    min_raise = param.Number(5, bounds=(1, 100), step=1)
+
+    # CSTK Ratio
+    #total_cstk_tokens = param.Number()
+    hatch_oracle_ratio = param.Number(0.005, bounds=(0.001, 1), step=0.001)
+       
     # Hatch params
     hatch_period_days = param.Integer(15, bounds=(5, 30), step=2)
     
@@ -238,10 +241,10 @@ class Hatch(param.Parameterized):
         self.total_cstk_tokens = cstk_data['CSTK Tokens Capped'].sum()
     
     def min_goal(self):
-        return self.min_raise * self.total_cstk_tokens * self.hatch_oracle_ratio
+        return self.min_raise
     
     def max_goal(self):
-        return self.max_raise * self.total_cstk_tokens * self.hatch_oracle_ratio
+        return self.max_raise
 
     def wxdai_range(self):
         return pn.Row(pn.Pane("Cap on wxdai staked: "), self.hatch_oracle_ratio * self.total_cstk_tokens)
@@ -255,13 +258,13 @@ class Hatch(param.Parameterized):
 
         cap_plot = self.cstk_data.hvplot.area(title="Raise Targets Per Hatcher", x='CSTK Token Holders', y='Cap raise', yformatter='%.0f', label="Cap Raise", ylabel="XDAI Staked")
 
-        self.cstk_data['max_goal'] = self.cstk_data['Cap raise'] * self.max_raise
+        self.cstk_data['max_goal'] = self.max_raise
         max_plot = self.cstk_data.hvplot.area(x='CSTK Token Holders', y='max_goal', yformatter='%.0f', label="Max Raise")
 
-        self.cstk_data['min_goal'] = self.cstk_data['Cap raise'] * self.min_raise
+        self.cstk_data['min_goal'] = self.min_raise
         min_plot = self.cstk_data.hvplot.area(x='CSTK Token Holders', y='min_goal', yformatter='%.0f', label="Min Raise")
 
-        self.cstk_data['target_goal'] = self.cstk_data['Cap raise'] * self.target_raise 
+        self.cstk_data['target_goal'] = self.target_raise 
         target_plot = self.cstk_data.hvplot.line(x='CSTK Token Holders', y='target_goal', yformatter='%.0f', label="Target Raise")
         
         bar_data = pd.DataFrame(self.cstk_data.iloc[:,3:].sum().sort_values(), columns=['Total'])
@@ -277,11 +280,12 @@ class Hatch(param.Parameterized):
         
         self.total_target_tech_tokens = int(stats.loc['target_goal']['Total TECH Tokens'])
 
-        return pn.Column(cap_plot * max_plot * min_plot * target_plot, raise_bars, stats.sort_values('Total XDAI Staked',ascending=False).apply(round).reset_index().hvplot.table())
-    
+        #return pn.Column(cap_plot * max_plot * min_plot * target_plot, raise_bars, stats.sort_values('Total XDAI Staked',ascending=False).apply(round).reset_index().hvplot.table())
+        #return pn.Column(raise_bars, stats.sort_values('Total XDAI Staked',ascending=False).apply(round).reset_index().hvplot.table())
+        return raise_bars
     
 class DandelionVoting(param.Parameterized):
-    total_tokens = param.Number(17e6)
+    #total_tokens = param.Number(17e6)
     support_required = param.Number(0.6, bounds=(0.5,0.9), step=0.01)
     minimum_accepted_quorum = param.Number(0.02, bounds=(0.01,1), step=0.01)
     vote_duration_days = param.Number(3, bounds=(1,14), step=1)
