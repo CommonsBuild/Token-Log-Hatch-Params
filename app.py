@@ -72,11 +72,11 @@ def update_params_by_url_query(import_params_button):
     if 'her' in queries:
         hatch.hatch_exchange_rate = float(queries['her'])
     if 'ht' in queries:
-        hatch.hatch_tribute = float(queries['ht'])
+        hatch.hatch_tribute_percentage = int(queries['ht'])
     if 'sr' in queries:
-        d.support_required = float(queries['sr'])
+        d.support_required_percentage = int(queries['sr'])
     if 'maq' in queries:
-        d.minimum_accepted_quorum = float(queries['maq'])
+        d.minimum_accepted_quorum_percentage = int(queries['maq'])
     if 'vdd' in queries:
         d.vote_duration_days = float(queries['vdd'])
     if 'vbh' in queries:
@@ -121,9 +121,9 @@ Play with my parameters [here](http://localhost:5006/app?ihminr={ihf_minimum_rai
                 h_target_raise=hatch.target_raise,
                 hatch_period_days=hatch.hatch_period_days,
                 hatch_exchange_rate=hatch.hatch_exchange_rate,
-                hatch_tribute=hatch.hatch_tribute,
-                support_required=d.support_required,
-                minimum_accepted_quorum=d.minimum_accepted_quorum,
+                hatch_tribute=hatch.hatch_tribute_percentage,
+                support_required=d.support_required_percentage,
+                minimum_accepted_quorum=d.minimum_accepted_quorum_percentage,
                 vote_buffer_hours=d.vote_buffer_hours,
                 max_proposals_month=int(365*24/d.vote_buffer_hours),
                 proposal_execution_hours=d.vote_buffer_hours+d.rage_quit_hours)
