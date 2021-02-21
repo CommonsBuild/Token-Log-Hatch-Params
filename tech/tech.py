@@ -165,6 +165,8 @@ class ImpactHoursFormula(param.Parameterized):
             target_impact_hour_rate = df['Impact Hour Rate'].max()
         impact_hours_plot = df.hvplot.area(title='Impact Hour Rate', x='Total XDAI Raised',  xformatter='%.0f', yformatter='%.4f', hover=True)
         minimum_raise_plot = df_fill_minimum.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.4f', color='red')
+        self.target_impact_hour_rate = target_impact_hour_rate
+        
         #return impact_hours_plot * hv.VLine(expected_raise) * hv.HLine(expected_impact_hour_rate) * hv.VLine(self.target_raise) * hv.HLine(target_impact_hour_rate)
         return impact_hours_plot * minimum_raise_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(target_impact_hour_rate).opts(color='#E31212')
 
@@ -236,10 +238,13 @@ class Hatch(param.Parameterized):
 
     total_target_tech_tokens = param.Number(precedence=-1, label="Total target tech tokens (TESTTECH)")
     
-    def __init__(self, cstk_data: pd.DataFrame, **params):
+    def __init__(self, cstk_data: pd.DataFrame, target_raise, total_impact_hours, target_impact_hour_rate,**params):
         super(Hatch, self).__init__(**params)
+        self.total_impact_hours = total_impact_hours
+        self.target_impact_hour_rate = target_impact_hour_rate
         self.cstk_data = cstk_data
         self.total_cstk_tokens = cstk_data['CSTK Tokens Capped'].sum()
+        self.target_raise = target_raise
     
     def min_goal(self):
         return self.min_raise
@@ -284,9 +289,13 @@ class Hatch(param.Parameterized):
         
         self.total_target_tech_tokens = int(stats.loc['target_goal']['Total TECH Tokens'])
 
+        hatch_oracle_ratio_data = pd.DataFrame(data={'CSTK balance':[2000]})
+        hatch_oracle_ratio_data['Max wxDAI to be sent'] = self.hatch_oracle_ratio * hatch_oracle_ratio_data['CSTK balance']
+        hatch_oracle_ratio_bars = hatch_oracle_ratio_data.hvplot.bar(yformatter='%.0f', title="Hatch Oracle Ratio", stacked=False, y=['CSTK balance','Max wxDAI to be sent']).opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']), axiswise=True)
+
         #return pn.Column(cap_plot * max_plot * min_plot * target_plot, raise_bars, stats.sort_values('Total XDAI Staked',ascending=False).apply(round).reset_index().hvplot.table())
         #return pn.Column(raise_bars, stats.sort_values('Total XDAI Staked',ascending=False).apply(round).reset_index().hvplot.table())
-        return raise_bars
+        return pn.Column(hatch_oracle_ratio_bars, raise_bars)
     
 class DandelionVoting(param.Parameterized):
     #total_tokens = param.Number(17e6)
