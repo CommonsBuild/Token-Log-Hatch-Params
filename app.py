@@ -40,7 +40,8 @@ d = DandelionVoting(17e6)
 dandelion_view = pn.Row(d, d.vote_pass_view)
 
 # Share Button
-share_button = pn.widgets.Button(name='Share your results on Github!', button_type = 'primary')
+comments = pn.widgets.TextAreaInput(name='Comments', max_length=1024, placeholder='Explain your thoughts on why you choose the params...')
+share_button = pn.widgets.Button(name='Share your results on GitHub!', button_type = 'primary')
 url = pn.widgets.TextInput(name='URL', value = '')
 share_button.js_on_click(args={'target': url}, code='window.open(target.value)')
 results_button = pn.widgets.Button(name='See your results', button_type = 'success')
@@ -91,6 +92,8 @@ def update_result_score(results_button):
         string_data = """
 <h1>Results</h1>
 
+<p>{comments}</p>
+
 - It costs {tollgate_fee_xdai} wxDAI to make a proposal
 
 - Votes will be voted on for {vote_duration_days} days
@@ -103,7 +106,8 @@ def update_result_score(results_button):
 
 Play with my parameters [here](http://localhost:5006/app?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hmaxr={h_max_raise}&hminr={h_min_raise}&htr={h_target_raise}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}).
 
-        """.format(tollgate_fee_xdai=d.tollgate_fee_xdai,
+        """.format(comments=comments.value,
+                tollgate_fee_xdai=d.tollgate_fee_xdai,
                 vote_duration_days=d.vote_duration_days,
                 rage_quit_hours=d.rage_quit_hours,
                 ihf_minimum_raise=impact_hours_rewards.minimum_raise,
@@ -138,13 +142,14 @@ react.main[:1, :4] = pn.Column(import_description, import_params_button)
 react.main[:2, 4:12] = i.impact_hours_accumulation
 react.main[2:6, :4] = impact_hours_rewards
 react.main[2:6, 4:12] = impact_rewards_view
-react.main[6:9, :4] = hatch
+react.main[6:9, :4] = pn.Param(hatch.param, )
 react.main[6:9, 4:12] = hatch.hatch_raise_view
 react.main[9:11, :4] = d
 react.main[9:11, 4:12] = d.vote_pass_view
-react.main[11:11, :4] = pn.Column(share_button, url)
+react.main[11:12, :4] = comments
+react.main[12:12, :4] = pn.Column(share_button, url)
 react.main[11:11, 4:12] = results_button
-react.main[12:12, :] = pn.panel(update_result_score)
-react.main[14:14, :] = pn.panel('')
+react.main[13:13, :] = pn.panel(update_result_score)
+react.main[15:15, :] = pn.panel('')
 
 react.servable();
