@@ -40,7 +40,8 @@ d = DandelionVoting(17e6)
 dandelion_view = pn.Row(d, d.vote_pass_view)
 
 # Share Button
-share_button = pn.widgets.Button(name='Share your results on Github!', button_type = 'primary')
+comments = pn.widgets.TextAreaInput(name='Comments', max_length=1024, placeholder='Explain your thoughts on why you choose the params...')
+share_button = pn.widgets.Button(name='Share your results on GitHub!', button_type = 'primary')
 url = pn.widgets.TextInput(name='URL', value = '')
 share_button.js_on_click(args={'target': url}, code='window.open(target.value)')
 results_button = pn.widgets.Button(name='See your results', button_type = 'success')
@@ -71,11 +72,11 @@ def update_params_by_url_query(import_params_button):
     if 'her' in queries:
         hatch.hatch_exchange_rate = float(queries['her'])
     if 'ht' in queries:
-        hatch.hatch_tribute = float(queries['ht'])
+        hatch.hatch_tribute_percentage = int(queries['ht'])
     if 'sr' in queries:
-        d.support_required = float(queries['sr'])
+        d.support_required_percentage = int(queries['sr'])
     if 'maq' in queries:
-        d.minimum_accepted_quorum = float(queries['maq'])
+        d.minimum_accepted_quorum_percentage = int(queries['maq'])
     if 'vdd' in queries:
         d.vote_duration_days = float(queries['vdd'])
     if 'vbh' in queries:
@@ -91,6 +92,8 @@ def update_result_score(results_button):
         string_data = """
 <h1>Results</h1>
 
+<p>{comments}</p>
+
 - It costs {tollgate_fee_xdai} wxDAI to make a proposal
 
 - Votes will be voted on for {vote_duration_days} days
@@ -103,7 +106,8 @@ def update_result_score(results_button):
 
 Play with my parameters [here](http://localhost:5006/app?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hmaxr={h_max_raise}&hminr={h_min_raise}&htr={h_target_raise}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}).
 
-        """.format(tollgate_fee_xdai=d.tollgate_fee_xdai,
+        """.format(comments=comments.value,
+                tollgate_fee_xdai=d.tollgate_fee_xdai,
                 vote_duration_days=d.vote_duration_days,
                 rage_quit_hours=d.rage_quit_hours,
                 ihf_minimum_raise=impact_hours_rewards.minimum_raise,
@@ -117,9 +121,9 @@ Play with my parameters [here](http://localhost:5006/app?ihminr={ihf_minimum_rai
                 h_target_raise=hatch.target_raise,
                 hatch_period_days=hatch.hatch_period_days,
                 hatch_exchange_rate=hatch.hatch_exchange_rate,
-                hatch_tribute=hatch.hatch_tribute,
-                support_required=d.support_required,
-                minimum_accepted_quorum=d.minimum_accepted_quorum,
+                hatch_tribute=hatch.hatch_tribute_percentage,
+                support_required=d.support_required_percentage,
+                minimum_accepted_quorum=d.minimum_accepted_quorum_percentage,
                 vote_buffer_hours=d.vote_buffer_hours,
                 max_proposals_month=int(365*24/d.vote_buffer_hours),
                 proposal_execution_hours=d.vote_buffer_hours+d.rage_quit_hours)
@@ -142,9 +146,10 @@ react.main[6:9, :4] = hatch
 react.main[6:9, 4:12] = hatch.hatch_raise_view
 react.main[9:11, :4] = d
 react.main[9:11, 4:12] = d.vote_pass_view
-react.main[11:11, :4] = pn.Column(share_button, url)
+react.main[11:12, :4] = comments
+react.main[12:12, :4] = pn.Column(share_button, url)
 react.main[11:11, 4:12] = results_button
-react.main[12:12, :] = pn.panel(update_result_score)
-react.main[14:14, :] = pn.panel('')
+react.main[13:13, :] = pn.panel(update_result_score)
+react.main[15:15, :] = pn.panel('')
 
 react.servable();

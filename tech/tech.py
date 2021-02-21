@@ -103,14 +103,14 @@ class ImpactHoursFormula(param.Parameterized):
     https://forum.tecommons.org/t/impact-hour-rewards-deep-dive/90/5
     """
     #total_impact_hours = param.Number(step=100)
-    target_raise = param.Number(500, bounds=(20,1000), step=1)
-    maximum_raise = param.Number(1000, bounds=(20,1000), step=1)
-    minimum_raise = param.Number(5, bounds=(1, 100), step=1)
-    hour_slope = param.Number(0.012, bounds=(0,1), step=0.001)
-    maximum_impact_hour_rate = param.Number(0.01, bounds=(0,10), step=0.01)
+    target_raise = param.Number(500, bounds=(20,1000), step=1, label="Target raise (wxDai)")
+    maximum_raise = param.Number(1000, bounds=(20,1000), step=1, label="Maximum raise (wxDai)")
+    minimum_raise = param.Number(5, bounds=(1, 100), step=1, label="Minimum raise (wxDai)")
+    hour_slope = param.Number(0.012, bounds=(0,1), step=0.001, label="Impact hour slope (wxDai/IH)")
+    maximum_impact_hour_rate = param.Number(0.01, bounds=(0,10), step=0.01, label="Maximum impact hour rate (wxDai/IH)")
     
     #expected_impact_hour_rate = param.Number()
-    target_impact_hour_rate = param.Number()
+    target_impact_hour_rate = param.Number(label="Target impact hour rate (wxDai/hour)")
     
     def __init__(self, total_impact_hours, impact_hour_data, **params):
         super(ImpactHoursFormula, self).__init__(**params)
@@ -140,7 +140,7 @@ class ImpactHoursFormula(param.Parameterized):
 #         self.param['target_raise'].bounds =  (self.minimum_raise, self.maximum_raise)
 #         self.param['target_raise'].step = self.maximum_raise / 100
         
-        x = np.linspace(self.minimum_raise, self.maximum_raise)
+        x = np.linspace(1, self.maximum_raise, num=1000)
 
         R = self.maximum_impact_hour_rate
 
@@ -152,7 +152,8 @@ class ImpactHoursFormula(param.Parameterized):
 
         df = pd.DataFrame([x,y]).T
         df.columns = ['Total XDAI Raised','Impact Hour Rate']
-        
+        y_fill_minimum = [y[i] for i, x in enumerate(x) if x <= self.minimum_raise]
+        df_fill_minimum = pd.DataFrame(zip(x,y_fill_minimum))
        
         try:
             expected_impact_hour_rate = df[df['Total XDAI Raised'] > expected_raise].iloc[0]['Impact Hour Rate']
@@ -162,10 +163,10 @@ class ImpactHoursFormula(param.Parameterized):
             target_impact_hour_rate = df[df['Total XDAI Raised'] > self.target_raise].iloc[0]['Impact Hour Rate']
         except:
             target_impact_hour_rate = df['Impact Hour Rate'].max()
-        impact_hours_plot = df.hvplot.area(title='Impact Hour Rate', x='Total XDAI Raised',  xformatter='%.0f', hover=True)
-        
+        impact_hours_plot = df.hvplot.area(title='Impact Hour Rate', x='Total XDAI Raised',  xformatter='%.0f', yformatter='%.4f', hover=True)
+        minimum_raise_plot = df_fill_minimum.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.4f', color='red')
         #return impact_hours_plot * hv.VLine(expected_raise) * hv.HLine(expected_impact_hour_rate) * hv.VLine(self.target_raise) * hv.HLine(target_impact_hour_rate)
-        return impact_hours_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(target_impact_hour_rate).opts(color='#E31212')
+        return impact_hours_plot * minimum_raise_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(target_impact_hour_rate).opts(color='#E31212')
 
     def funding_pools(self):
         x = np.linspace(self.minimum_raise, self.maximum_raise)
@@ -218,22 +219,22 @@ class ImpactHoursFormula(param.Parameterized):
     
 class Hatch(param.Parameterized):
     # Min and Target Goals
-    target_raise = param.Number(500, bounds=(20,1000), step=1)
-    max_raise = param.Number(1000, bounds=(20,1000), step=1)
-    min_raise = param.Number(5, bounds=(1, 100), step=1)
+    target_raise = param.Number(500, bounds=(20,1000), step=1, label="Target raise (wxDai)")
+    max_raise = param.Number(1000, bounds=(20,1000), step=1, label="Maximum raise (wxDai)")
+    min_raise = param.Number(5, bounds=(1, 20), step=1, label="Minimum raise (wxDai)")
 
     # CSTK Ratio
     #total_cstk_tokens = param.Number()
-    hatch_oracle_ratio = param.Number(0.005, bounds=(0.001, 1), step=0.001)
+    hatch_oracle_ratio = param.Number(0.005, bounds=(0.001, 1), step=0.001, label="Hatch oracle ratio (wxDai/CSTK)")
        
     # Hatch params
-    hatch_period_days = param.Integer(15, bounds=(5, 30), step=2)
+    hatch_period_days = param.Integer(15, bounds=(5, 30), step=2, label="Hatch period (days)")
     
     # Number of TESTTEC exchanged for 1 wxdai
-    hatch_exchange_rate = param.Number(10000, bounds=(1,100000), step=1) 
-    hatch_tribute = param.Number(0.05, bounds=(0,1), step=0.01)    
-    
-    total_target_tech_tokens = param.Number(precedence=-1)
+    hatch_exchange_rate = param.Number(10000, bounds=(1,100000), step=1, label="Hatch exchange rate (TESTTECH/wxDai)") 
+    hatch_tribute_percentage = param.Number(5, bounds=(0,100), step=1, label="Hatch tribute (%)")    
+
+    total_target_tech_tokens = param.Number(precedence=-1, label="Total target tech tokens (TESTTECH)")
     
     def __init__(self, cstk_data: pd.DataFrame, **params):
         super(Hatch, self).__init__(**params)
@@ -245,6 +246,9 @@ class Hatch(param.Parameterized):
     
     def max_goal(self):
         return self.max_raise
+
+    def hatch_tribute(self):
+        return self.hatch_tribute_percentage/100
 
     def wxdai_range(self):
         return pn.Row(pn.Pane("Cap on wxdai staked: "), self.hatch_oracle_ratio * self.total_cstk_tokens)
@@ -268,14 +272,14 @@ class Hatch(param.Parameterized):
         target_plot = self.cstk_data.hvplot.line(x='CSTK Token Holders', y='target_goal', yformatter='%.0f', label="Target Raise")
         
         bar_data = pd.DataFrame(self.cstk_data.iloc[:,3:].sum().sort_values(), columns=['Total'])
-        bar_data['Hatch Tribute'] = bar_data['Total'] * self.hatch_tribute
-        bar_data['Funding Pool'] = bar_data['Total'] * (1-self.hatch_tribute)
+        bar_data['Hatch Tribute'] = bar_data['Total'] * self.hatch_tribute()
+        bar_data['Funding Pool'] = bar_data['Total'] * (1-self.hatch_tribute())
         raise_bars = bar_data.hvplot.bar(yformatter='%.0f', title="Funding Pools", stacked=True, y=['Funding Pool', 'Hatch Tribute']).opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
         
         stats = pd.DataFrame(self.cstk_data.iloc[:,3:].sum(), columns=['Total XDAI Staked'])
         stats['GMean XDAI Co-vested Per Hatcher'] = gmean(self.cstk_data.iloc[:,3:])
-        stats['XDAI Hatch Tribute'] = stats['Total XDAI Staked'] * self.hatch_tribute
-        stats['XDAI Funding Pool'] = stats['Total XDAI Staked'] * (1 - self.hatch_tribute)
+        stats['XDAI Hatch Tribute'] = stats['Total XDAI Staked'] * self.hatch_tribute()
+        stats['XDAI Funding Pool'] = stats['Total XDAI Staked'] * (1 - self.hatch_tribute())
         stats['Total TECH Tokens'] = stats['Total XDAI Staked'] * self.hatch_exchange_rate
         
         self.total_target_tech_tokens = int(stats.loc['target_goal']['Total TECH Tokens'])
@@ -286,29 +290,35 @@ class Hatch(param.Parameterized):
     
 class DandelionVoting(param.Parameterized):
     #total_tokens = param.Number(17e6)
-    support_required = param.Number(0.6, bounds=(0.5,0.9), step=0.01)
-    minimum_accepted_quorum = param.Number(0.02, bounds=(0.01,1), step=0.01)
-    vote_duration_days = param.Number(3, bounds=(1,14), step=1)
-    vote_buffer_hours = param.Number(8, bounds=(1,48), step=1)
-    rage_quit_hours = param.Number(24, bounds=(1, 48), step=1)
-    tollgate_fee_xdai = param.Number(3, bounds=(1,100), step=1)
+    support_required_percentage = param.Number(60, bounds=(50,90), step=1, label="Support required (%)")
+    minimum_accepted_quorum_percentage = param.Number(2, bounds=(1,100), step=1, label="Minimum accepted quorum (%)")
+    vote_duration_days = param.Number(3, bounds=(1,14), step=1, label="Vote duration (days)")
+    vote_buffer_hours = param.Number(8, bounds=(1,48), step=1, label="Vote buffer (hours)")
+    rage_quit_hours = param.Number(24, bounds=(1, 48), step=1, label="Rage quit (hours)")
+    tollgate_fee_xdai = param.Number(3, bounds=(1,100), step=1, label="Tollgate fee (wxDai)")
     
     def __init__(self, total_tokens, **params):
         super(DandelionVoting, self).__init__(**params)
         self.total_tokens=total_tokens
+
+    def support_required(self):
+        return self.support_required_percentage/100
+
+    def minimum_accepted_quorum(self):
+        return self.minimum_accepted_quorum_percentage/100
     
     def vote_pass_view(self):
-        x = np.linspace(0, self.total_tokens, num=100)
-        y = [a*self.support_required for a in x]
+        x = np.linspace(0, 100, num=100)
+        y = [a*self.support_required() for a in x]
         df = pd.DataFrame(zip(x,y))
         y_fill = [a for a in x]
         df_fill = pd.DataFrame(zip(x,y_fill))
-        y_fill_quorum = [a for i, a in enumerate(x) if i < self.minimum_accepted_quorum*len(x)]
+        y_fill_quorum = [a for i, a in enumerate(x) if i < self.minimum_accepted_quorum()*len(x)]
         df_fill_q = pd.DataFrame(zip(x,y_fill_quorum))
         total_votes_plot = df_fill.hvplot.area(
                 title = "Minimum Support and Quorum Accepted for Proposals to Pass", 
                 x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='green', 
-                xlabel='Total Token Votes', ylabel='Yes Token Votes')
+                xlabel='Total Token Votes (%)', ylabel='Yes Token Votes (%)')
         support_required_plot = df.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='red')
         quorum_accepted_plot = df_fill_q.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='#0F2EEE')
         return total_votes_plot * support_required_plot * quorum_accepted_plot
