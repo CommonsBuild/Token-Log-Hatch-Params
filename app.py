@@ -32,8 +32,7 @@ impact_rewards_view = pn.Column(pn.Row(impact_hours_rewards.impact_hours_rewards
 
 # Hatch
 cstk_data = read_cstk_data()
-hatch = Hatch(cstk_data)
-hatch_view = pn.Row(hatch, hatch.hatch_raise_view)
+hatch = Hatch(cstk_data, impact_hours_rewards.target_raise, i.total_impact_hours, impact_hours_rewards.target_impact_hour_rate)
 
 # DandelionVoting
 d = DandelionVoting(17e6)
@@ -104,6 +103,8 @@ def update_result_score(results_button):
 
 - A proposal that passes can be executed {proposal_execution_hours} hours after it was proposed.
 
+- A CSTK Token holder that has 2000 CSTK can send a max of {max_wxdai_ratio} wxDai to the Hatch
+
 Play with my parameters [here](http://localhost:5006/app?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hmaxr={h_max_raise}&hminr={h_min_raise}&htr={h_target_raise}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}).
 
         """.format(comments=comments.value,
@@ -126,7 +127,8 @@ Play with my parameters [here](http://localhost:5006/app?ihminr={ihf_minimum_rai
                 minimum_accepted_quorum=d.minimum_accepted_quorum_percentage,
                 vote_buffer_hours=d.vote_buffer_hours,
                 max_proposals_month=int(365*24/d.vote_buffer_hours),
-                proposal_execution_hours=d.vote_buffer_hours+d.rage_quit_hours)
+                proposal_execution_hours=d.vote_buffer_hours+d.rage_quit_hours,
+                max_wxdai_ratio=int(2000*hatch.hatch_oracle_ratio))
 
         markdown_panel = pn.pane.Markdown(string_data)
         body = urllib.parse.quote(markdown_panel.object, safe='')
