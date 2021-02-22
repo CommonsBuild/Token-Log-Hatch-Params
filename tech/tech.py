@@ -109,9 +109,11 @@ class ImpactHoursFormula(param.Parameterized):
     minimum_raise = param.Number(5, bounds=(1, 100), step=1, label="Minimum raise (wxDai)")
     hour_slope = param.Number(0.012, bounds=(0,1), step=0.001, label="Impact hour slope (wxDai/IH)")
     maximum_impact_hour_rate = param.Number(0.01, bounds=(0,10), step=0.01, label="Maximum impact hour rate (wxDai/IH)")
+    hatch_tribute_percentage = param.Number(5, bounds=(0,100), step=1, label="Hatch tribute (%)")
 
     #expected_impact_hour_rate = param.Number()
-    target_impact_hour_rate = param.Number(label="Target impact hour rate (wxDai/hour)")
+    target_impact_hour_rate = param.Number(label="Target impact hour rate (wxDai/hour)", constant=True)
+    target_cultural_build_tribute = param.Number(label="Target Cultural Build Tribute (%)", constant=True)
 
     def __init__(self, total_impact_hours, impact_hour_data, **params):
         super(ImpactHoursFormula, self).__init__(**params)
@@ -166,13 +168,17 @@ class ImpactHoursFormula(param.Parameterized):
             target_impact_hour_rate = df['Impact Hour Rate'].max()
         impact_hours_plot = df.hvplot.area(title='Impact Hour Rate', x='Total XDAI Raised',  xformatter='%.0f', yformatter='%.4f', hover=True, xlim=(0,1000)).opts(axiswise=True)
         minimum_raise_plot = df_fill_minimum.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.4f', color='red').opts(axiswise=True)
-        self.target_impact_hour_rate = target_impact_hour_rate
+        
+        # Enables the edition of constant params
+        with param.edit_constant(self):
+            self.target_impact_hour_rate = target_impact_hour_rate
+            self.target_cultural_build_tribute = 100 * (self.total_impact_hours * self.target_impact_hour_rate)/self.target_raise
 
         #return impact_hours_plot * hv.VLine(expected_raise) * hv.HLine(expected_impact_hour_rate) * hv.VLine(self.target_raise) * hv.HLine(target_impact_hour_rate)
         return impact_hours_plot * minimum_raise_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(target_impact_hour_rate).opts(color='#E31212')
 
     def funding_pools(self):
-        hatch_tribute = 0.07
+        hatch_tribute = self.hatch_tribute_percentage / 100
         x_table = [1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 75, 100, 125, 150, 175, 200, 250, 300, 350, 400, 500, 600, 700, 800, 900, 1000, 1500, 2000, 2500, 3000]
         x = list(range(1500))
 
@@ -190,7 +196,7 @@ class ImpactHoursFormula(param.Parameterized):
 
         df_hatch_params['Cultural Build Tribute'] = (H * df_hatch_params['Impact Hour Rate'])/df_hatch_params['Total XDAI Raised']
         df_hatch_params['Hatch tribute'] = hatch_tribute
-        df_hatch_params['Redeemable'] = 1 - df_hatch_params['Cultural Build Tribute'] - df_hatch_params['Hatch tribute']
+        df_hatch_params['Redeemable'] = df_hatch_params['Hatch tribute']/(1 + df_hatch_params['Cultural Build Tribute'])
         df_hatch_params['label'] = ""
 
 
@@ -201,7 +207,7 @@ class ImpactHoursFormula(param.Parameterized):
         if "Min Raise" not in df_hatch_params['label']:
             impact_hour_rate = R* (self.minimum_raise / (self.minimum_raise + m*H))
             cultural_build_tribute = (H * impact_hour_rate)/self.minimum_raise
-            df_hatch_params = df_hatch_params.append({'Total XDAI Raised': self.minimum_raise, 'Impact Hour Rate':impact_hour_rate, 'Cultural Build Tribute':cultural_build_tribute, 'Hatch tribute':hatch_tribute, 'Redeemable':1 - cultural_build_tribute - hatch_tribute, 'label':'Min Raise'}, ignore_index=True)
+            df_hatch_params = df_hatch_params.append({'Total XDAI Raised': self.minimum_raise, 'Impact Hour Rate':impact_hour_rate, 'Cultural Build Tribute':cultural_build_tribute, 'Hatch tribute':hatch_tribute, 'Redeemable':hatch_tribute/(1 + cultural_build_tribute), 'label':'Min Raise'}, ignore_index=True)
             df_hatch_params = df_hatch_params.sort_values(['Total XDAI Raised'])
 
         df_min_raise = df_hatch_params.query("label == 'Min Raise'")
@@ -215,7 +221,7 @@ class ImpactHoursFormula(param.Parameterized):
         if "Target Raise" not in df_hatch_params['label']:
             impact_hour_rate = R* (self.target_raise / (self.target_raise + m*H))
             cultural_build_tribute = (H * impact_hour_rate)/self.target_raise
-            df_hatch_params = df_hatch_params.append({'Total XDAI Raised': self.target_raise, 'Impact Hour Rate':impact_hour_rate, 'Cultural Build Tribute':cultural_build_tribute, 'Hatch tribute':hatch_tribute, 'Redeemable':1 - cultural_build_tribute - hatch_tribute, 'label':'Target Raise'}, ignore_index=True)
+            df_hatch_params = df_hatch_params.append({'Total XDAI Raised': self.target_raise, 'Impact Hour Rate':impact_hour_rate, 'Cultural Build Tribute':cultural_build_tribute, 'Hatch tribute':hatch_tribute, 'Redeemable':hatch_tribute/(1 + cultural_build_tribute), 'label':'Target Raise'}, ignore_index=True)
             df_hatch_params = df_hatch_params.sort_values(['Total XDAI Raised'])
 
         df_target_raise = df_hatch_params.query("label == 'Target Raise'")
@@ -229,7 +235,7 @@ class ImpactHoursFormula(param.Parameterized):
         if "Max Raise" not in df_hatch_params['label']:
             impact_hour_rate = R* (self.maximum_raise / (self.maximum_raise + m*H))
             cultural_build_tribute = (H * impact_hour_rate)/self.maximum_raise
-            df_hatch_params = df_hatch_params.append({'Total XDAI Raised': self.maximum_raise, 'Impact Hour Rate':impact_hour_rate, 'Cultural Build Tribute':cultural_build_tribute, 'Hatch tribute':hatch_tribute, 'Redeemable':1 - cultural_build_tribute - hatch_tribute, 'label':'Max Raise'}, ignore_index=True)
+            df_hatch_params = df_hatch_params.append({'Total XDAI Raised': self.maximum_raise, 'Impact Hour Rate':impact_hour_rate, 'Cultural Build Tribute':cultural_build_tribute, 'Hatch tribute':hatch_tribute, 'Redeemable':hatch_tribute/(1 + cultural_build_tribute), 'label':'Max Raise'}, ignore_index=True)
             df_hatch_params = df_hatch_params.sort_values(['Total XDAI Raised'])
 
         df_max_raise = df_hatch_params.query("label == 'Max Raise'")
