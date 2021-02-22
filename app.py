@@ -28,7 +28,8 @@ i = ImpactHoursData()
 # ImpactHoursFormula
 impact_hours_rewards = ImpactHoursFormula(i.total_impact_hours, impact_hour_data_1)
 #impact_rewards_view = pn.Row(impact_hours_rewards, pn.Column(impact_hours_rewards.impact_hours_rewards, impact_hours_rewards.funding_pools), impact_hours_rewards.payout_view)
-impact_rewards_view = pn.Column(pn.Row(impact_hours_rewards.impact_hours_rewards), impact_hours_rewards.payout_view)
+#impact_rewards_view = pn.Column(pn.Row(impact_hours_rewards.impact_hours_rewards), impact_hours_rewards.payout_view, impact_hours_rewards.funding_pools)
+impact_rewards_view = pn.Column(impact_hours_rewards.impact_hours_rewards, impact_hours_rewards.funding_pools)
 
 # Hatch
 cstk_data = read_cstk_data()
@@ -45,7 +46,7 @@ url = pn.widgets.TextInput(name='URL', value = '')
 share_button.js_on_click(args={'target': url}, code='window.open(target.value)')
 results_button = pn.widgets.Button(name='See your results', button_type = 'success')
 
-@pn.depends(import_params_button, watch=True)
+@pn.depends(import_params_button)
 def update_params_by_url_query(import_params_button):
     queries = pn.state.location.query_params
     if 'ihminr'in queries:
@@ -85,7 +86,7 @@ def update_params_by_url_query(import_params_button):
     if 'tfx' in queries:
         d.tollgate_fee_xdai = float(queries['tfx'])
 
-@pn.depends(results_button, watch=True)
+@pn.depends(results_button)
 def update_result_score(results_button):
     if results_button:
         string_data = """
@@ -142,7 +143,8 @@ Play with my parameters [here](http://localhost:5006/app?ihminr={ihf_minimum_rai
 # Front-end
 react.main[:1, :4] = pn.Column(import_description, import_params_button)
 react.main[:2, 4:12] = i.impact_hours_accumulation
-react.main[2:6, :4] = impact_hours_rewards
+react.main[2:5, :4] = impact_hours_rewards
+react.main[5:6, :4] = impact_hours_rewards.payout_view
 react.main[2:6, 4:12] = impact_rewards_view
 react.main[6:9, :4] = hatch
 react.main[6:9, 4:12] = hatch.hatch_raise_view
