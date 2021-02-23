@@ -28,7 +28,8 @@ i = ImpactHoursData()
 # ImpactHoursFormula
 impact_hours_rewards = ImpactHoursFormula(i.total_impact_hours, impact_hour_data_1)
 #impact_rewards_view = pn.Row(impact_hours_rewards, pn.Column(impact_hours_rewards.impact_hours_rewards, impact_hours_rewards.funding_pools), impact_hours_rewards.payout_view)
-impact_rewards_view = pn.Column(pn.Row(impact_hours_rewards.impact_hours_rewards), impact_hours_rewards.payout_view)
+#impact_rewards_view = pn.Column(pn.Row(impact_hours_rewards.impact_hours_rewards), impact_hours_rewards.payout_view, impact_hours_rewards.funding_pools)
+impact_rewards_view = pn.Column(impact_hours_rewards.impact_hours_rewards, impact_hours_rewards.funding_pools)
 
 # Hatch
 cstk_data = read_cstk_data()
@@ -45,7 +46,7 @@ url = pn.widgets.TextInput(name='URL', value = '')
 share_button.js_on_click(args={'target': url}, code='window.open(target.value)')
 results_button = pn.widgets.Button(name='See your results', button_type = 'success')
 
-@pn.depends(import_params_button, watch=True)
+@pn.depends(import_params_button)
 def update_params_by_url_query(import_params_button):
     queries = pn.state.location.query_params
     if 'ihminr'in queries:
@@ -85,7 +86,7 @@ def update_params_by_url_query(import_params_button):
     if 'tfx' in queries:
         d.tollgate_fee_xdai = float(queries['tfx'])
 
-@pn.depends(results_button, watch=True)
+@pn.depends(results_button)
 def update_result_score(results_button):
     if results_button:
         string_data = """
@@ -137,12 +138,26 @@ Play with my parameters [here](http://localhost:5006/app?ihminr={ihf_minimum_rai
     else:
         string_data=""
     markdown_panel = pn.pane.Markdown(string_data)
-    return markdown_panel
+    data_table = {'Parameters': ["Target raise (wxDai)", "Maximum raise (wxDai)", "Minimum raise (wxDai)",
+                                 "Impact hour slope (wxDai/IH)", "Maximum impact hour rate (wxDai/IH)",
+                                 "Hatch oracle ratio (wxDai/CSTK)", "Hatch period (days)",
+                                 "Hatch exchange rate (TESTTECH/wxDai)", "Hatch tribute (%)", "Support required (%)",
+                                 "Minimum accepted quorum (%)", "Vote duration (days)", "Vote buffer (hours)",
+                                 "Rage quit (hours)", "Tollgate fee (wxDai)"],
+                  'Values': [impact_hours_rewards.target_raise, impact_hours_rewards.maximum_raise,
+                             impact_hours_rewards.minimum_raise, impact_hours_rewards.hour_slope,
+                             impact_hours_rewards.maximum_impact_hour_rate, hatch.hatch_oracle_ratio,
+                             hatch.hatch_period_days, hatch.hatch_exchange_rate, hatch.hatch_tribute_percentage,
+                             d.support_required_percentage, d.minimum_accepted_quorum_percentage, d.vote_duration_days,
+                             d.vote_buffer_hours, d.rage_quit_hours, d.tollgate_fee_xdai]}
+    df = pd.DataFrame(data=data_table)
+    return pn.Row(markdown_panel, df.hvplot.table())
 
 # Front-end
 react.main[:1, :4] = pn.Column(import_description, import_params_button)
 react.main[:2, 4:12] = i.impact_hours_accumulation
-react.main[2:6, :4] = impact_hours_rewards
+react.main[2:5, :4] = impact_hours_rewards
+react.main[5:6, :4] = impact_hours_rewards.payout_view
 react.main[2:6, 4:12] = impact_rewards_view
 react.main[6:9, :4] = hatch
 react.main[6:9, 4:12] = hatch.hatch_raise_view
@@ -151,7 +166,7 @@ react.main[9:11, 4:12] = d.vote_pass_view
 react.main[11:12, :4] = comments
 react.main[12:12, :4] = pn.Column(share_button, url)
 react.main[11:11, 4:12] = results_button
-react.main[13:13, :] = pn.panel(update_result_score)
+react.main[13:15, :] = pn.panel(update_result_score)
 react.main[15:15, :] = pn.panel('')
 
 react.servable();
