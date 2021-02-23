@@ -240,7 +240,7 @@ class ImpactHoursFormula(param.Parameterized):
 
         df_max_raise = df_hatch_params.query("label == 'Max Raise'")
         if len(df_max_raise) > 1:
-            df_hatch_params = df_hatch_params.drop(df_target_raise.first_valid_index())
+            df_hatch_params = df_hatch_params.drop(df_max_raise.first_valid_index())
 
 
 
