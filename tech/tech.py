@@ -214,7 +214,7 @@ class ImpactHoursFormula(param.Parameterized):
         if len(df_min_raise) > 1:
             df_hatch_params = df_hatch_params.drop(df_min_raise.first_valid_index())
 
-        # Add 'Tarfet Raise' label case there is already a row with target_raise value
+        # Add 'Target Raise' label case there is already a row with target_raise value
         df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] == self.target_raise, 'label'] = "Target Raise"
 
         # Add a new row with target_raise vale case there is no row with its value
