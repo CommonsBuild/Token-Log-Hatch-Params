@@ -100,7 +100,7 @@ class ImpactHoursData(param.Parameterized):
 class ImpactHoursFormula(param.Parameterized):
     """
     Sem's Formula 🌱 🐝 🍯
-    This formala was a collaboration of Sem and Griff for the TEC hatch impact hours formula.
+    This formula was a collaboration of Sem and Griff for the TEC hatch impact hours formula.
     https://forum.tecommons.org/t/impact-hour-rewards-deep-dive/90/5
     """
     #total_impact_hours = param.Number(step=100)
