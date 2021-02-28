@@ -12,6 +12,8 @@ from scipy.stats.mstats import gmean
 import os
 pn.extension()
 
+from tech.utils import pie_chart
+
 
 APP_PATH = './'
 
@@ -143,7 +145,7 @@ class TECH(param.Parameterized):
             non_redeemable_reserve = (raise_amount-cultural_tribute) * self.hatch_tribute
             funding_pool_data[scenario] = {
                 'cultural_tribute': cultural_tribute,
-                'non_redeemable_reserve': non_redeemable_reserve,
+                'hatch_tribute': non_redeemable_reserve,
                 'redeemable_reserve': redeemable_reserve,
                 'total': raise_amount,
             }
@@ -151,8 +153,27 @@ class TECH(param.Parameterized):
 
     def funding_pool_view(self):
         funding_pools = self.get_funding_pool_data()
-        return funding_pools.hvplot.bar(title="Funding Pools", ylim=(0,self.param['hatch_oracle_ratio'].bounds[1]*self.param['min_max_raise'].bounds[1]), rot=45, yformatter='%.0f').opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
+#         return funding_pools.hvplot.bar(title="Funding Pools", ylim=(0,self.param['hatch_oracle_ratio'].bounds[1]*self.param['min_max_raise'].bounds[1]), rot=45, yformatter='%.0f').opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
         # raise_bars = bar_data.hvplot.bar(yformatter='%.0f', title="Funding Pools", stacked=True, y=['Funding Pool', 'Hatch Tribute']).opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
+        funding_pools['rank'] = funding_pools['total'] / funding_pools['total'].sum()
+        idx_rank = funding_pools.sort_values(by='rank', ascending=False).index
+        
+        # Plot pie charts
+        colors = ['#0F2EEE', '#0b0a15', '#DEFB48']
+        chart_data = funding_pools.iloc[:,:-2]
+        p1 = pie_chart(data=pd.Series(chart_data.loc['min_raise',:]),
+                       radius=[0.65, 0.55, 0.4][idx_rank.get_loc('min_raise')],
+                       title="Min Raise", toolbar_location=None, plot_width=300,
+                       show_legend=False, colors=colors)
+        p2 = pie_chart(data=pd.Series(chart_data.loc['target_raise',:]),
+                       radius=[0.65, 0.55, 0.4][idx_rank.get_loc('target_raise')],
+                       title="Target Raise", toolbar_location=None, plot_width=300,
+                       show_legend=False, colors=colors)
+        p3 = pie_chart(data=pd.Series(chart_data.loc['max_raise',:]),
+                       radius=[0.25, 0.2, 0.15][idx_rank.get_loc('max_raise')],
+                       title="Max Raise", x_range=(-0.5, 1), colors=colors)
+
+        return pn.Column('## Funding Pool', pn.Row(p1, p2), p3)
 
     def funding_pool_data_view(self):
         funding_pools = self.get_funding_pool_data()
@@ -411,23 +432,33 @@ class Hatch(param.Parameterized):
 #         cstk_data = pd.read_csv('CSTK_DATA.csv', header=None).reset_index().head(100)
 #         cstk_data.columns = ['CSTK Token Holders', 'CSTK Tokens']
 #         cstk_data['CSTK Tokens Capped'] = cstk_data['CSTK Tokens'].apply(lambda x: min(x, cstk_data['CSTK Tokens'].sum()/10))
-        self.cstk_data['Cap raise'] = self.cstk_data['CSTK Tokens Capped'] * self.hatch_oracle_ratio
+        self.cstk_data['Cap Raise'] = self.cstk_data['CSTK Tokens Capped'] * self.hatch_oracle_ratio
 
-        cap_plot = self.cstk_data.hvplot.area(title="Raise Targets Per Hatcher", x='CSTK Token Holders', y='Cap raise', yformatter='%.0f', label="Cap Raise", ylabel="XDAI Staked")
+#         cap_plot = self.cstk_data.hvplot.area(title="Raise Targets Per Hatcher", x='CSTK Token Holders', y='Cap raise', yformatter='%.0f', label="Cap Raise", ylabel="XDAI Staked")
 
-        self.cstk_data['max_goal'] = self.max_raise
-        max_plot = self.cstk_data.hvplot.area(x='CSTK Token Holders', y='max_goal', yformatter='%.0f', label="Max Raise")
+        self.cstk_data['Max Goal'] = self.max_raise
+#         max_plot = self.cstk_data.hvplot.area(x='CSTK Token Holders', y='max_goal', yformatter='%.0f', label="Max Raise")
 
-        self.cstk_data['min_goal'] = self.min_raise
-        min_plot = self.cstk_data.hvplot.area(x='CSTK Token Holders', y='min_goal', yformatter='%.0f', label="Min Raise")
+        self.cstk_data['Min Goal'] = self.min_raise
+#         min_plot = self.cstk_data.hvplot.area(x='CSTK Token Holders', y='min_goal', yformatter='%.0f', label="Min Raise")
 
-        self.cstk_data['target_goal'] = self.target_raise
-        target_plot = self.cstk_data.hvplot.line(x='CSTK Token Holders', y='target_goal', yformatter='%.0f', label="Target Raise")
+        self.cstk_data['Target Goal'] = self.target_raise
+#         target_plot = self.cstk_data.hvplot.line(x='CSTK Token Holders', y='target_goal', yformatter='%.0f', label="Target Raise")
         
         bar_data = pd.DataFrame(self.cstk_data.iloc[:,3:].sum().sort_values(), columns=['Total'])
         bar_data['Hatch Tribute'] = bar_data['Total'] * self.hatch_tribute()
         bar_data['Funding Pool'] = bar_data['Total'] * (1-self.hatch_tribute())
-        raise_bars = bar_data.hvplot.bar(yformatter='%.0f', title="Funding Pools", stacked=True, y=['Funding Pool', 'Hatch Tribute']).opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
+#         raise_bars = bar_data.hvplot.bar(yformatter='%.0f', title="Funding Pools", stacked=True, y=['Funding Pool', 'Hatch Tribute']).opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
+        
+        colors = ['#0F2EEE', '#0b0a15', '#DEFB48']
+        min_data = pd.Series(bar_data.T.iloc[1:]['Min Goal'])
+        min_pchart = pie_chart(data=min_data, radius=0.2, title='Min Goal', colors=colors[:2])
+        target_data = pd.Series(bar_data.T.iloc[1:]['Target Goal'])
+        target_pchart = pie_chart(data=target_data, radius=0.2, title='Target Goal', colors=colors[:2])
+        max_data = pd.Series(bar_data.T.iloc[1:]['Max Goal'])
+        max_pchart = pie_chart(data=max_data, radius=0.2, title='Max Goal', colors=colors[:2])
+
+        funding_pool = pn.Column('### Funding Pool', pn.Row(min_pchart, target_pchart), max_pchart)
 
         stats = pd.DataFrame(self.cstk_data.iloc[:,3:].sum(), columns=['Total XDAI Staked'])
         stats['GMean XDAI Co-vested Per Hatcher'] = gmean(self.cstk_data.iloc[:,3:])
@@ -435,15 +466,16 @@ class Hatch(param.Parameterized):
         stats['XDAI Funding Pool'] = stats['Total XDAI Staked'] * (1 - self.hatch_tribute())
         stats['Total TECH Tokens'] = stats['Total XDAI Staked'] * self.hatch_exchange_rate
 
-        self.total_target_tech_tokens = int(stats.loc['target_goal']['Total TECH Tokens'])
+        self.total_target_tech_tokens = int(stats.loc['Target Goal']['Total TECH Tokens'])
 
         hatch_oracle_ratio_data = pd.DataFrame(data={'CSTK balance':[2000]})
         hatch_oracle_ratio_data['Max wxDAI to be sent'] = self.hatch_oracle_ratio * hatch_oracle_ratio_data['CSTK balance']
-        hatch_oracle_ratio_bars = hatch_oracle_ratio_data.hvplot.bar(yformatter='%.0f', title="Hatch Oracle Ratio", stacked=False, y=['CSTK balance','Max wxDAI to be sent']).opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']), axiswise=True)
+        hatch_oracle_ratio_bars = hatch_oracle_ratio_data.hvplot.bar(yformatter='%.0f', title="Hatch Oracle Ratio", stacked=False, y=['CSTK balance','Max wxDAI to be sent']).opts(color=hv.Cycle(colors), axiswise=True)
 
         #return pn.Column(cap_plot * max_plot * min_plot * target_plot, raise_bars, stats.sort_values('Total XDAI Staked',ascending=False).apply(round).reset_index().hvplot.table())
         #return pn.Column(raise_bars, stats.sort_values('Total XDAI Staked',ascending=False).apply(round).reset_index().hvplot.table())
-        return pn.Column(hatch_oracle_ratio_bars, raise_bars)
+
+        return pn.Column(hatch_oracle_ratio_bars, funding_pool)
 
 class DandelionVoting(param.Parameterized):
     #total_tokens = param.Number(17e6)
@@ -468,7 +500,7 @@ class DandelionVoting(param.Parameterized):
         x = np.linspace(0, 100, num=100)
         y = [a*self.support_required() for a in x]
         df = pd.DataFrame(zip(x,y))
-        y_fill = [a for a in x]
+        y_fill = x.tolist()
         df_fill = pd.DataFrame(zip(x,y_fill))
         y_fill_quorum = [a for i, a in enumerate(x) if i < self.minimum_accepted_quorum()*len(x)]
         df_fill_q = pd.DataFrame(zip(x,y_fill_quorum))
