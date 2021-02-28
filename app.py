@@ -9,7 +9,7 @@ import urllib.parse as p
 from tabulate import tabulate
 import requests
 import codecs
-
+import os
 
 # API settings
 HCTI_API_ENDPOINT = "https://hcti.io/v1/image"
