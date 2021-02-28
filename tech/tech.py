@@ -56,6 +56,109 @@ def read_cstk_data():
     return cstk_data
 
 
+class TECH(param.Parameterized):
+    min_max_raise = param.Range((5, 1000), bounds=(1,1000))
+    target_raise = param.Number(500, bounds=(5,1000), step=1)
+    impact_hour_slope = param.Number(0.012, bounds=(0,1), step=0.001)
+    maximum_impact_hour_rate = param.Number(0.01, bounds=(0,1), step=0.01)
+    hatch_oracle_ratio = param.Number(0.005, bounds=(0.001, 1), step=0.001)
+    hatch_period_days = param.Integer(15, bounds=(5, 30), step=2)
+    hatch_exchange_rate = param.Number(10000, bounds=(1,100000), step=1)
+    hatch_tribute = param.Number(0.05, bounds=(0,1), step=0.01)
+    target_impact_hour_rate = param.Number(precedence=-1)
+
+    def __init__(self, total_impact_hours, impact_hour_data, total_cstk_tokens, **params):
+        super(TECH, self).__init__(**params)
+        self.total_impact_hours = total_impact_hours
+        self.impact_hour_data = impact_hour_data
+        self.total_cstk_tokens = total_cstk_tokens
+
+    def payout_view(self):
+        scenario_rates = self.get_rate_scenarios()
+        self.impact_hour_data['Minimum Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * scenario_rates['min_rate']
+        self.impact_hour_data['Target Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * self.target_impact_hour_rate
+        self.impact_hour_data['Maximum Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * scenario_rates['max_rate']
+        return self.impact_hour_data.hvplot.table()
+
+    def impact_hours_formula(self, minimum_raise, maximum_raise):
+        x = np.linspace(minimum_raise, maximum_raise, num=500)
+        R = self.maximum_impact_hour_rate
+        m = self.impact_hour_slope
+        H = self.total_impact_hours
+        y = [R* (x / (x + m*H)) for x in x]
+        df = pd.DataFrame([x,y]).T
+        df.columns = ['Total XDAI Raised','Impact Hour Rate']
+        return df
+
+
+    def impact_hours_view(self):
+        df = self.impact_hours_formula(0, self.min_max_raise[1])
+        df['Passes Minimum'] = df['Total XDAI Raised'] >= self.min_max_raise[0] - 1
+        feasible_raise = self.hatch_oracle_ratio * self.total_cstk_tokens
+        df['Feasible Raise'] = df['Passes Minimum'] & (df['Total XDAI Raised'] <= feasible_raise + 1)
+        
+        try:
+            self.target_impact_hour_rate = df[df['Total XDAI Raised'] > self.target_raise].iloc[0]['Impact Hour Rate']
+        except:
+            self.target_impact_hour_rate = df['Impact Hour Rate'].max()
+
+        impact_hours_plot_fails = df[df['Passes Minimum']==False].hvplot.area(color='red', y=['Impact Hour Rate'], title='Impact Hour Rate', x='Total XDAI Raised',  xformatter='%.0f', hover=True)
+        impact_hours_plot_passes = df[df['Passes Minimum']==True].hvplot.area(color='orange', y=['Impact Hour Rate'], title='Impact Hour Rate', x='Total XDAI Raised',  xformatter='%.0f', hover=True)
+        impact_hours_plot_feasible = df[df['Feasible Raise']==True].hvplot.area(xlim=(0,self.param["min_max_raise"].bounds[1]), ylim=(0, self.param["maximum_impact_hour_rate"].bounds[1]), color='blue', y=['Impact Hour Rate'], title='Impact Hour Rate', x='Total XDAI Raised',  xformatter='%.0f', hover=True)
+        impact_hours_plot = impact_hours_plot_passes * impact_hours_plot_feasible * impact_hours_plot_fails
+        target_plot = hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(self.target_impact_hour_rate).opts(color='#E31212')
+        return impact_hours_plot * target_plot
+
+    def get_impact_hour_rate(self, raise_amount):
+        rates = self.impact_hours_formula(0, self.min_max_raise[1])
+        try:
+            rate = rates[rates['Total XDAI Raised'].gt(raise_amount)].iloc[0]['Impact Hour Rate']
+        except:
+            rate = rates['Impact Hour Rate'].max()
+        return rate
+
+    def get_rate_scenarios(self):
+        funding_pools = self.get_funding_pool_data().T
+        scenarios = {
+            'min_rate': self.get_impact_hour_rate(raise_amount=funding_pools.sum()['min_raise']),
+            'target_rate': self.get_impact_hour_rate(raise_amount=funding_pools.sum()['target_raise']),
+            'max_rate': self.get_impact_hour_rate(raise_amount=funding_pools.sum()['max_raise']),
+        }
+        return scenarios
+
+    def get_raise_scenarios(self):
+        scenarios = {
+            'min_raise' : self.min_max_raise[0],
+            'target_raise' : self.target_raise,
+            'max_raise' : min(self.min_max_raise[1], self.hatch_oracle_ratio * self.total_cstk_tokens),
+        }
+        return scenarios
+
+    def get_funding_pool_data(self):
+        scenarios = self.get_raise_scenarios()
+        funding_pool_data = {}
+        for scenario, raise_amount in scenarios.items():
+            cultural_tribute = min(raise_amount, self.get_impact_hour_rate(raise_amount) * self.total_impact_hours)
+            redeemable_reserve = (raise_amount-cultural_tribute) * (1 - self.hatch_tribute)
+            non_redeemable_reserve = (raise_amount-cultural_tribute) * self.hatch_tribute
+            funding_pool_data[scenario] = {
+                'cultural_tribute': cultural_tribute,
+                'non_redeemable_reserve': non_redeemable_reserve,
+                'redeemable_reserve': redeemable_reserve,
+                'total': raise_amount,
+            }
+        return pd.DataFrame(funding_pool_data).T
+
+    def funding_pool_view(self):
+        funding_pools = self.get_funding_pool_data()
+        return funding_pools.hvplot.bar(title="Funding Pools", ylim=(0,self.param['hatch_oracle_ratio'].bounds[1]*self.param['min_max_raise'].bounds[1]), rot=45, yformatter='%.0f').opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
+        # raise_bars = bar_data.hvplot.bar(yformatter='%.0f', title="Funding Pools", stacked=True, y=['Funding Pool', 'Hatch Tribute']).opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
+
+    def funding_pool_data_view(self):
+        funding_pools = self.get_funding_pool_data()
+        return funding_pools.T.reset_index().hvplot.table(width=300)
+
+
 class ImpactHoursData(param.Parameterized):
     historic = pd.read_csv('data/IHPredictions.csv').query('Model=="Historic"')
     optimistic =  pd.read_csv('data/IHPredictions.csv').query('Model=="Optimistic"')
