@@ -367,7 +367,6 @@ class ImpactHoursFormula(param.Parameterized):
         df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] < self.minimum_raise, 'Redeemable'] = 1
         df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] > self.maximum_raise, ['Impact Hour Rate','Cultural Build Tribute', 'Hatch tribute', 'Redeemable']] = np.nan
 
-
         return df_hatch_params
 
     def output_scenarios_table(self):
@@ -376,13 +375,21 @@ class ImpactHoursFormula(param.Parameterized):
         df_hatch_params_table = df_hatch_params[df_hatch_params['label'].isin(["Min Raise", "Target Raise", "Max Raise"])]
         return df_hatch_params_table.hvplot.table()
 
+    def output_scenarios_out_issue(self):
+        x = [1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 75, 100, 150, 175, 200, 250,
+             300, 350, 400, 500, 600, 700, 800, 900, 1000]
+        df_hatch_params = self.output_scenarios()
+        df_hatch_params = df_hatch_params[df_hatch_params['Total XDAI Raised'].isin(x) | df_hatch_params['label'].isin(["Min Raise", "Target Raise", "Max Raise"])]
+        return df_hatch_params
+
     def redeemable(self):
         df_hatch_params = self.output_scenarios()
         # Drop NaN rows
         df_hatch_params_to_plot = df_hatch_params.dropna()
         df_hatch_params_to_plot['Redeemable'] = df_hatch_params_to_plot['Redeemable'] * 100
         redeemable_plot = df_hatch_params_to_plot.hvplot.area(title='Redeemable (%)', x='Total XDAI Raised', y='Redeemable',  xformatter='%.0f', yformatter='%.1f', hover=True, ylim=(0, 100), xlim=(0,1000)).opts(axiswise=True)
-        return redeemable_plot
+        redeemable_target = 100 * df_hatch_params[df_hatch_params_to_plot['Total XDAI Raised'] ==self.target_raise].iloc[0]['Redeemable']
+        return redeemable_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(redeemable_target).opts(color='#E31212')
 
     def cultural_build_tribute(self):
         df_hatch_params = self.output_scenarios()
@@ -391,7 +398,8 @@ class ImpactHoursFormula(param.Parameterized):
         df_hatch_params_to_plot['Redeemable'] = df_hatch_params_to_plot['Redeemable'] * 100
         df_hatch_params_to_plot['Cultural Build Tribute'] = df_hatch_params_to_plot['Cultural Build Tribute'] * 100
         cultural_build_tribute_plot = df_hatch_params_to_plot.hvplot.area(title='Cultural Build Tribute (%)', x='Total XDAI Raised', y='Cultural Build Tribute',  xformatter='%.0f', yformatter='%.1f', hover=True, ylim=(0, 100), xlim=(0,1000)).opts(axiswise=True)
-        return cultural_build_tribute_plot
+        cultural_build_tribute_target = 100 * df_hatch_params[df_hatch_params_to_plot['Total XDAI Raised'] ==self.target_raise].iloc[0]['Cultural Build Tribute']
+        return cultural_build_tribute_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(cultural_build_tribute_target).opts(color='#E31212') 
 
 class Hatch(param.Parameterized):
     # Min and Target Goals

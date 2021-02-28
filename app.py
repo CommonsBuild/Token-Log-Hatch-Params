@@ -11,6 +11,7 @@ import requests
 import codecs
 import os
 
+
 # API settings
 HCTI_API_ENDPOINT = "https://hcti.io/v1/image"
 HCTI_API_USER_ID = os.environ['HCTI_API_USER_ID']
@@ -117,23 +118,32 @@ def update_result_score(results_button):
                                        impact_hours_rewards.cultural_build_tribute),
                                 pn.Column(dandelion.vote_pass_view, pn.Spacer()))
         output_pane.save('output.html')
+        pn.panel(impact_hours_rewards.output_scenarios_out_issue().hvplot.table()).save('out_scenarios.html')
 
-        f = codecs.open("output.html", 'r')
+        scenarios = codecs.open("out_scenarios.html", 'r')
+        charts = codecs.open("output.html", 'r')
 
-        data = { 'html': f.read(),
+        data_charts = { 'html': charts.read(),
+                'css': ".box { color: white; background-color: #0f79b9; padding: 10px; font-family: Roboto }",
+                'google_fonts': "Roboto" }
+        data_scenarios = { 'html': scenarios.read(),
                 'css': ".box { color: white; background-color: #0f79b9; padding: 10px; font-family: Roboto }",
                 'google_fonts': "Roboto" }
 
-        image = requests.post(url = HCTI_API_ENDPOINT, data = data, auth=(HCTI_API_USER_ID, HCTI_API_KEY))
-
-        print("Your image URL is: %s"%image.json()['url'])
+        charts = requests.post(url = HCTI_API_ENDPOINT, data = data_charts, auth=(HCTI_API_USER_ID, HCTI_API_KEY))
+        scenarios = requests.post(url = HCTI_API_ENDPOINT, data = data_scenarios, auth=(HCTI_API_USER_ID, HCTI_API_KEY))
 
         output_data = """
 
 <h1>Output Charts</h1>
 
-![image]({image_url})
-        """.format(image_url=image.json()['url'])
+![image]({image_charts})
+
+<h1>Output Scenarios</h1>
+
+![image]({image_scenarios})
+        """.format(image_charts=charts.json()['url'],
+                   image_scenarios=scenarios.json()['url'])
 
         parameters_data = """
 
@@ -187,7 +197,7 @@ Play with my parameters [here](http://localhost:5006/app?ihminr={ihf_minimum_rai
         markdown_panel = pn.pane.Markdown(parameters_data + string_data + output_data)
         body = urllib.parse.quote(markdown_panel.object, safe='')
         url.value = "https://github.com/TECommons/Token-Log-Hatch-Params/issues/new?title=Vote%20for%20My%20Params&labels=TEST%20VOTE&body=" + body
-
+        
     else:
         string_data=""
     markdown_panel = pn.pane.Markdown(string_data)
