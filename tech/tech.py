@@ -44,8 +44,8 @@ def read_excel(sheet_name="Total Impact Hours so far", header=1, index_col=0, us
 
 def read_impact_hour_data():
     impact_hour_data_1 = read_excel()
-    impact_hour_data_2 = read_excel(sheet_name="IH Predictions", header=0, index_col=0, usecols='A:I').drop(index=19)
-    return (impact_hour_data_1, impact_hour_data_2)
+    #impact_hour_data_2 = read_excel(sheet_name="IH Predictions", header=0, index_col=0, usecols='A:I').drop(index=19)
+    return impact_hour_data_1
 
 
 def read_cstk_data():

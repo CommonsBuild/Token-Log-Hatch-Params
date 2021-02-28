@@ -18,7 +18,23 @@ pn.config.sizing_mode = 'stretch_both'
 import_params_button = pn.widgets.Button(name='Import params', button_type = 'primary')
 import_description = pn.pane.Markdown('<h4>To import the parameters, click on the button below:</h4>')
 
-impact_hour_data_1, impact_hour_data_2 = read_impact_hour_data()
+def load_cstk_data():
+    if 'cstk_data' not in pn.state.cache: 
+        cstk_data = read_cstk_data()
+        pn.state.cache['cstk_data'] = cstk_data
+    else:
+        cstk_data = pn.state.cache['cstk_data']
+    return cstk_data
+
+def load_impact_hour_data():
+    if 'impact_hour_data' not in pn.state.cache:
+        impact_hour_data = read_impact_hour_data()
+        pn.state.cache['impact_hour_data'] = impact_hour_data
+    else:
+        impact_hour_data = pn.state.cache['impact_hour_data']
+    return impact_hour_data
+
+impact_hour_data_1 = load_impact_hour_data()
 impact_hours_data = ImpactHoursData()
 # impact_hours_view = pn.Row(impact_hours_data, impact_hours_data.impact_hours_accumulation)
 
@@ -32,7 +48,7 @@ impact_hours_rewards = ImpactHoursFormula(i.total_impact_hours, impact_hour_data
 impact_rewards_view = pn.Column(impact_hours_rewards.impact_hours_rewards, impact_hours_rewards.funding_pools)
 
 # Hatch
-cstk_data = read_cstk_data()
+cstk_data = load_cstk_data()
 hatch = Hatch(cstk_data, impact_hours_rewards.target_raise, i.total_impact_hours, impact_hours_rewards.target_impact_hour_rate)
 
 # DandelionVoting
