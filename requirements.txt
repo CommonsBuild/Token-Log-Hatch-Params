@@ -4,3 +4,8 @@ pandas
 hvplot
 scipy
 openpyxl
+tabulate
+requests
+numpy
+urllib
+codecs
