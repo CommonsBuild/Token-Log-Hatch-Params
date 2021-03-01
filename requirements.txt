@@ -7,6 +7,6 @@ openpyxl
 tabulate
 requests
 numpy
-urllib
+urllib3
 codecs
 python-dotenv
