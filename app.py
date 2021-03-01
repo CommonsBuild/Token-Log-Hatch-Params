@@ -1,4 +1,4 @@
-from tech.tech import read_impact_hour_data, read_cstk_data
+from tech.tech import read_impact_hour_data, read_cstk_data, TECH
 from tech.tech import ImpactHoursData, ImpactHoursFormula, Hatch, DandelionVoting
 from dotenv import load_dotenv
 import pandas as pd
@@ -31,17 +31,21 @@ impact_hours_data = ImpactHoursData()
 # ImpactHoursData
 i = ImpactHoursData()
 
+# TECH
+t = TECH(total_impact_hours=i.total_impact_hours, impact_hour_data=impact_hour_data_1, total_cstk_tokens=8500)
+
+
 # ImpactHoursFormula
-impact_hours_rewards = ImpactHoursFormula(i.total_impact_hours, impact_hour_data_1)
-impact_rewards_view = pn.Column(impact_hours_rewards.impact_hours_rewards,
-                                impact_hours_rewards.redeemable,
-                                impact_hours_rewards.cultural_build_tribute)
+#impact_hours_rewards = ImpactHoursFormula(i.total_impact_hours, impact_hour_data_1)
+#impact_rewards_view = pn.Column(impact_hours_rewards.impact_hours_rewards,
+#                                impact_hours_rewards.redeemable,
+#                               impact_hours_rewards.cultural_build_tribute)
 
 # Hatch
 cstk_data = read_cstk_data()
-hatch = Hatch(cstk_data, impact_hours_rewards.target_raise,
-              i.total_impact_hours,
-              impact_hours_rewards.target_impact_hour_rate)
+#hatch = Hatch(cstk_data, impact_hours_rewards.target_raise,
+#              i.total_impact_hours,
+#              impact_hours_rewards.target_impact_hour_rate)
 
 # DandelionVoting
 dandelion = DandelionVoting(17e6)
@@ -61,29 +65,23 @@ results_button = pn.widgets.Button(name='See your results', button_type = 'succe
 def update_params_by_url_query(import_params_button):
     queries = pn.state.location.query_params
     if 'ihminr'in queries:
-        impact_hours_rewards.minimum_raise = int(queries['ihminr'])
+        t.min_max_raise[0] = int(queries['ihminr'])
     if 'hs' in queries:
-        impact_hours_rewards.hour_slope = float(queries['hs'])
+        t.impact_hour_slope = float(queries['hs'])
     if 'maxihr' in queries:
-        impact_hours_rewards.maximum_impact_hour_rate = float(queries['maxihr'])
+        t.maximum_impact_hour_rate = float(queries['maxihr'])
     if 'ihtr' in queries:
-        impact_hours_rewards.target_raise = int(queries['ihtr'])
+        t.target_raise = int(queries['ihtr'])
     if 'ihmaxr' in queries:
-        impact_hours_rewards.maximum_raise = int(queries['ihmaxr'])
+        t.min_max_raise[0] = int(queries['ihmaxr'])
     if 'hor' in queries:
-        hatch.hatch_oracle_ratio = float(queries['hor'])
-    if 'hmaxr' in queries:
-        hatch.max_raise = int(queries['hmaxr'])
-    if 'hminr' in queries:
-        hatch.min_raise = int(queries['hminr'])
-    if 'htr' in queries:
-        hatch.target_raise = int(queries['htr'])
+        t.hatch_oracle_ratio = float(queries['hor'])
     if 'hpd' in queries:
-        hatch.hatch_period_days = int(queries['hpd'])
+        t.hatch_period_days = int(queries['hpd'])
     if 'her' in queries:
-        hatch.hatch_exchange_rate = float(queries['her'])
+        t.hatch_exchange_rate = float(queries['her'])
     if 'ht' in queries:
-        hatch.hatch_tribute_percentage = int(queries['ht'])
+        t.hatch_tribute = int(queries['ht'])
     if 'sr' in queries:
         dandelion.support_required_percentage = int(queries['sr'])
     if 'maq' in queries:
@@ -105,22 +103,22 @@ def update_result_score(results_button):
                                  "Hatch exchange rate (TESTTECH/wxDai)", "Hatch tribute (%)", "Support required (%)",
                                  "Minimum accepted quorum (%)", "Vote duration (days)", "Vote buffer (hours)",
                                  "Rage quit (hours)", "Tollgate fee (wxDai)"],
-                  'Values': [impact_hours_rewards.target_raise, impact_hours_rewards.maximum_raise,
-                             impact_hours_rewards.minimum_raise, impact_hours_rewards.hour_slope,
-                             impact_hours_rewards.maximum_impact_hour_rate, hatch.hatch_oracle_ratio,
-                             hatch.hatch_period_days, hatch.hatch_exchange_rate, hatch.hatch_tribute_percentage,
+                  'Values': [t.target_raise, t.min_max_raise[1],
+                             t.min_max_raise[0], t.impact_hour_slope,
+                             t.maximum_impact_hour_rate, t.hatch_oracle_ratio,
+                             t.hatch_period_days, t.hatch_exchange_rate, t.hatch_tribute,
                              dandelion.support_required_percentage, dandelion.minimum_accepted_quorum_percentage, dandelion.vote_duration_days,
                              dandelion.vote_buffer_hours, dandelion.rage_quit_hours, dandelion.tollgate_fee_xdai]}
     df = pd.DataFrame(data=data_table)
     
     if results_button:
         # Define output pane
-        output_pane = pn.Row(pn.Column(impact_hours_rewards.impact_hours_rewards,
-                                       impact_hours_rewards.redeemable,
-                                       impact_hours_rewards.cultural_build_tribute),
-                                pn.Column(dandelion.vote_pass_view, pn.Spacer()))
+        output_pane = pn.Row(pn.Column(t.impact_hours_view,
+                                       t.redeemable_plot,
+                                       t.cultural_build_tribute_plot),
+                                pn.Column(dandelion.vote_pass_view, t.funding_pool_view))
         output_pane.save('output.html')
-        pn.panel(impact_hours_rewards.output_scenarios_out_issue().hvplot.table()).save('out_scenarios.html')
+        pn.panel(t.output_scenarios_out_issue().hvplot.table()).save('out_scenarios.html')
 
         scenarios = codecs.open("out_scenarios.html", 'r')
         charts = codecs.open("output.html", 'r')
@@ -171,30 +169,27 @@ def update_result_score(results_button):
 
 - A CSTK Token holder that has 2000 CSTK can send a max of {max_wxdai_ratio} wxDai to the Hatch
 
-Play with my parameters [here](http://localhost:5006/app?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hmaxr={h_max_raise}&hminr={h_min_raise}&htr={h_target_raise}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}).
+Play with my parameters [here](http://localhost:5006/app?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}).
 
         """.format(comments=comments.value,
                 tollgate_fee_xdai=dandelion.tollgate_fee_xdai,
                 vote_duration_days=dandelion.vote_duration_days,
                 rage_quit_hours=dandelion.rage_quit_hours,
-                ihf_minimum_raise=impact_hours_rewards.minimum_raise,
-                hour_slope=impact_hours_rewards.hour_slope,
-                maximum_impact_hour_rate=impact_hours_rewards.maximum_impact_hour_rate,
-                ihf_target_raise=impact_hours_rewards.target_raise,
-                ifh_maximum_raise=impact_hours_rewards.maximum_raise,
-                hatch_oracle_ratio=hatch.hatch_oracle_ratio,
-                h_max_raise=hatch.max_raise,
-                h_min_raise=hatch.min_raise,
-                h_target_raise=hatch.target_raise,
-                hatch_period_days=hatch.hatch_period_days,
-                hatch_exchange_rate=hatch.hatch_exchange_rate,
-                hatch_tribute=hatch.hatch_tribute_percentage,
+                ihf_minimum_raise=t.min_max_raise[0],
+                hour_slope=t.impact_hour_slope,
+                maximum_impact_hour_rate=t.maximum_impact_hour_rate,
+                ihf_target_raise=t.target_raise,
+                ifh_maximum_raise=t.min_max_raise[1],
+                hatch_oracle_ratio=t.hatch_oracle_ratio,
+                hatch_period_days=t.hatch_period_days,
+                hatch_exchange_rate=t.hatch_exchange_rate,
+                hatch_tribute=t.hatch_tribute,
                 support_required=dandelion.support_required_percentage,
                 minimum_accepted_quorum=dandelion.minimum_accepted_quorum_percentage,
                 vote_buffer_hours=dandelion.vote_buffer_hours,
                 max_proposals_month=int(365*24/dandelion.vote_buffer_hours),
                 proposal_execution_hours=dandelion.vote_buffer_hours+dandelion.rage_quit_hours,
-                max_wxdai_ratio=int(2000*hatch.hatch_oracle_ratio))
+                max_wxdai_ratio=int(2000*t.hatch_oracle_ratio))
 
         markdown_panel = pn.pane.Markdown(parameters_data + string_data + output_data)
         body = urllib.parse.quote(markdown_panel.object, safe='')
@@ -208,18 +203,19 @@ Play with my parameters [here](http://localhost:5006/app?ihminr={ihf_minimum_rai
 # Front-end
 react.main[:1, :4] = pn.Column(import_description, import_params_button)
 react.main[:2, 4:12] = i.impact_hours_accumulation
-react.main[2:5, :4] = impact_hours_rewards
-react.main[5:7, :4] = pn.Column(impact_hours_rewards.output_scenarios_table,
-                                impact_hours_rewards.payout_view)
-react.main[2:7, 4:12] = impact_rewards_view
-react.main[7:10, :4] = hatch
-react.main[7:10, 4:12] = hatch.hatch_raise_view
-react.main[10:12, :4] = dandelion
-react.main[10:12, 4:12] = dandelion.vote_pass_view
-react.main[12:13, :4] = comments
-react.main[13:13, :4] = pn.Column(share_button, url)
-react.main[12:12, 4:12] = results_button
-react.main[14:16, :] = pn.panel(update_result_score)
-react.main[16:16, :] = pn.panel('')
+react.main[2:6, :4] = t
+react.main[6:7, :4] = t.funding_pool_data_view
+react.main[7:8, :4] = t.payout_view
+react.main[2:8, 4:12] = pn.Column(t.impact_hours_view,
+                                   t.redeemable_plot,
+                                   t.cultural_build_tribute_plot)
+react.main[8:11, :12] = t.funding_pool_view
+react.main[11:11, :4] = dandelion
+react.main[11:13, 4:12] = dandelion.vote_pass_view
+react.main[13:14, :4] = comments
+react.main[14:14, :4] = pn.Column(share_button, url)
+react.main[13:13, 4:12] = results_button
+react.main[15:17, :] = pn.panel(update_result_score)
+react.main[17:17, :] = pn.panel('')
 
 react.servable();

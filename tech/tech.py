@@ -59,7 +59,7 @@ def read_cstk_data():
 
 
 class TECH(param.Parameterized):
-    min_max_raise = param.Range((5, 1000), bounds=(1,1000))
+    min_max_raise = param.Range((1, 1000), bounds=(1,1000))
     target_raise = param.Number(500, bounds=(5,1000), step=1)
     impact_hour_slope = param.Number(0.012, bounds=(0,1), step=0.001)
     maximum_impact_hour_rate = param.Number(0.01, bounds=(0,1), step=0.01)
@@ -67,7 +67,8 @@ class TECH(param.Parameterized):
     hatch_period_days = param.Integer(15, bounds=(5, 30), step=2)
     hatch_exchange_rate = param.Number(10000, bounds=(1,100000), step=1)
     hatch_tribute = param.Number(0.05, bounds=(0,1), step=0.01)
-    target_impact_hour_rate = param.Number(precedence=-1)
+    target_impact_hour_rate = param.Number(label="Target impact hour rate (wxDai/hour)", constant=True)
+    target_cultural_build_tribute = param.Number(label="Target Cultural Build Tribute (%)", constant=True)
 
     def __init__(self, total_impact_hours, impact_hour_data, total_cstk_tokens, **params):
         super(TECH, self).__init__(**params)
@@ -82,6 +83,7 @@ class TECH(param.Parameterized):
         self.impact_hour_data['Maximum Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * scenario_rates['max_rate']
         return self.impact_hour_data.hvplot.table()
 
+    """
     def impact_hours_formula(self, minimum_raise, maximum_raise):
         x = np.linspace(minimum_raise, maximum_raise, num=500)
         R = self.maximum_impact_hour_rate
@@ -91,28 +93,177 @@ class TECH(param.Parameterized):
         df = pd.DataFrame([x,y]).T
         df.columns = ['Total XDAI Raised','Impact Hour Rate']
         return df
-
+    """
+    def impact_hours_formula(self, minimum_raise, maximum_raise):
+        x = np.linspace(0, 1000, num=1000)
+        R = self.maximum_impact_hour_rate
+        m = self.impact_hour_slope
+        H = self.total_impact_hours
+        y = [R* (x / (x + m*H)) for x in x]
+        df = pd.DataFrame([x,y]).T
+        df.columns = ['Total XDAI Raised','Impact Hour Rate']
+        return df
 
     def impact_hours_view(self):
-        df = self.impact_hours_formula(0, self.min_max_raise[1])
-        df['Passes Minimum'] = df['Total XDAI Raised'] >= self.min_max_raise[0] - 1
-        feasible_raise = self.hatch_oracle_ratio * self.total_cstk_tokens
-        df['Feasible Raise'] = df['Passes Minimum'] & (df['Total XDAI Raised'] <= feasible_raise + 1)
-        
-        try:
-            self.target_impact_hour_rate = df[df['Total XDAI Raised'] > self.target_raise].iloc[0]['Impact Hour Rate']
-        except:
-            self.target_impact_hour_rate = df['Impact Hour Rate'].max()
+        #df = self.impact_hours_formula(0, int(self.min_max_raise[1]))
+        #df['Passes Minimum'] = df['Total XDAI Raised'] >= int(self.min_max_raise[0]) - 1
+        #feasible_raise = self.hatch_oracle_ratio * self.total_cstk_tokens
+        #df['Feasible Raise'] = df['Passes Minimum'] & (df['Total XDAI Raised'] <= feasible_raise + 1)
+        #
+        ## Enables the edition of constant params
+        #with param.edit_constant(self):
+        #    self.target_cultural_build_tribute = 100 * (self.total_impact_hours * self.target_impact_hour_rate)/self.target_raise
+        #    try:
+        #        self.target_impact_hour_rate = df[df['Total XDAI Raised'] > self.target_raise].iloc[0]['Impact Hour Rate']
+        #    except:
+        #        self.target_impact_hour_rate = df['Impact Hour Rate'].max()
 
-        impact_hours_plot_fails = df[df['Passes Minimum']==False].hvplot.area(color='red', y=['Impact Hour Rate'], title='Impact Hour Rate', x='Total XDAI Raised',  xformatter='%.0f', hover=True)
-        impact_hours_plot_passes = df[df['Passes Minimum']==True].hvplot.area(color='orange', y=['Impact Hour Rate'], title='Impact Hour Rate', x='Total XDAI Raised',  xformatter='%.0f', hover=True)
-        impact_hours_plot_feasible = df[df['Feasible Raise']==True].hvplot.area(xlim=(0,self.param["min_max_raise"].bounds[1]), ylim=(0, self.param["maximum_impact_hour_rate"].bounds[1]), color='blue', y=['Impact Hour Rate'], title='Impact Hour Rate', x='Total XDAI Raised',  xformatter='%.0f', hover=True)
-        impact_hours_plot = impact_hours_plot_passes * impact_hours_plot_feasible * impact_hours_plot_fails
-        target_plot = hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(self.target_impact_hour_rate).opts(color='#E31212')
-        return impact_hours_plot * target_plot
+        #impact_hours_plot_fails = df[df['Passes Minimum']==False].hvplot.area(color='red', y=['Impact Hour Rate'], title='Impact Hour Rate', x='Total XDAI Raised',  xformatter='%.0f', hover=True)
+        #impact_hours_plot_passes = df[df['Passes Minimum']==True].hvplot.area(color='orange', y=['Impact Hour Rate'], title='Impact Hour Rate', x='Total XDAI Raised',  xformatter='%.0f', hover=True)
+        #impact_hours_plot_feasible = df[df['Feasible Raise']==True].hvplot.area(xlim=(0,self.param["min_max_raise"].bounds[1]), ylim=(0, self.param["maximum_impact_hour_rate"].bounds[1]), color='blue', y=['Impact Hour Rate'], title='Impact Hour Rate', x='Total XDAI Raised',  xformatter='%.0f', hover=True)
+        #impact_hours_plot_feasible = df[df['Feasible Raise']==True].hvplot.area(xlim=(0,1000), color='blue', y=['Impact Hour Rate'], title='Impact Hour Rate', x='Total XDAI Raised',  xformatter='%.0f', hover=True).opts(axiswise=True)
+        #impact_hours_plot = impact_hours_plot_passes * impact_hours_plot_feasible * impact_hours_plot_fails
+        #target_plot = hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(self.target_impact_hour_rate).opts(color='#E31212')
+        #return impact_hours_plot * target_plot
+        # self.param['maximum_raise'].step = expected_raise / 10
+        # if self.target_raise > self.maximum_raise:
+        # self.param['maximum_raise'].bounds =  (expected_raise, expected_raise * 10)
+        #     self.target_raise = self.maximum_raise
+        # self.param['target_raise'].bounds =  (self.minimum_raise, self.maximum_raise)
+        # self.param['target_raise'].step = self.maximum_raise / 100
+
+        x = np.linspace(1, int(self.min_max_raise[1]), num=1000)
+
+        R = self.maximum_impact_hour_rate
+
+        m = self.impact_hour_slope
+
+        H = self.total_impact_hours
+
+        y = [R* (x / (x + m*H)) for x in x]
+
+        df = pd.DataFrame([x,y]).T
+        df.columns = ['Total XDAI Raised','Impact Hour Rate']
+        y_fill_minimum = [y[i] for i, x in enumerate(x) if x <= int(self.min_max_raise[0])]
+        df_fill_minimum = pd.DataFrame(zip(x,y_fill_minimum))
+
+        try:
+            target_impact_hour_rate = df[df['Total XDAI Raised'] > self.target_raise].iloc[0]['Impact Hour Rate']
+        except:
+            target_impact_hour_rate = 0
+        impact_hours_plot = df.hvplot.area(title='Impact Hour Rate', x='Total XDAI Raised',  xformatter='%.0f', yformatter='%.4f', hover=True, xlim=(0,1000)).opts(axiswise=True)
+        minimum_raise_plot = df_fill_minimum.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.4f', color='red').opts(axiswise=True)
+        
+        # Enables the edition of constant params
+        with param.edit_constant(self):
+            self.target_impact_hour_rate = target_impact_hour_rate
+            self.target_cultural_build_tribute = 100 * (self.total_impact_hours * self.target_impact_hour_rate)/self.target_raise
+
+        #return impact_hours_plot * hv.VLine(expected_raise) * hv.HLine(expected_impact_hour_rate) * hv.VLine(self.target_raise) * hv.HLine(target_impact_hour_rate)
+        return impact_hours_plot * minimum_raise_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(target_impact_hour_rate).opts(color='#E31212')
+
+
+    def output_scenarios(self):
+        hatch_tribute = self.hatch_tribute
+        x = list(range(1,1001))
+
+        R = self.maximum_impact_hour_rate
+
+        m = self.impact_hour_slope
+
+        H = self.total_impact_hours
+
+        y = [R* (x / (x + m*H)) for x in x]
+
+        df_hatch_params = pd.DataFrame([x,y]).T
+        df_hatch_params.columns = ['Total XDAI Raised','Impact Hour Rate']
+        df_hatch_params['Cultural Build Tribute'] = (H * df_hatch_params['Impact Hour Rate'])/df_hatch_params['Total XDAI Raised']
+        df_hatch_params['Hatch tribute'] = self.hatch_tribute
+        df_hatch_params['Redeemable'] = (1 - df_hatch_params['Hatch tribute'])/(1 + df_hatch_params['Cultural Build Tribute'])
+        df_hatch_params['label'] = ""
+
+        # Add 'Min Raise' label case there is already a row with min_raise value
+        df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] == int(self.min_max_raise[0]), 'label'] = "Min Raise"
+
+        # Add a new row with min_raise vale case there is no row with its value
+        #if "Min Raise" not in df_hatch_params['label']:
+        #    df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] == int(self.min_max_raise[0]), 'label'] = "Min Raise"
+
+        #df_min_raise = df_hatch_params.query("label == 'Min Raise'")
+        #if len(df_min_raise) > 1:
+        #    df_hatch_params = df_hatch_params.drop(df_min_raise.first_valid_index())
+
+        # Add 'Target Raise' label case there is already a row with target_raise value
+        df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] == self.target_raise, 'label'] = "Target Raise"
+
+        # Add a new row with target_raise vale case there is no row with its value
+        #if "Target Raise" not in df_hatch_params['label']:
+        #    impact_hour_rate = R* (self.target_raise / (self.target_raise + m*H))
+        #    cultural_build_tribute = (H * impact_hour_rate)/self.target_raise
+        #    df_hatch_params = df_hatch_params.append({'Total XDAI Raised': self.target_raise, 'Impact Hour Rate':impact_hour_rate, 'Cultural Build Tribute':cultural_build_tribute, 'Hatch tribute':hatch_tribute, 'Redeemable':(1 - hatch_tribute)/(1 + cultural_build_tribute), 'label':'Target Raise'}, ignore_index=True)
+        #    df_hatch_params = df_hatch_params.sort_values(['Total XDAI Raised'])
+
+        #df_target_raise = df_hatch_params.query("label == 'Target Raise'")
+        #if len(df_target_raise) > 1:
+        #    df_hatch_params = df_hatch_params.drop(df_target_raise.first_valid_index())
+
+        # Add 'Max Raise' label case there is already a row with target_raise value
+        df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] == int(self.min_max_raise[1]), 'label'] = "Max Raise"
+
+        # Add a new row with max_raise vale case there is no row with its value
+        #if "Max Raise" not in df_hatch_params['label']:
+        #    impact_hour_rate = R* (self.min_max_raise[1] / (self.min_max_raise[1] + m*H))
+        #    cultural_build_tribute = (H * impact_hour_rate)/self.min_max_raise[1]
+        #    df_hatch_params = df_hatch_params.append({'Total XDAI Raised': self.min_max_raise[1], 'Impact Hour Rate':impact_hour_rate, 'Cultural Build Tribute':cultural_build_tribute, 'Hatch tribute':hatch_tribute, 'Redeemable':(1 - hatch_tribute)/(1 + cultural_build_tribute), 'label':'Max Raise'}, ignore_index=True)
+        #    df_hatch_params = df_hatch_params.sort_values(['Total XDAI Raised'])
+
+        #df_max_raise = df_hatch_params.query("label == 'Max Raise'")
+        #if len(df_max_raise) > 1:
+        #    df_hatch_params = df_hatch_params.drop(df_max_raise.first_valid_index())
+
+        # Send to zero the IH rate, cultural build tribute and hatch tribue of
+        # amount raises smaller than the min target
+        df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] < int(self.min_max_raise[0]), ['Impact Hour Rate','Cultural Build Tribute', 'Hatch tribute']] = 0
+        df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] < int(self.min_max_raise[0]), 'Redeemable'] = 1
+        df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] > int(self.min_max_raise[1]), ['Impact Hour Rate','Cultural Build Tribute', 'Hatch tribute', 'Redeemable']] = np.nan
+
+        return df_hatch_params
+
+    def output_scenarios_out_issue(self):
+        x = [1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 75, 100, 150, 175, 200, 250,
+             300, 350, 400, 500, 600, 700, 800, 900, 1000]
+        df_hatch_params = self.output_scenarios()
+        df_hatch_params = df_hatch_params[df_hatch_params['Total XDAI Raised'].isin(x) | df_hatch_params['label'].isin(["Min Raise", "Target Raise", "Max Raise"])]
+        return df_hatch_params
+
+    def redeemable_plot(self):
+        df_hatch_params = self.output_scenarios()
+        # Drop NaN rows
+        df_hatch_params_to_plot = df_hatch_params.dropna()
+        df_hatch_params_to_plot['Redeemable'] = df_hatch_params_to_plot['Redeemable'] * 100
+        redeemable_plot = df_hatch_params_to_plot.hvplot.area(title='Redeemable (%)', x='Total XDAI Raised', y='Redeemable',  xformatter='%.0f', yformatter='%.1f', hover=True, ylim=(0, 100), xlim=(0,1000)).opts(axiswise=True)
+        try:
+            redeemable_target = 100 * df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] == self.target_raise]['Redeemable'].values[0]
+        except:
+            redeemable_target = 0
+        
+        return redeemable_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(redeemable_target).opts(color='#E31212')
+
+    def cultural_build_tribute_plot(self):
+        df_hatch_params = self.output_scenarios()
+        # Drop NaN rows
+        df_hatch_params_to_plot = df_hatch_params.dropna()
+        df_hatch_params_to_plot['Cultural Build Tribute'] = df_hatch_params_to_plot['Cultural Build Tribute'] * 100
+        cultural_build_tribute_plot = df_hatch_params_to_plot.hvplot.area(title='Cultural Build Tribute (%)', x='Total XDAI Raised', y='Cultural Build Tribute',  xformatter='%.0f', yformatter='%.1f', hover=True, ylim=(0, 100), xlim=(0,1000)).opts(axiswise=True)
+        try:
+            cultural_build_tribute_target = 100 * df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] == self.target_raise]['Cultural Build Tribute'].values[0]
+        except:
+            cultural_build_tribute_target = 0
+        return cultural_build_tribute_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(cultural_build_tribute_target).opts(color='#E31212') 
+        #return cultural_build_tribute_plot * hv.VLine(self.target_raise).opts(color='#E31212') 
 
     def get_impact_hour_rate(self, raise_amount):
-        rates = self.impact_hours_formula(0, self.min_max_raise[1])
+        rates = self.impact_hours_formula(0, int(self.min_max_raise[1]))
         try:
             rate = rates[rates['Total XDAI Raised'].gt(raise_amount)].iloc[0]['Impact Hour Rate']
         except:
@@ -130,9 +281,9 @@ class TECH(param.Parameterized):
 
     def get_raise_scenarios(self):
         scenarios = {
-            'min_raise' : self.min_max_raise[0],
+            'min_raise' : int(self.min_max_raise[0]),
             'target_raise' : self.target_raise,
-            'max_raise' : min(self.min_max_raise[1], self.hatch_oracle_ratio * self.total_cstk_tokens),
+            'max_raise' : min(int(self.min_max_raise[1]), self.hatch_oracle_ratio * self.total_cstk_tokens),
         }
         return scenarios
 
@@ -173,7 +324,8 @@ class TECH(param.Parameterized):
                        radius=[0.25, 0.2, 0.15][idx_rank.get_loc('max_raise')],
                        title="Max Raise", x_range=(-0.5, 1), colors=colors)
 
-        return pn.Column('## Funding Pool', pn.Row(p1, p2), p3)
+        #return pn.Column('## Funding Pool', pn.Row(p1, p2, p3))
+        return pn.Row(p1, p2, p3)
 
     def funding_pool_data_view(self):
         funding_pools = self.get_funding_pool_data()
@@ -358,8 +510,6 @@ class ImpactHoursFormula(param.Parameterized):
         df_max_raise = df_hatch_params.query("label == 'Max Raise'")
         if len(df_max_raise) > 1:
             df_hatch_params = df_hatch_params.drop(df_max_raise.first_valid_index())
-
-
 
         # Send to zero the IH rate, cultural build tribute and hatch tribue of
         # amount raises smaller than the min target
