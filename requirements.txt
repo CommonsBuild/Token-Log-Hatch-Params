@@ -1,6 +1,12 @@
 param
 panel
+bokeh
 pandas
 hvplot
 scipy
 openpyxl
+tabulate
+requests
+numpy
+urllib3
+python-dotenv
