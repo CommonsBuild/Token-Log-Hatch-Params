@@ -8,5 +8,4 @@ tabulate
 requests
 numpy
 urllib3
-codecs
 python-dotenv
