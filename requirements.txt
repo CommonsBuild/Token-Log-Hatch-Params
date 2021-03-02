@@ -2,7 +2,7 @@ bokeh==2.2.3
 param
 panel==0.10.3
 pandas
-holoviews====1.14.1
+holoviews==1.14.1
 hvplot==0.7.0
 scipy
 openpyxl
