@@ -1,7 +1,7 @@
 param==1.10.1
 bokeh==2.2.3
 panel==0.10.3
-pandas==1.2.1
+pandas
 hvplot==0.7.0
 holoviews==1.14.1
 scipy==1.6.0
