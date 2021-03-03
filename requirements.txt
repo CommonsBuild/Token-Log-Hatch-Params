@@ -1,8 +1,13 @@
+param==1.10.1
 bokeh==2.2.3
-param
 panel==0.10.3
 pandas
-holoviews==1.14.1
 hvplot==0.7.0
+holoviews==1.14.1
 scipy
-openpyxl
+openpyxl==3.0.6
+tabulate==0.8.9
+requests==2.25.1
+numpy==1.19.5
+urllib3==1.26.3
+python-dotenv==0.15.0
