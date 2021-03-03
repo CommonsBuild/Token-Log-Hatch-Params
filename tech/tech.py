@@ -1,5 +1,5 @@
 doc = """
-This jupyter notebook is authored by ygg_anderson for the Token Engineering Commons. See appropriate licensing.
+This jupyter notebook is authored by ygg_anderson for the Token Engineering Commons. See appropriate licensing. 🐧 🐧 🐧
 """
 
 import param
@@ -18,28 +18,28 @@ from tech.utils import pie_chart
 APP_PATH = './'
 
 sheets = [
-"Total Impact Hours so far",
-"IH Predictions",
-"#8 Jan 1",
-"#7 Dec 18",
-"#6 Dec 4",
-"#5 Nov 20",
-"#4 Nov 6",
-"#3 Oct 23",
-"#2 Oct 9",
-"#1 Sept 24",
-"#0 Sept 7 (historic)",
+    "Total Impact Hours so far",
+    "IH Predictions",
+    "#8 Jan 1",
+    "#7 Dec 18",
+    "#6 Dec 4",
+    "#5 Nov 20",
+    "#4 Nov 6",
+    "#3 Oct 23",
+    "#2 Oct 9",
+    "#1 Sept 24",
+    "#0 Sept 7 (historic)",
 ] + [f"#{i} IH Results" for i in range(9)]
 sheets = {i:sheet for i, sheet in enumerate(sheets)}
 
 def read_excel(sheet_name="Total Impact Hours so far", header=1, index_col=0, usecols=None) -> pd.DataFrame:
     data = pd.read_excel(
     os.path.join(APP_PATH, "data", "TEC Praise Quantification.xlsx"),
-    sheet_name=sheet_name,
-    engine='openpyxl',
-    header=header,
-    index_col=index_col,
-    usecols=usecols
+        sheet_name=sheet_name,
+        engine='openpyxl',
+        header=header,
+        index_col=index_col,
+        usecols=usecols
     ).reset_index().dropna(how='any')
     return data
 
@@ -232,17 +232,17 @@ class TECH(param.Parameterized):
     def get_rate_scenarios(self):
         funding_pools = self.get_funding_pool_data().T
         scenarios = {
-        'min_rate': self.get_impact_hour_rate(raise_amount=funding_pools.sum()['min_raise']),
-        'target_rate': self.get_impact_hour_rate(raise_amount=funding_pools.sum()['target_raise']),
-        'max_rate': self.get_impact_hour_rate(raise_amount=funding_pools.sum()['max_raise']),
+            'min_rate': self.get_impact_hour_rate(raise_amount=funding_pools.sum()['min_raise']),
+            'target_rate': self.get_impact_hour_rate(raise_amount=funding_pools.sum()['target_raise']),
+            'max_rate': self.get_impact_hour_rate(raise_amount=funding_pools.sum()['max_raise']),
         }
         return scenarios
 
     def get_raise_scenarios(self):
         scenarios = {
-        'min_raise' : int(self.min_max_raise[0]),
-        'target_raise' : self.target_raise,
-        'max_raise' : min(int(self.min_max_raise[1]), self.hatch_oracle_ratio * self.total_cstk_tokens),
+            'min_raise' : int(self.min_max_raise[0]),
+            'target_raise' : self.target_raise,
+            'max_raise' : min(int(self.min_max_raise[1]), self.hatch_oracle_ratio * self.total_cstk_tokens),
         }
         return scenarios
 
@@ -254,10 +254,10 @@ class TECH(param.Parameterized):
             redeemable_reserve = (raise_amount-cultural_tribute) * (1 - self.hatch_tribute)
             non_redeemable_reserve = (raise_amount-cultural_tribute) * self.hatch_tribute
             funding_pool_data[scenario] = {
-            'cultural_tribute': cultural_tribute,
-            'hatch_tribute': non_redeemable_reserve,
-            'redeemable_reserve': redeemable_reserve,
-            'total': raise_amount,
+                'cultural_tribute': cultural_tribute,
+                'hatch_tribute': non_redeemable_reserve,
+                'redeemable_reserve': redeemable_reserve,
+                'total': raise_amount,
             }
         return pd.DataFrame(funding_pool_data).T
 
@@ -272,16 +272,16 @@ class TECH(param.Parameterized):
         colors = ['#0F2EEE', '#0b0a15', '#DEFB48']
         chart_data = funding_pools.iloc[:,:-2]
         p1 = pie_chart(data=pd.Series(chart_data.loc['min_raise',:]),
-        radius=[0.65, 0.55, 0.4][idx_rank.get_loc('min_raise')],
-        title="Min Raise", toolbar_location=None, plot_width=300,
-        show_legend=False, colors=colors)
+                       radius=[0.65, 0.55, 0.4][idx_rank.get_loc('min_raise')],
+                       title="Min Raise", toolbar_location=None, plot_width=300,
+                       show_legend=False, colors=colors)
         p2 = pie_chart(data=pd.Series(chart_data.loc['target_raise',:]),
-        radius=[0.65, 0.55, 0.4][idx_rank.get_loc('target_raise')],
-        title="Target Raise", toolbar_location=None, plot_width=300,
-        show_legend=False, colors=colors)
+                       radius=[0.65, 0.55, 0.4][idx_rank.get_loc('target_raise')],
+                       title="Target Raise", toolbar_location=None, plot_width=300,
+                       show_legend=False, colors=colors)
         p3 = pie_chart(data=pd.Series(chart_data.loc['max_raise',:]),
-        radius=[0.25, 0.2, 0.15][idx_rank.get_loc('max_raise')],
-        title="Max Raise", x_range=(-0.5, 1), colors=colors)
+                       radius=[0.25, 0.2, 0.15][idx_rank.get_loc('max_raise')],
+                       title="Max Raise", x_range=(-0.5, 1), colors=colors)
 
         #return pn.Column('## Funding Pool', pn.Row(p1, p2, p3))
         return pn.Row(p1, p2, p3)
@@ -334,7 +334,7 @@ class ImpactHoursData(param.Parameterized):
 
 class ImpactHoursFormula(param.Parameterized):
     """
-    Sem's Formula
+    Sem's Formula 🌱 🐝 🍯
     This formula was a collaboration of Sem and Griff for the TEC hatch impact hours formula.
     https://forum.tecommons.org/t/impact-hour-rewards-deep-dive/90/5
     """
@@ -432,7 +432,7 @@ class ImpactHoursFormula(param.Parameterized):
             impact_hour_rate = R* (self.minimum_raise / (self.minimum_raise + m*H))
             cultural_build_tribute = (H * impact_hour_rate)/self.minimum_raise
             df_hatch_params = df_hatch_params.append({'Total XDAI Raised': self.minimum_raise, 'Impact Hour Rate':impact_hour_rate, 'Cultural Build Tribute':cultural_build_tribute, 'Hatch tribute':hatch_tribute, 'Redeemable':(1 - hatch_tribute)/(1 + cultural_build_tribute), 'label':'Min Raise'}, ignore_index=True)
-            f_hatch_params = df_hatch_params.sort_values(['Total XDAI Raised'])
+            df_hatch_params = df_hatch_params.sort_values(['Total XDAI Raised'])
 
         df_min_raise = df_hatch_params.query("label == 'Min Raise'")
         if len(df_min_raise) > 1:
@@ -620,9 +620,9 @@ class DandelionVoting(param.Parameterized):
         y_fill_quorum = [a for i, a in enumerate(x) if i < self.minimum_accepted_quorum()*len(x)]
         df_fill_q = pd.DataFrame(zip(x,y_fill_quorum))
         total_votes_plot = df_fill.hvplot.area(
-        title = "Minimum Support and Quorum Accepted for Proposals to Pass",
-        x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='green',
-        xlabel='Total Token Votes (%)', ylabel='Yes Token Votes (%)')
+                title = "Minimum Support and Quorum Accepted for Proposals to Pass",
+                x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='green',
+                xlabel='Total Token Votes (%)', ylabel='Yes Token Votes (%)')
         support_required_plot = df.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='red')
         quorum_accepted_plot = df_fill_q.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='#0F2EEE')
         return total_votes_plot * support_required_plot * quorum_accepted_plot
