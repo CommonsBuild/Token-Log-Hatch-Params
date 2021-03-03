@@ -4,7 +4,7 @@ panel==0.10.3
 pandas
 hvplot==0.7.0
 holoviews==1.14.1
-scipy==1.6.0
+scipy
 openpyxl==3.0.6
 tabulate==0.8.9
 requests==2.25.1
