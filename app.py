@@ -1,5 +1,6 @@
 from tech.tech import read_impact_hour_data, read_cstk_data, TECH
 from tech.tech import ImpactHoursData, ImpactHoursFormula, Hatch, DandelionVoting
+from bokeh.plotting import curdoc
 from dotenv import load_dotenv
 import pandas as pd
 import panel as pn
@@ -169,7 +170,8 @@ share_button.js_on_click(args={'target': url}, code='window.open(target.value)')
 results_button = pn.widgets.Button(name='See your results', button_type = 'success')
 
 def update_params_by_url_query():
-    queries = pn.state.location.query_params
+    queries = curdoc().session_context.request.arguments
+    queries = { i: j[0] for i, j in queries.items() }
     print(queries)
     if queries:
         if 'ihminr'in queries:
@@ -308,6 +310,8 @@ Play with my parameters [here](http://localhost:5006/app?ihminr={ihf_minimum_rai
     markdown_panel = pn.pane.Markdown(string_data)
     return pn.Row(df.hvplot.table(),markdown_panel)
 
+pn.state.onload(update_params_by_url_query)
+
 # Front-end
 tmpl = pn.Template(template=template)
 tmpl.add_variable('app_title', 'TEC Hatch Dashboard')
@@ -323,5 +327,4 @@ tmpl.add_panel('R', update_result_score)
 tmpl.add_panel('CO', comments)
 tmpl.add_panel('BU', pn.Column(results_button, share_button, url))
 tmpl.servable(title="TEC Hatch Dashboard")
-pn.state.onload(update_params_by_url_query)
 
