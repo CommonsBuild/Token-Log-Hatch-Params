@@ -71,7 +71,7 @@ class TECH(param.Parameterized):
     target_cultural_build_tribute = param.Number(label="Target Cultural Build Tribute (%)", constant=True)
 
     def __init__(self, total_impact_hours, impact_hour_data, total_cstk_tokens, **params):
-        super(TECH, self).__init__(**params)
+        super(TECH, self).__init__(**params, name="Hatch")
         self.total_impact_hours = total_impact_hours
         self.impact_hour_data = impact_hour_data
         self.total_cstk_tokens = total_cstk_tokens
@@ -602,7 +602,7 @@ class DandelionVoting(param.Parameterized):
     tollgate_fee_xdai = param.Number(3, bounds=(1,100), step=1, label="Tollgate fee (wxDai)")
 
     def __init__(self, total_tokens, **params):
-        super(DandelionVoting, self).__init__(**params)
+        super(DandelionVoting, self).__init__(**params, name="TEC Hatch DAO")
         self.total_tokens=total_tokens
 
     def support_required(self):
