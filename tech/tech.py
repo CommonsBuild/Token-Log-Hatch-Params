@@ -254,9 +254,9 @@ class TECH(param.Parameterized):
             redeemable_reserve = (raise_amount-cultural_tribute) * (1 - self.hatch_tribute)
             non_redeemable_reserve = (raise_amount-cultural_tribute) * self.hatch_tribute
             funding_pool_data[scenario] = {
-                'cultural_tribute': cultural_tribute,
-                'hatch_tribute': non_redeemable_reserve,
-                'redeemable_reserve': redeemable_reserve,
+                'Cultural tribute': cultural_tribute,
+                'Hatch tribute': non_redeemable_reserve,
+                'Redeemable reserve': redeemable_reserve,
                 'total': raise_amount,
             }
         return pd.DataFrame(funding_pool_data).T
