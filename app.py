@@ -111,14 +111,14 @@ p {
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell">{{ embed(roots.W) }}</div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
             <h2>Results</h2>
-            <div>
+            <div style="height: 100px">
                 {{ embed(roots.CO) }}
             </div>
             <div>
                 {{ embed(roots.BU) }}
             </div>
         </div>
-        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell">{{ embed(roots.R) }}</div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell" style="height: 420px">{{ embed(roots.R) }}</div>
     </div>
 </div>
 {% endblock %}
@@ -172,7 +172,6 @@ results_button = pn.widgets.Button(name='See your results', button_type = 'succe
 def update_params_by_url_query():
     queries = curdoc().session_context.request.arguments
     queries = { i: j[0] for i, j in queries.items() }
-    print(queries)
     if queries:
         if 'ihminr'in queries:
             t.min_max_raise[0] = int(queries['ihminr'])
