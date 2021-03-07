@@ -1,5 +1,8 @@
+from operator import index
 from tech.tech import read_impact_hour_data, read_cstk_data, TECH
 from tech.tech import ImpactHoursData, ImpactHoursFormula, Hatch, DandelionVoting
+import tech.config_bounds as config_bounds
+
 from dotenv import load_dotenv
 import pandas as pd
 import panel as pn
@@ -21,8 +24,8 @@ HCTI_API_KEY = os.environ.get('HCTI_API_KEY')
 
 tec_logo = "data:image/png;base64,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"
 react = pn.template.ReactTemplate(title='TEC Hatch Dashboard',
-                                  row_height=150, header_background= '#7622a8',
-                                  logo=tec_logo)
+row_height=150, header_background= '#7622a8',
+logo=tec_logo)
 pn.config.sizing_mode = 'stretch_both'
 
 impact_hour_data_1, impact_hour_data_2 = read_impact_hour_data()
@@ -32,7 +35,9 @@ impact_hours_data = ImpactHoursData()
 i = ImpactHoursData()
 
 # TECH
-t = TECH(total_impact_hours=i.total_impact_hours, impact_hour_data=impact_hour_data_1, total_cstk_tokens=8500)
+t = TECH(total_impact_hours=i.total_impact_hours,
+         impact_hour_data=impact_hour_data_1, total_cstk_tokens=8500,
+         config=config_bounds.hatch['tech'])
 
 
 # ImpactHoursFormula
@@ -48,7 +53,7 @@ cstk_data = read_cstk_data()
 # impact_hours_rewards.target_impact_hour_rate)
 
 # DandelionVoting
-dandelion = DandelionVoting(17e6)
+dandelion = DandelionVoting(17e6,config=config_bounds.hatch['dandelion_voting'])
 
 # Import Params Button
 import_params_button = pn.widgets.Button(name='Import params', button_type = 'primary')
@@ -103,8 +108,8 @@ def update_result_score(results_button):
     "Hatch exchange rate (TESTTECH/wxDai)", "Hatch tribute (%)", "Support required (%)",
     "Minimum accepted quorum (%)", "Vote duration (days)", "Vote buffer (hours)",
     "Rage quit (hours)", "Tollgate fee (wxDai)"],
-    'Values': [t.target_raise, t.min_max_raise[1],
-    t.min_max_raise[0], t.impact_hour_slope,
+    'Values': [int(t.target_raise), int(t.min_max_raise[1]),
+    int(t.min_max_raise[0]), t.impact_hour_slope,
     t.maximum_impact_hour_rate, t.hatch_oracle_ratio,
     t.hatch_period_days, t.hatch_exchange_rate, t.hatch_tribute,
     dandelion.support_required_percentage, dandelion.minimum_accepted_quorum_percentage, dandelion.vote_duration_days,
@@ -150,7 +155,7 @@ def update_result_score(results_button):
 <h1>Parameters</h1>
 
 {params_table}
-        """.format(params_table=df.to_markdown(index=False))
+        """.format(params_table=df.to_markdown(index=False, floatfmt=".2f"))
 
         string_data = """
 <h1>Results</h1>
@@ -207,9 +212,10 @@ react.main[2:6, :4] = t
 react.main[6:7, :4] = t.funding_pool_data_view
 react.main[7:8, :4] = t.payout_view
 react.main[2:8, 4:12] = pn.Column(t.impact_hours_view,
-t.redeemable_plot,
-t.cultural_build_tribute_plot)
+                                  t.redeemable_plot,
+                                  t.cultural_build_tribute_plot)
 react.main[8:11, :12] = t.funding_pool_view
+#react.main[8:11, :12] = t.output_scenarios
 react.main[11:11, :4] = dandelion
 react.main[11:13, 4:12] = dandelion.vote_pass_view
 react.main[13:14, :4] = comments
