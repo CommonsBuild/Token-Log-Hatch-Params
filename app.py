@@ -14,15 +14,122 @@ import os
 
 load_dotenv()
 
+template = """
+{% extends base %}
+
+<!-- goes in head -->
+{% block postamble %}
+<script type="module" src="https://unpkg.com/@material/mwc-top-app-bar-fixed?module"></script>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Material+Icons&display=block" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="https://unpkg.com/@material/layout-grid@0.41.0/dist/mdc.layout-grid.min.css">
+<style>
+.grid {
+  width: 100%;
+}
+
+.grid-cell {
+  height: auto;
+  border-radius: 4px;
+  padding: 5px;
+}
+</style>
+
+<style>
+body {
+    font-family: roboto;
+    margin: 0px;
+}
+mwc-top-app-bar-fixed {
+    box-shadow: 5px 5px 20px #9E9E9E;
+    font-size: 20px;
+    --mdc-theme-primary: #7622a8;
+    --mdc-theme-on-primary: white;
+}
+
+.appMenu * {
+    width:100%;
+    align-items: left;
+}
+.appMain {
+    margin: 10px;
+}
+p {
+    font-size: 14px;
+    text-align: justify;
+}
+.secone {
+    height: 1100px;
+}
+.pie-charts {
+    height: 400px;
+}
+.table {
+    height: 150px;
+}
+</style>
+
+{% endblock %}
+
+<!-- goes in body -->
+{% block contents %}
+<div class="appContent" slot="appContent">
+    <mwc-top-app-bar-fixed class="appBar">
+        <div slot="title" style="font-size:20px">{{ app_title }}</div>
+    </mwc-top-app-bar-fixed>
+    <div class="appMain">
+        <div class="mdc-layout-grid grid">
+        <div class="mdc-layout-grid__inner">
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
+            <h1>TEC Hatch Dashboard</h1>
+            <p>This dashboard is a tool to collect community opinions on the proper parameterization of the Token Engineering Commons. There are three sections of the dashboard, where you can parameterize three different segments of the initial TEC ecosystem. At the end of the dashboard, you can choose to submit your parameterization configuration to the TEC Github, where it auto-compile into a report that can be compared and contrasted among other parameterization submissions by the community.This tool is meant to inform the community about the decisions that go into launching the TEC (and other Commons), and foster discourse in the ethical design of community ecosystems.</p>
+        </div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell">{{ embed(roots.A) }}</div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
+            <h2>Section 1: Choosing Parameters for Impact Hours - Rewarding TEC Contributions</h2>
+            <p>NEEDS TO BE UPDATE! This section of the dashboard will look at the parameters involved in valuing Impact Hours, which have been awarded to active contributors of the TEC since mid-2020. A portion of funds raised in the TEC Hatch will go to pay off the accumulated Impact Hours debt for work already completed - your task is to choose the parameters that strike a fair balance between past and future contributions.</p>
+            <div>
+                {{ embed(roots.B) }}
+            </div>
+            <div class="table">
+                {{ embed(roots.C) }}
+            </div>
+            <div class="table">
+                {{ embed(roots.E) }}
+            </div>
+        </div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell secone">{{ embed(roots.D) }}</div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 grid-cell pie-charts">{{ embed(roots.F) }}</div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
+            <h2>Section 2: Dandelion Voting - Dandelion DAO Initialization</h2>
+            <p>Dandelion DAOs are essentially Moloch++, deployed on the Aragon framework. This section of the dashboard will look at the parameters involved in Dandelion Voting, such as required quorum and support for votes to pass, vote duration, buffer periods, and rage quit window. In the diagram to the right, the yellow section of the diagram represents required quorum, and the green section of the diagram denotes where votes will pass, whereas red sections are where votes will fail.</p>
+            <div>
+                {{ embed(roots.V) }}
+            </div>
+        </div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell">{{ embed(roots.W) }}</div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
+            <h2>Results</h2>
+            <div>
+                {{ embed(roots.CO) }}
+            </div>
+            <div>
+                {{ embed(roots.BU) }}
+            </div>
+        </div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell">{{ embed(roots.R) }}</div>
+    </div>
+</div>
+{% endblock %}
+"""
+
 # API settings
 HCTI_API_ENDPOINT = "https://hcti.io/v1/image"
 HCTI_API_USER_ID = os.environ.get('HCTI_API_USER_ID')
 HCTI_API_KEY = os.environ.get('HCTI_API_KEY')
 
 tec_logo = "data:image/png;base64,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"
-react = pn.template.ReactTemplate(title='TEC Hatch Dashboard',
-                                  row_height=150, header_background= '#7622a8',
-                                  logo=tec_logo)
+
 pn.config.sizing_mode = 'stretch_both'
 
 impact_hour_data_1, impact_hour_data_2 = read_impact_hour_data()
@@ -55,45 +162,46 @@ import_params_button = pn.widgets.Button(name='Import params', button_type = 'pr
 import_description = pn.pane.Markdown('<h4>To import the parameters, click on the button below:</h4>')
 
 # Share Button
-comments = pn.widgets.TextAreaInput(name='Comments', max_length=1024, placeholder='Explain your thoughts on why you choose the params...')
+comments = pn.widgets.TextAreaInput(max_length=1024, placeholder='Explain your thoughts on why you choose the params...')
 share_button = pn.widgets.Button(name='Share your results on GitHub!', button_type = 'primary')
 url = pn.widgets.TextInput(name='URL', value = '')
 share_button.js_on_click(args={'target': url}, code='window.open(target.value)')
 results_button = pn.widgets.Button(name='See your results', button_type = 'success')
 
-@pn.depends(import_params_button)
-def update_params_by_url_query(import_params_button):
+def update_params_by_url_query():
     queries = pn.state.location.query_params
-    if 'ihminr'in queries:
-        t.min_max_raise[0] = int(queries['ihminr'])
-    if 'hs' in queries:
-        t.impact_hour_slope = float(queries['hs'])
-    if 'maxihr' in queries:
-        t.maximum_impact_hour_rate = float(queries['maxihr'])
-    if 'ihtr' in queries:
-        t.target_raise = int(queries['ihtr'])
-    if 'ihmaxr' in queries:
-        t.min_max_raise[0] = int(queries['ihmaxr'])
-    if 'hor' in queries:
-        t.hatch_oracle_ratio = float(queries['hor'])
-    if 'hpd' in queries:
-        t.hatch_period_days = int(queries['hpd'])
-    if 'her' in queries:
-        t.hatch_exchange_rate = float(queries['her'])
-    if 'ht' in queries:
-        t.hatch_tribute = int(queries['ht'])
-    if 'sr' in queries:
-        dandelion.support_required_percentage = int(queries['sr'])
-    if 'maq' in queries:
-        dandelion.minimum_accepted_quorum_percentage = int(queries['maq'])
-    if 'vdd' in queries:
-        dandelion.vote_duration_days = float(queries['vdd'])
-    if 'vbh' in queries:
-        dandelion.vote_buffer_hours = float(queries['vbh'])
-    if 'rqh' in queries:
-        dandelion.rage_quit_hours = float(queries['rqh'])
-    if 'tfx' in queries:
-        dandelion.tollgate_fee_xdai = float(queries['tfx'])
+    print(queries)
+    if queries:
+        if 'ihminr'in queries:
+            t.min_max_raise[0] = int(queries['ihminr'])
+        if 'hs' in queries:
+            t.impact_hour_slope = float(queries['hs'])
+        if 'maxihr' in queries:
+            t.maximum_impact_hour_rate = float(queries['maxihr'])
+        if 'ihtr' in queries:
+            t.target_raise = int(queries['ihtr'])
+        if 'ihmaxr' in queries:
+            t.min_max_raise[0] = int(queries['ihmaxr'])
+        if 'hor' in queries:
+            t.hatch_oracle_ratio = float(queries['hor'])
+        if 'hpd' in queries:
+            t.hatch_period_days = int(queries['hpd'])
+        if 'her' in queries:
+            t.hatch_exchange_rate = float(queries['her'])
+        if 'ht' in queries:
+            t.hatch_tribute = int(queries['ht'])
+        if 'sr' in queries:
+            dandelion.support_required_percentage = int(queries['sr'])
+        if 'maq' in queries:
+            dandelion.minimum_accepted_quorum_percentage = int(queries['maq'])
+        if 'vdd' in queries:
+            dandelion.vote_duration_days = float(queries['vdd'])
+        if 'vbh' in queries:
+            dandelion.vote_buffer_hours = float(queries['vbh'])
+        if 'rqh' in queries:
+            dandelion.rage_quit_hours = float(queries['rqh'])
+        if 'tfx' in queries:
+            dandelion.tollgate_fee_xdai = float(queries['tfx'])
 
 @pn.depends(results_button)
 def update_result_score(results_button):
@@ -201,22 +309,19 @@ Play with my parameters [here](http://localhost:5006/app?ihminr={ihf_minimum_rai
     return pn.Row(df.hvplot.table(),markdown_panel)
 
 # Front-end
-react.main[:1, :4] = pn.Column(import_description, import_params_button)
-react.main[:2, 4:12] = i.impact_hours_accumulation
-react.main[2:6, :4] = t
-react.main[6:7, :4] = t.funding_pool_data_view
-react.main[7:8, :4] = t.payout_view
-react.main[2:8, 4:12] = pn.Column(t.impact_hours_view,
-t.redeemable_plot,
-t.cultural_build_tribute_plot)
-react.main[8:11, :12] = t.funding_pool_view
-react.main[11:11, :4] = dandelion
-react.main[11:13, 4:12] = dandelion.vote_pass_view
-react.main[13:14, :4] = comments
-react.main[14:14, :4] = pn.Column(share_button, url)
-react.main[13:13, 4:12] = results_button
-react.main[15:17, :] = pn.panel(update_result_score)
-react.main[17:17, :] = pn.panel('')
-
-react.servable();
+tmpl = pn.Template(template=template)
+tmpl.add_variable('app_title', 'TEC Hatch Dashboard')
+tmpl.add_panel('A', i.impact_hours_accumulation)
+tmpl.add_panel('B', t)
+tmpl.add_panel('C', t.funding_pool_data_view)
+tmpl.add_panel('E', t.payout_view)
+tmpl.add_panel('D', pn.Column(t.impact_hours_view, t.redeemable_plot, t.cultural_build_tribute_plot))
+tmpl.add_panel('F', t.funding_pool_view)
+tmpl.add_panel('V', dandelion)
+tmpl.add_panel('W', dandelion.vote_pass_view)
+tmpl.add_panel('R', update_result_score)
+tmpl.add_panel('CO', comments)
+tmpl.add_panel('BU', pn.Column(results_button, share_button, url))
+tmpl.servable(title="TEC Hatch Dashboard")
+pn.state.onload(update_params_by_url_query)
 
