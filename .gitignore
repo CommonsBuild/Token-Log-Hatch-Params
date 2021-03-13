@@ -2,5 +2,7 @@ scratch/
 .ipynb_checkpoints
 *.egg-info/
 *.DS_Store
+/*.html
 *.pyc
+
 __pycache__
