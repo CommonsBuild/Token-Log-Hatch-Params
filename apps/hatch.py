@@ -1,9 +1,6 @@
 from operator import index
-from tech.tech import read_impact_hour_data, read_cstk_data, TECH
-from tech.tech import ImpactHoursData, ImpactHoursFormula, Hatch, DandelionVoting
 from jinja2 import Environment, FileSystemLoader
 from bokeh.plotting import curdoc
-import tech.config_bounds as config_bounds
 from dotenv import load_dotenv
 import pandas as pd
 import panel as pn
@@ -14,11 +11,18 @@ import urllib.parse as p
 from tabulate import tabulate
 import requests
 import codecs
+import sys
 import os
+
+sys.path.append('..')
+
+from tech.tech import read_impact_hour_data, read_cstk_data, TECH
+from tech.tech import ImpactHoursData, ImpactHoursFormula, Hatch, DandelionVoting
+import tech.config_bounds as config_bounds
 
 load_dotenv()
 
-env = Environment(loader=FileSystemLoader('.'))
+env = Environment(loader=FileSystemLoader('..'))
 template = env.get_template('template/index.html')
 
 # API settings
