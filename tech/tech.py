@@ -70,10 +70,10 @@ class TECH(param.Parameterized):
     hatch_tribute = param.Number(0.05, bounds=(0,1), step=0.01, label="Hatch Tribute (%)")
     target_impact_hour_rate = param.Number(label="Target Impact Hour Rate (wxDai/hour)", constant=True)
     target_cultural_build_tribute = param.Number(label="Target Cultural Build Tribute (%)", constant=True)
-
+        
     def __init__(self, total_impact_hours, impact_hour_data, total_cstk_tokens,
                  config, **params):
-        super(TECH, self).__init__(**params)
+        super(TECH, self).__init__(**params, name="Hatch")
         self.total_impact_hours = total_impact_hours
         self.impact_hour_data = impact_hour_data
         self.total_cstk_tokens = total_cstk_tokens
@@ -376,9 +376,9 @@ class TECH(param.Parameterized):
             redeemable_reserve = (raise_amount-cultural_tribute) * (1 - self.hatch_tribute)
             non_redeemable_reserve = (raise_amount-cultural_tribute) * self.hatch_tribute
             funding_pool_data[scenario] = {
-                'cultural_tribute': cultural_tribute,
-                'hatch_tribute': non_redeemable_reserve,
-                'redeemable_reserve': redeemable_reserve,
+                'Cultural tribute': cultural_tribute,
+                'Hatch tribute': non_redeemable_reserve,
+                'Redeemable reserve': redeemable_reserve,
                 'total': raise_amount,
             }
         return pd.DataFrame(funding_pool_data).T
@@ -725,7 +725,7 @@ class DandelionVoting(param.Parameterized):
     tollgate_fee_xdai = param.Number(3, bounds=(1,100), step=1, label="Tollgate fee (wxDai)")
 
     def __init__(self, total_tokens, config, **params):
-        super(DandelionVoting, self).__init__(**params)
+        super(DandelionVoting, self).__init__(**params, name="TEC Hatch DAO")
         self.total_tokens=total_tokens
 
         # Change the parameter bound according the config_bound argument
@@ -770,7 +770,7 @@ class DandelionVoting(param.Parameterized):
         total_votes_plot = df_fill.hvplot.area(
                 title = "Minimum Support and Quorum Accepted for Proposals to Pass",
                 x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='green',
-                xlabel='Total Token Votes (%)', ylabel='Yes Token Votes (%)')
-        support_required_plot = df.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='red')
-        quorum_accepted_plot = df_fill_q.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='#0F2EEE')
-        return total_votes_plot * support_required_plot * quorum_accepted_plot
+                xlabel='Total Token Votes (%)', ylabel='Yes Token Votes (%)', label='Yes votes 👍')
+        support_required_plot = df.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='red', label='No votes 👎')
+        quorum_accepted_plot = df_fill_q.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='yellow', label='Minimum quorum')
+        return (total_votes_plot* support_required_plot * quorum_accepted_plot).opts(legend_position='top_left') 
