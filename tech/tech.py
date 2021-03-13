@@ -245,8 +245,8 @@ class TECH(param.Parameterized):
         df_hatch_params = pd.DataFrame([x,y]).T
         df_hatch_params.columns = ['Total XDAI Raised','Impact Hour Rate']
         df_hatch_params['Cultural Build Tribute'] = (H * df_hatch_params['Impact Hour Rate'])/df_hatch_params['Total XDAI Raised']
-        df_hatch_params['Hatch tribute'] = self.hatch_tribute
-        df_hatch_params['Redeemable'] = (1 - df_hatch_params['Hatch tribute'])/(1 + df_hatch_params['Cultural Build Tribute'])
+        df_hatch_params['Hatch tribute'] = df_hatch_params['Total XDAI Raised'].mul(self.hatch_tribute)
+        df_hatch_params['Redeemable'] = (1 - self.hatch_tribute)/(1 + df_hatch_params['Cultural Build Tribute'])
         df_hatch_params['label'] = ""
 
         minimum_raise = int(self.min_max_raise[0])
@@ -258,7 +258,7 @@ class TECH(param.Parameterized):
         if "Min Raise" not in df_hatch_params['label']:
             impact_hour_rate = R* (minimum_raise / (minimum_raise + m*H))
             cultural_build_tribute = (H * impact_hour_rate)/minimum_raise
-            df_hatch_params = df_hatch_params.append({'Total XDAI Raised': minimum_raise, 'Impact Hour Rate':impact_hour_rate, 'Cultural Build Tribute':cultural_build_tribute, 'Hatch tribute':hatch_tribute, 'Redeemable':(1 - hatch_tribute)/(1 + cultural_build_tribute), 'label':'Min Raise'}, ignore_index=True)
+            df_hatch_params = df_hatch_params.append({'Total XDAI Raised': minimum_raise, 'Impact Hour Rate':impact_hour_rate, 'Cultural Build Tribute':cultural_build_tribute, 'Hatch tribute':minimum_raise * hatch_tribute, 'Redeemable':(1 - hatch_tribute)/(1 + cultural_build_tribute), 'label':'Min Raise'}, ignore_index=True)
             f_hatch_params = df_hatch_params.sort_values(['Total XDAI Raised'])
 
         df_min_raise = df_hatch_params.query("label == 'Min Raise'")
@@ -272,7 +272,7 @@ class TECH(param.Parameterized):
         if "Target Raise" not in df_hatch_params['label']:
             impact_hour_rate = R* (self.target_raise / (self.target_raise + m*H))
             cultural_build_tribute = (H * impact_hour_rate)/self.target_raise
-            df_hatch_params = df_hatch_params.append({'Total XDAI Raised': self.target_raise, 'Impact Hour Rate':impact_hour_rate, 'Cultural Build Tribute':cultural_build_tribute, 'Hatch tribute':hatch_tribute, 'Redeemable':(1 - hatch_tribute)/(1 + cultural_build_tribute), 'label':'Target Raise'}, ignore_index=True)
+            df_hatch_params = df_hatch_params.append({'Total XDAI Raised': self.target_raise, 'Impact Hour Rate':impact_hour_rate, 'Cultural Build Tribute':cultural_build_tribute, 'Hatch tribute':self.target_raise * hatch_tribute, 'Redeemable':(1 - hatch_tribute)/(1 + cultural_build_tribute), 'label':'Target Raise'}, ignore_index=True)
             df_hatch_params = df_hatch_params.sort_values(['Total XDAI Raised'])
 
         df_target_raise = df_hatch_params.query("label == 'Target Raise'")
@@ -283,7 +283,7 @@ class TECH(param.Parameterized):
         if "Max Raise" not in df_hatch_params['label']:
             impact_hour_rate = R* (maximum_raise / (maximum_raise + m*H))
             cultural_build_tribute = (H * impact_hour_rate)/maximum_raise
-            df_hatch_params = df_hatch_params.append({'Total XDAI Raised': maximum_raise, 'Impact Hour Rate':impact_hour_rate, 'Cultural Build Tribute':cultural_build_tribute, 'Hatch tribute':hatch_tribute, 'Redeemable':(1 - hatch_tribute)/(1 + cultural_build_tribute), 'label':'Max Raise'}, ignore_index=True)
+            df_hatch_params = df_hatch_params.append({'Total XDAI Raised': maximum_raise, 'Impact Hour Rate':impact_hour_rate, 'Cultural Build Tribute':cultural_build_tribute, 'Hatch tribute':maximum_raise * hatch_tribute, 'Redeemable':(1 - hatch_tribute)/(1 + cultural_build_tribute), 'label':'Max Raise'}, ignore_index=True)
             df_hatch_params = df_hatch_params.sort_values(['Total XDAI Raised'])
 
         df_max_raise = df_hatch_params.query("label == 'Max Raise'")
