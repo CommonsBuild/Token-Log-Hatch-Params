@@ -197,7 +197,7 @@ pn.state.onload(update_params_by_url_query)
 
 # Front-end
 tmpl = pn.Template(template=template)
-tmpl.add_variable('app_title', 'TEC Hatch Dashboard')
+tmpl.add_variable('app_title', 'TEC Test Hatch Dashboard')
 tmpl.add_panel('A', i.impact_hours_accumulation)
 tmpl.add_panel('B', t)
 tmpl.add_panel('C', t.funding_pool_data_view)
@@ -209,5 +209,5 @@ tmpl.add_panel('W', dandelion.vote_pass_view)
 tmpl.add_panel('R', update_result_score)
 tmpl.add_panel('CO', comments)
 tmpl.add_panel('BU', pn.Column(results_button, share_button, url))
-tmpl.servable(title="TEC Hatch Dashboard")
+tmpl.servable(title="TEC Test Hatch Dashboard")
 
