@@ -273,7 +273,7 @@ class TECH(param.Parameterized):
         # Drop NaN rows
         df_hatch_params_to_plot = df_hatch_params_to_plot.dropna()
         with pd.option_context('mode.chained_assignment', None):
-            df_hatch_params_to_plot['Cultural Build Tribute Percentage'] = df_hatch_params_to_plot['Cultural Build Tribute'].mul(100)
+            df_hatch_params_to_plot['Cultural Build Tribute'] = df_hatch_params_to_plot['Cultural Build Tribute'].mul(100)
         cultural_build_tribute_plot = df_hatch_params_to_plot.hvplot.area(title='Cultural Build Tribute (%)',
                                                                           x='Total XDAI Raised',
                                                                           y='Cultural Build Tribute',
