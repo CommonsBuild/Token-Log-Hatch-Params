@@ -58,7 +58,6 @@ results_button = pn.widgets.Button(name='See your results', button_type = 'succe
 def update_params_by_url_query():
     queries = curdoc().session_context.request.arguments
     queries = { i: j[0] for i, j in queries.items() }
-    print(queries)
     if queries:
         if 'ihminr' in queries and 'ihmaxr' in queries:
             t.min_max_raise = (int(queries['ihminr']), int(queries['ihmaxr']))
