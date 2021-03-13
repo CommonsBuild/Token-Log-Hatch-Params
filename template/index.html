@@ -1,0 +1,100 @@
+{% extends base %}
+{% block postamble %}
+<script type="module" src="https://unpkg.com/@material/mwc-top-app-bar-fixed?module"></script>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Material+Icons&display=block" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="https://unpkg.com/@material/layout-grid@0.41.0/dist/mdc.layout-grid.min.css">
+<style>
+.grid {
+  width: 100%;
+}
+.grid-cell {
+  height: auto;
+  border-radius: 4px;
+  padding: 5px;
+}
+body {
+    font-family: roboto;
+    margin: 0px;
+}
+mwc-top-app-bar-fixed {
+    box-shadow: 5px 5px 20px #9E9E9E;
+    font-size: 20px;
+    --mdc-theme-primary: #7622a8;
+    --mdc-theme-on-primary: white;
+}
+.appMenu * {
+    width:100%;
+    align-items: left;
+}
+.appMain {
+    margin: 10px;
+}
+p {
+    font-size: 14px;
+    text-align: justify;
+}
+.secone {
+    height: 1100px;
+}
+.pie-charts {
+    height: 400px;
+}
+.table {
+    height: 150px;
+}
+</style>
+
+{% endblock %}
+
+<!-- goes in body -->
+{% block contents %}
+<div class="appContent" slot="appContent">
+    <mwc-top-app-bar-fixed class="appBar">
+        <div slot="title" style="font-size:20px">{{ app_title }}</div>
+    </mwc-top-app-bar-fixed>
+    <div class="appMain">
+        <div class="mdc-layout-grid grid">
+        <div class="mdc-layout-grid__inner">
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
+            <h1>TEC Hatch Dashboard</h1>
+            <p>This dashboard is a tool to collect community opinions on the proper parameterization of the Token Engineering Commons. There are three sections of the dashboard, where you can parameterize three different segments of the initial TEC ecosystem. At the end of the dashboard, you can choose to submit your parameterization configuration to the TEC GitHub, where it auto-compile into a report that can be compared and contrasted among other parameterization submissions by the community.This tool is meant to inform the community about the decisions that go into launching the TEC (and other Commons), and foster discourse in the ethical design of community ecosystems.</p>
+        </div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell">{{ embed(roots.A) }}</div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
+            <h2>Section 1: Choosing Parameters for Impact Hours - Rewarding TEC Contributions</h2>
+            <p>The Hatch is the initialize phase that collects wxDai and mints TECH tokens for the TEC Hatch DAO, see the <a href="https://forum.tecommons.org/t/the-hatch-tl-dr/272" target="_blank">Hatch TL;DR</a> for a general overview. Designing the Hatch includes a few important concepts like: the Impact Hours Slope and Maximum Impact Hour Rate, which will award TECH tokens to the Impact Hour token holders via the Cultural Build Tribute; the Membership Ratio that determines how the CSTK Score influences how much wxDai each member of the Trusted Seed can send to the Hatch; the Hatch Tribute that sets wxDai aside for advancing Token Engineering and choosing the Minimum, Maximum Goals as well as specifying your Target Goal that you are designing around. For a more complete understanding of each Parameter, see the <a href="https://forum.tecommons.org/t/tec-test-hatch-implementation-specification/226" target="_blank">Hatch Spec</a>.</p>
+            <div>
+                {{ embed(roots.B) }}
+            </div>
+            <div class="table">
+                {{ embed(roots.C) }}
+            </div>
+            <div class="table">
+                {{ embed(roots.E) }}
+            </div>
+        </div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell secone">{{ embed(roots.D) }}</div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 grid-cell pie-charts">{{ embed(roots.F) }}</div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
+            <h2>Section 2: Dandelion Voting - Dandelion DAO Initialization</h2>
+            <p>The TEC Hatch DAO is effectively a Moloch DAO deployed using the Aragon framework. Designing how the DAO will make decisions is pretty straight forward, the variables that may need a special note are: Minimum Quorum which only counts yes votes; Vote Proposal Buffer, which is a precautionary variable that ensures DAO members have time between votes to Rage Quit and the Rage Quit Period which is the time after a vote that a DAO member has to exit with their share of the Redeemable Pool before the vote is executed. For a more complete understanding of each Parameter, see the <a href="https://forum.tecommons.org/t/tec-test-hatch-implementation-specification/226" target="_blank">Hatch Spec</a>.</p>
+            <div>
+                {{ embed(roots.V) }}
+            </div>
+        </div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell">{{ embed(roots.W) }}</div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
+            <h2>Results</h2>
+            <div style="height: 100px">
+                {{ embed(roots.CO) }}
+            </div>
+            <div>
+                {{ embed(roots.BU) }}
+            </div>
+        </div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell" style="height: 420px">{{ embed(roots.R) }}</div>
+    </div>
+</div>
+{% endblock %}
