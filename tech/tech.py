@@ -58,16 +58,17 @@ def read_cstk_data():
     return cstk_data
 
 
+
 class TECH(param.Parameterized):
-    min_max_raise = param.Range((1, 1000), bounds=(1,1000))
-    target_raise = param.Number(500, bounds=(5,1000), step=1)
-    impact_hour_slope = param.Number(0.012, bounds=(0,1), step=0.001)
-    maximum_impact_hour_rate = param.Number(0.01, bounds=(0,1), step=0.01)
-    hatch_oracle_ratio = param.Number(0.005, bounds=(0.001, 1), step=0.001)
-    hatch_period_days = param.Integer(15, bounds=(5, 30), step=2)
-    hatch_exchange_rate = param.Number(10000, bounds=(1,100000), step=1)
-    hatch_tribute = param.Number(0.05, bounds=(0,1), step=0.01)
-    target_impact_hour_rate = param.Number(label="Target impact hour rate (wxDai/hour)", constant=True)
+    min_max_raise = param.Range((1, 1000), bounds=(1,1000), label="Minimum/Maximum Goal (wxDai)")
+    target_raise = param.Number(500, bounds=(5,1000), step=1, label="Target Goal (wxDai)")
+    impact_hour_slope = param.Number(0.012, bounds=(0,1), step=0.001, label="Impact Hour Slope (wxDai/IH)")
+    maximum_impact_hour_rate = param.Number(0.01, bounds=(0,1), step=0.01, label="Maximum Impact Hour Rate (wxDai/IH)")
+    hatch_oracle_ratio = param.Number(0.005, bounds=(0.001, 1), step=0.001, label="Membership Ratio")
+    hatch_period_days = param.Integer(15, bounds=(5, 30), step=2, label="Hatch Period")
+    hatch_exchange_rate = param.Number(10000, bounds=(1,100000), step=1, label="Hatch Minting Rate")
+    hatch_tribute = param.Number(0.05, bounds=(0,1), step=0.01, label="Hatch Tribute (%)")
+    target_impact_hour_rate = param.Number(label="Target Impact Hour Rate (wxDai/hour)", constant=True)
     target_cultural_build_tribute = param.Number(label="Target Cultural Build Tribute (%)", constant=True)
 
     def __init__(self, total_impact_hours, impact_hour_data, total_cstk_tokens,
@@ -459,16 +460,15 @@ class ImpactHoursFormula(param.Parameterized):
     This formula was a collaboration of Sem and Griff for the TEC hatch impact hours formula.
     https://forum.tecommons.org/t/impact-hour-rewards-deep-dive/90/5
     """
-    #total_impact_hours = param.Number(step=100)
-    target_raise = param.Number(500, bounds=(20,1000), step=1, label="Target raise (wxDai)")
-    maximum_raise = param.Number(1000, bounds=(150,1000), step=1, label="Maximum raise (wxDai)")
-    minimum_raise = param.Number(5, bounds=(1, 100), step=1, label="Minimum raise (wxDai)")
-    hour_slope = param.Number(0.012, bounds=(0,1), step=0.001, label="Impact hour slope (wxDai/IH)")
-    maximum_impact_hour_rate = param.Number(0.01, bounds=(0,10), step=0.01, label="Maximum impact hour rate (wxDai/IH)")
-    hatch_tribute_percentage = param.Number(5, bounds=(0,100), step=1, label="Hatch tribute (%)")
-
+     #total_impact_hours = param.Number(step=100)
+    target_raise = param.Number(500, bounds=(20,1000), step=1, label="Target Goal (wxDai)")
+    maximum_raise = param.Number(1000, bounds=(150,1000), step=1, label="Maximum Goal (wxDai)")
+    minimum_raise = param.Number(5, bounds=(1, 100), step=1, label="Minimum Goal (wxDai)")
+    hour_slope = param.Number(0.012, bounds=(0,1), step=0.001, label="Impact Hour Slope (wxDai/IH)")
+    maximum_impact_hour_rate = param.Number(0.01, bounds=(0,10), step=0.01, label="Maximum Impact Hour Rate (wxDai/IH)")
+    hatch_tribute_percentage = param.Number(5, bounds=(0,100), step=1, label="Hatch Tribute (%)")
     #expected_impact_hour_rate = param.Number()
-    target_impact_hour_rate = param.Number(label="Target impact hour rate (wxDai/hour)", constant=True)
+    target_impact_hour_rate = param.Number(label="Target Impact Hour Rate (wxDai/hour)", constant=True)
     target_cultural_build_tribute = param.Number(label="Target Cultural Build Tribute (%)", constant=True)
 
     def __init__(self, total_impact_hours, impact_hour_data, **params):
@@ -627,20 +627,20 @@ class ImpactHoursFormula(param.Parameterized):
 
 class Hatch(param.Parameterized):
     # Min and Target Goals
-    target_raise = param.Number(500, bounds=(20,1000), step=1, label="Target raise (wxDai)")
-    max_raise = param.Number(1000, bounds=(150,1000), step=1, label="Maximum raise (wxDai)")
-    min_raise = param.Number(5, bounds=(1, 20), step=1, label="Minimum raise (wxDai)")
+    target_raise = param.Number(500, bounds=(20,1000), step=1, label="Target Goal (wxDai)")
+    max_raise = param.Number(1000, bounds=(150,1000), step=1, label="Maximum Goal (wxDai)")
+    min_raise = param.Number(5, bounds=(1, 20), step=1, label="Minimum Goal (wxDai)")
 
     # CSTK Ratio
     #total_cstk_tokens = param.Number()
-    hatch_oracle_ratio = param.Number(0.005, bounds=(0.001, 1), step=0.001, label="Hatch oracle ratio (wxDai/CSTK)")
+    hatch_oracle_ratio = param.Number(0.005, bounds=(0.001, 1), step=0.001, label="Membership (wxDai/CSTK)")
 
     # Hatch params
-    hatch_period_days = param.Integer(15, bounds=(5, 30), step=2, label="Hatch period (days)")
+    hatch_period_days = param.Integer(15, bounds=(5, 30), step=2, label="Hatch Period (days)")
 
     # Number of TESTTEC exchanged for 1 wxdai
-    hatch_exchange_rate = param.Number(10000, bounds=(1,100000), step=1, label="Hatch exchange rate (TESTTECH/wxDai)")
-    hatch_tribute_percentage = param.Number(5, bounds=(0,100), step=1, label="Hatch tribute (%)")
+    hatch_exchange_rate = param.Number(10000, bounds=(1,100000), step=1, label="Hatch Minting Rate (TESTTECH/wxDai)")
+    hatch_tribute_percentage = param.Number(5, bounds=(0,100), step=1, label="Hatch Tribute (%)")
 
     total_target_tech_tokens = param.Number(precedence=-1, label="Total target tech tokens (TESTTECH)")
 
@@ -717,10 +717,10 @@ class Hatch(param.Parameterized):
 
 class DandelionVoting(param.Parameterized):
     #total_tokens = param.Number(17e6)
-    support_required_percentage = param.Number(60, bounds=(50,90), step=1, label="Support required (%)")
-    minimum_accepted_quorum_percentage = param.Number(2, bounds=(1,100), step=1, label="Minimum accepted quorum (%)")
-    vote_duration_days = param.Number(3, bounds=(1,14), step=1, label="Vote duration (days)")
-    vote_buffer_hours = param.Number(8, bounds=(1,48), step=1, label="Vote buffer (hours)")
+     support_required_percentage = param.Number(60, bounds=(50,90), step=1, label="Support Required (%)")
+    minimum_accepted_quorum_percentage = param.Number(2, bounds=(1,100), step=1, label="Minimum Quorum (%)")
+    vote_duration_days = param.Number(3, bounds=(1,14), step=1, label="Vote Duration (days)")
+    vote_buffer_hours = param.Number(8, bounds=(1,48), step=1, label="Vote Proposal buffer (hours)")
     rage_quit_hours = param.Number(24, bounds=(1, 48), step=1, label="Rage quit (hours)")
     tollgate_fee_xdai = param.Number(3, bounds=(1,100), step=1, label="Tollgate fee (wxDai)")
 
