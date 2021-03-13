@@ -60,7 +60,7 @@ def read_cstk_data():
 
 
 class TECH(param.Parameterized):
-   min_max_raise = param.Range((1, 1000), bounds=(1,1000), label="Minimum/Maximum Goal (wxDai)")
+    min_max_raise = param.Range((1, 1000), bounds=(1,1000), label="Minimum/Maximum Goal (wxDai)")
     target_raise = param.Number(500, bounds=(5,1000), step=1, label="Target Goal (wxDai)")
     impact_hour_slope = param.Number(0.012, bounds=(0,1), step=0.001, label="Impact Hour Slope (wxDai/IH)")
     maximum_impact_hour_rate = param.Number(0.01, bounds=(0,1), step=0.01, label="Maximum Impact Hour Rate (wxDai/IH)")
