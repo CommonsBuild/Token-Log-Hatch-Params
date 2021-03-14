@@ -34,7 +34,7 @@ sheets = {i:sheet for i, sheet in enumerate(sheets)}
 
 def read_excel(sheet_name="Total Impact Hours so far", header=1, index_col=0, usecols=None) -> pd.DataFrame:
     data = pd.read_excel(
-            os.path.join('../', "data", "TEC Praise Quantification.xlsx"),
+            os.path.join("data", "TEC Praise Quantification.xlsx"),
             sheet_name=sheet_name,
             engine='openpyxl',
             header=header,
@@ -52,7 +52,7 @@ def read_impact_hour_data():
 
 def read_cstk_data():
     # Load CSTK data
-    cstk_data = pd.read_csv('../data/CSTK_DATA.csv', header=None).reset_index().head(100)
+    cstk_data = pd.read_csv('data/CSTK_DATA.csv', header=None).reset_index().head(100)
     cstk_data.columns = ['CSTK Token Holders', 'CSTK Tokens']
     cstk_data['CSTK Tokens Capped'] = cstk_data['CSTK Tokens'].apply(lambda x: min(x, cstk_data['CSTK Tokens'].sum()/10))
     return cstk_data
@@ -362,8 +362,8 @@ class TECH(param.Parameterized):
 
 
 class ImpactHoursData(param.Parameterized):
-    historic = pd.read_csv('../data/IHPredictions.csv').query('Model=="Historic"')
-    optimistic = pd.read_csv('../data/IHPredictions.csv').query('Model=="Optimistic"')
+    historic = pd.read_csv('data/IHPredictions.csv').query('Model=="Historic"')
+    optimistic = pd.read_csv('data/IHPredictions.csv').query('Model=="Optimistic"')
     predicted_hours = param.Number(0.5, bounds=(-.5,1.5), step=0.05)
     #total_impact_hours = param.Integer(step=100)
 
