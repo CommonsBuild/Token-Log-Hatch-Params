@@ -11,14 +11,14 @@ This dashboard is a tool to collect community opinions on the proper parameteriz
 
 ```
 pip3 install -r requirements.txt
+pip install -e ./
 jupyter labextension install @pyviz/jupyterlab_pyviz
 ```
 
 ## Running Locally
 
 ```
-cd apps
-panel serve --show *.py
+panel serve --show apps/hatch.py [--dev tech/* apps/*]
 ```
 
 ## Resources
