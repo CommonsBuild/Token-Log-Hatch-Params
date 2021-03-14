@@ -135,12 +135,14 @@ class TECH(param.Parameterized):
 
     @param.depends('action')
     def impact_hours_view(self):
+        # Limits the target raise bounds when ploting the charts
+        self.bounds_target_raise()
         self.df_impact_hours = self.impact_hours_formula(self.param.min_max_raise.bounds[0], self.min_max_raise[1])
         df = self.df_impact_hours
         df_fill_minimum = df[df['Total XDAI Raised'] <= self.min_max_raise[0]]
 
         try:
-            target_impact_hour_rate = df[df['Total XDAI Raised'] > self.target_raise].iloc[0]['Impact Hour Rate']
+            target_impact_hour_rate = df[df['Total XDAI Raised'] >= self.target_raise].iloc[0]['Impact Hour Rate']
         except:
             target_impact_hour_rate = 0
 
@@ -247,6 +249,8 @@ class TECH(param.Parameterized):
 
     @param.depends('action')
     def redeemable_plot(self):
+        # Limits the target raise bounds when ploting the charts
+        self.bounds_target_raise()
         df_hatch_params_to_plot = self.output_scenarios()
         # Drop NaN rows
         df_hatch_params_to_plot = df_hatch_params_to_plot.dropna()
@@ -262,7 +266,7 @@ class TECH(param.Parameterized):
                                                               xlim=self.param.min_max_raise.bounds
                                                               ).opts(axiswise=True)
         try:
-            redeemable_target = df_hatch_params_to_plot[df_hatch_params_to_plot['Total XDAI Raised'] > self.target_raise].iloc[0]['Redeemable']
+            redeemable_target = df_hatch_params_to_plot[df_hatch_params_to_plot['Total XDAI Raised'] >= self.target_raise].iloc[0]['Redeemable']
         except:
             redeemable_target = 0
 
@@ -270,6 +274,8 @@ class TECH(param.Parameterized):
 
     @param.depends('action')
     def cultural_build_tribute_plot(self):
+        # Limits the target raise bounds when ploting the charts
+        self.bounds_target_raise()
         df_hatch_params_to_plot = self.output_scenarios()
         # Drop NaN rows
         df_hatch_params_to_plot = df_hatch_params_to_plot.dropna()
@@ -286,7 +292,7 @@ class TECH(param.Parameterized):
                                                                           ).opts(axiswise=True)
         try:
             #cultural_build_tribute_target = df_hatch_params_to_plot.loc[df_hatch_params_to_plot['Total XDAI Raised'] == self.target_raise]['Cultural Build Tribute'].values[0]
-            cultural_build_tribute_target = df_hatch_params_to_plot[df_hatch_params_to_plot['Total XDAI Raised'] > self.target_raise].iloc[0]['Cultural Build Tribute']
+            cultural_build_tribute_target = df_hatch_params_to_plot[df_hatch_params_to_plot['Total XDAI Raised'] >= self.target_raise].iloc[0]['Cultural Build Tribute']
         except:
             cultural_build_tribute_target = 0
         return cultural_build_tribute_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(cultural_build_tribute_target).opts(color='#E31212')
@@ -362,6 +368,13 @@ class TECH(param.Parameterized):
     def funding_pool_data_view(self):
         funding_pools = self.get_funding_pool_data()
         return funding_pools.T.reset_index().hvplot.table(width=300)
+
+    @param.depends('action')
+    def bounds_target_raise(self):
+        if self.target_raise > self.min_max_raise[1]:
+            self.target_raise = self.min_max_raise[1]
+        elif self.target_raise < self.min_max_raise[0]:
+            self.target_raise = self.min_max_raise[0]
 
 
 class ImpactHoursData(param.Parameterized):
