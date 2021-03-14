@@ -69,7 +69,8 @@ class TECH(param.Parameterized):
     hatch_tribute = param.Number(0.05, bounds=(0,1), step=0.01, label="Hatch Tribute (%)")
     target_impact_hour_rate = param.Number(label="Target Impact Hour Rate (wxDai/hour)", constant=True)
     target_cultural_build_tribute = param.Number(label="Target Cultural Build Tribute (%)", constant=True)
-        
+    action = param.Action(lambda x: x.param.trigger('action'), label='Update charts!')
+
     def __init__(self, total_impact_hours, impact_hour_data, total_cstk_tokens,
                  config, **params):
         super(TECH, self).__init__(**params, name="Hatch")
@@ -110,7 +111,7 @@ class TECH(param.Parameterized):
         self.param.hatch_tribute.step = config['hatch_tribute']['step']
         self.hatch_tribute = config['hatch_tribute']['value']
 
-
+    @param.depends('action')
     def payout_view(self):
         scenario_rates = self.get_rate_scenarios()
         self.impact_hour_data['Minimum Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * scenario_rates['min_rate']
@@ -118,7 +119,7 @@ class TECH(param.Parameterized):
         self.impact_hour_data['Maximum Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * scenario_rates['max_rate']
         return self.impact_hour_data.hvplot.table()
 
-
+    @param.depends('action')
     def impact_hours_formula(self, minimum_raise, maximum_raise, raise_scenarios=None):
         if raise_scenarios is None:
             x = np.linspace(minimum_raise, maximum_raise, num=500)
@@ -133,7 +134,7 @@ class TECH(param.Parameterized):
         df.columns = ['Total XDAI Raised','Impact Hour Rate']
         return df
 
-
+    @param.depends('action')
     def impact_hours_view(self):
         self.df_impact_hours = self.impact_hours_formula(self.param.min_max_raise.bounds[0], self.min_max_raise[1])
         df = self.df_impact_hours
@@ -166,7 +167,7 @@ class TECH(param.Parameterized):
         #return impact_hours_plot * hv.VLine(expected_raise) * hv.HLine(expected_impact_hour_rate) * hv.VLine(self.target_raise) * hv.HLine(target_impact_hour_rate)
         return impact_hours_plot * minimum_raise_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(self.target_impact_hour_rate).opts(color='#E31212')
 
-
+    @param.depends('action')
     def output_scenarios(self):
         df_hatch_params = self.df_impact_hours
         df_hatch_params['Cultural Build Tribute'] = (self.total_impact_hours * df_hatch_params['Impact Hour Rate'])/df_hatch_params['Total XDAI Raised']
@@ -184,6 +185,7 @@ class TECH(param.Parameterized):
 
         return df_hatch_params
 
+    @param.depends('action')
     def output_scenarios_out_issue(self):
         hatch_tribute = self.hatch_tribute
         R = self.maximum_impact_hour_rate
@@ -246,6 +248,7 @@ class TECH(param.Parameterized):
         #df_hatch_params = df_hatch_params[df_hatch_params['Total XDAI Raised'].isin(x) | df_hatch_params['label'].isin(["Min Raise", "Target Raise", "Max Raise"])]
         return df_hatch_params
 
+    @param.depends('action')
     def redeemable_plot(self):
         df_hatch_params_to_plot = self.output_scenarios()
         # Drop NaN rows
@@ -268,6 +271,7 @@ class TECH(param.Parameterized):
 
         return redeemable_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(redeemable_target).opts(color='#E31212')
 
+    @param.depends('action')
     def cultural_build_tribute_plot(self):
         df_hatch_params_to_plot = self.output_scenarios()
         # Drop NaN rows
@@ -290,7 +294,8 @@ class TECH(param.Parameterized):
             cultural_build_tribute_target = 0
         return cultural_build_tribute_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(cultural_build_tribute_target).opts(color='#E31212')
         #return cultural_build_tribute_plot * hv.VLine(self.target_raise).opts(color='#E31212')
-
+    
+    @param.depends('action')
     def get_impact_hour_rate(self, raise_amount):
         rates = self.impact_hours_formula(0, int(self.min_max_raise[1]))
         try:
@@ -299,6 +304,7 @@ class TECH(param.Parameterized):
             rate = rates['Impact Hour Rate'].max()
         return rate
 
+    @param.depends('action')
     def get_rate_scenarios(self):
         funding_pools = self.get_funding_pool_data().T
         scenarios = {
@@ -308,6 +314,7 @@ class TECH(param.Parameterized):
         }
         return scenarios
 
+    @param.depends('action')
     def get_raise_scenarios(self):
         scenarios = {
             'min_raise' : int(self.min_max_raise[0]),
@@ -316,6 +323,7 @@ class TECH(param.Parameterized):
         }
         return scenarios
 
+    @param.depends('action')
     def get_funding_pool_data(self):
         scenarios = self.get_raise_scenarios()
         funding_pool_data = {}
@@ -331,6 +339,7 @@ class TECH(param.Parameterized):
             }
         return pd.DataFrame(funding_pool_data).T
 
+    @param.depends('action')
     def funding_pool_view(self):
         funding_pools = self.get_funding_pool_data()
         # return funding_pools.hvplot.bar(title="Funding Pools", ylim=(0,self.param['hatch_oracle_ratio'].bounds[1]*self.param['min_max_raise'].bounds[1]), rot=45, yformatter='%.0f').opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
@@ -355,7 +364,8 @@ class TECH(param.Parameterized):
 
         #return pn.Column('## Funding Pool', pn.Row(p1, p2, p3))
         return pn.Row(p1, p2, p3)
-
+        
+    @param.depends('action')
     def funding_pool_data_view(self):
         funding_pools = self.get_funding_pool_data()
         return funding_pools.T.reset_index().hvplot.table(width=300)
@@ -671,6 +681,7 @@ class DandelionVoting(param.Parameterized):
     vote_buffer_hours = param.Number(8, bounds=(1,48), step=1, label="Vote Proposal buffer (hours)")
     rage_quit_hours = param.Number(24, bounds=(1, 48), step=1, label="Rage quit (hours)")
     tollgate_fee_xdai = param.Number(3, bounds=(1,100), step=1, label="Tollgate fee (wxDai)")
+    action = param.Action(lambda x: x.param.trigger('action'), label='Update charts!')
 
     def __init__(self, total_tokens, config, **params):
         super(DandelionVoting, self).__init__(**params, name="TEC Hatch DAO")
@@ -701,12 +712,15 @@ class DandelionVoting(param.Parameterized):
         self.param.tollgate_fee_xdai.step = config['tollgate_fee_xdai']['step']
         self.tollgate_fee_xdai = config['tollgate_fee_xdai']['value']
 
+    @param.depends('action')
     def support_required(self):
         return self.support_required_percentage/100
-
+    
+    @param.depends('action')
     def minimum_accepted_quorum(self):
         return self.minimum_accepted_quorum_percentage/100
 
+    @param.depends('action')
     def vote_pass_view(self):
         x = np.linspace(0, 100, num=100)
         y = [a*self.support_required() for a in x]
