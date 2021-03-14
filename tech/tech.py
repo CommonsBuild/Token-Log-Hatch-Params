@@ -59,6 +59,7 @@ def read_cstk_data():
 
 
 class TECH(param.Parameterized):
+    action = param.Action(lambda x: x.param.trigger('action'), label='Run simulation')
     min_max_raise = param.Range((1, 1000), bounds=(1,1000), label="Minimum/Maximum Goal (wxDai)")
     target_raise = param.Number(500, bounds=(5,1000), step=1, label="Target Goal (wxDai)")
     impact_hour_slope = param.Number(0.012, bounds=(0,1), step=0.001, label="Impact Hour Slope (wxDai/IH)")
@@ -69,7 +70,6 @@ class TECH(param.Parameterized):
     hatch_tribute = param.Number(0.05, bounds=(0,1), step=0.01, label="Hatch Tribute (%)")
     target_impact_hour_rate = param.Number(label="Target Impact Hour Rate (wxDai/hour)", constant=True)
     target_cultural_build_tribute = param.Number(label="Target Cultural Build Tribute (%)", constant=True)
-    action = param.Action(lambda x: x.param.trigger('action'), label='Update charts!')
 
     def __init__(self, total_impact_hours, impact_hour_data, total_cstk_tokens,
                  config, **params):
@@ -675,13 +675,13 @@ class Hatch(param.Parameterized):
 
 class DandelionVoting(param.Parameterized):
     #total_tokens = param.Number(17e6)
+    action = param.Action(lambda x: x.param.trigger('action'), label='Run simulation')
     support_required_percentage = param.Number(60, bounds=(50,90), step=1, label="Support Required (%)")
     minimum_accepted_quorum_percentage = param.Number(2, bounds=(1,100), step=1, label="Minimum Quorum (%)")
     vote_duration_days = param.Number(3, bounds=(1,14), step=1, label="Vote Duration (days)")
     vote_buffer_hours = param.Number(8, bounds=(1,48), step=1, label="Vote Proposal buffer (hours)")
     rage_quit_hours = param.Number(24, bounds=(1, 48), step=1, label="Rage quit (hours)")
     tollgate_fee_xdai = param.Number(3, bounds=(1,100), step=1, label="Tollgate fee (wxDai)")
-    action = param.Action(lambda x: x.param.trigger('action'), label='Update charts!')
 
     def __init__(self, total_tokens, config, **params):
         super(DandelionVoting, self).__init__(**params, name="TEC Hatch DAO")
