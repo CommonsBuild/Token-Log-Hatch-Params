@@ -137,6 +137,8 @@ class TECH(param.Parameterized):
     def impact_hours_view(self):
         # Limits the target raise bounds when ploting the charts
         self.bounds_target_raise()
+        # Limits the target raise bounds when ploting the charts
+        self.bounds_target_raise()
         self.df_impact_hours = self.impact_hours_formula(self.param.min_max_raise.bounds[0], self.min_max_raise[1])
         df = self.df_impact_hours
         df_fill_minimum = df[df['Total XDAI Raised'] <= self.min_max_raise[0]]
