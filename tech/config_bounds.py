@@ -1,12 +1,13 @@
 hatch = {
     "tech": {
+        "title": "TEC Hatch Dashboard",
         "min_max_raise": {
             "value": (100000, 50000000),
             "bounds": (10000, 95000000),
         },
         "target_raise": {
             "value": 2500000,
-            "bounds": (100000, 50000000),
+            "bounds": (10000, 95000000),
             "step": 100,
         },
         "impact_hour_slope": {
@@ -85,6 +86,7 @@ hatch = {
 # Add all the classes parameters to the config file, all of them on a tuple
 # format to represent the boundaries.
 test_hatch = {
+    "title": "TEC Test Hatch Dashboard",
     "tech": {
         "min_max_raise": {
             "value": (5, 1000),
