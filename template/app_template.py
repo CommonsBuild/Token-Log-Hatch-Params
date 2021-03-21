@@ -214,7 +214,7 @@ def load_app(config_file):
 
     # Front-end
     tmpl = pn.Template(template=template)
-    tmpl.add_variable('app_title', 'TEC Hatch Dashboard')
+    tmpl.add_variable('app_title', config_file['title'])
     tmpl.add_panel('A', i.impact_hours_accumulation)
     tmpl.add_panel('B', t)
     tmpl.add_panel('C', t.funding_pool_data_view)
