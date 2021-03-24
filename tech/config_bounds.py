@@ -1,6 +1,6 @@
 hatch = {
+    "title": "TEC Hatch Dashboard",
     "tech": {
-        "title": "TEC Hatch Dashboard",
         "min_max_raise": {
             "value": (100000, 50000000),
             "bounds": (10000, 95000000),
