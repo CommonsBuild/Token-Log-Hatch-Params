@@ -42,7 +42,7 @@ def load_app(config_file):
 
     # TECH
     t = TECH(total_impact_hours=i.total_impact_hours,
-            impact_hour_data=impact_hour_data_1, total_cstk_tokens=8500,
+            impact_hour_data=impact_hour_data_1, total_cstk_tokens=1000000,
             config=config_file['tech'])
 
 
@@ -91,7 +91,7 @@ def load_app(config_file):
             if 'her' in queries:
                 t.hatch_exchange_rate = float(queries['her'])
             if 'ht' in queries:
-                t.hatch_tribute = int(queries['ht'])
+                t.hatch_tribute_percentage = int(queries['ht'])
             if 'sr' in queries:
                 dandelion.support_required_percentage = int(queries['sr'])
             if 'maq' in queries:
@@ -116,7 +116,7 @@ def load_app(config_file):
         'Values': [int(t.target_raise), int(t.min_max_raise[1]),
         int(t.min_max_raise[0]), t.impact_hour_slope,
         t.maximum_impact_hour_rate, t.hatch_oracle_ratio,
-        t.hatch_period_days, t.hatch_exchange_rate, t.hatch_tribute,
+        t.hatch_period_days, t.hatch_exchange_rate, t.hatch_tribute_percentage / 100,
         dandelion.support_required_percentage, dandelion.minimum_accepted_quorum_percentage, dandelion.vote_duration_days,
         dandelion.vote_buffer_hours, dandelion.rage_quit_hours, dandelion.tollgate_fee_xdai]}
         df = pd.DataFrame(data=data_table)
@@ -145,41 +145,41 @@ def load_app(config_file):
 
             output_data = """
 
-    <h1>Output Charts</h1>
+<h1>Output Charts</h1>
 
-    ![image]({image_charts})
+![image]({image_charts})
 
-    <h1>Output Scenarios</h1>
+<h1>Output Scenarios</h1>
 
-    ![image]({image_scenarios})
+![image]({image_scenarios})
             """.format(image_charts=charts.json()['url'],
             image_scenarios=scenarios.json()['url'])
 
             parameters_data = """
 
-    <h1>Parameters</h1>
+<h1>Parameters</h1>
 
-    {params_table}
+{params_table}
             """.format(params_table=df.to_markdown(index=False, floatfmt=".2f"))
 
             string_data = """
-    <h1>Results</h1>
+<h1>Results</h1>
 
-    <p>{comments}</p>
+<p>{comments}</p>
 
-    - It costs {tollgate_fee_xdai} wxDAI to make a proposal
+- It costs {tollgate_fee_xdai} wxDAI to make a proposal
 
-    - Votes will be voted on for {vote_duration_days} days
+- Votes will be voted on for {vote_duration_days} days
 
-    - TECH token holders will have {rage_quit_hours} Hours to exit the DAO if they don't like the result of a vote (as long as they don't vote yes).
+- TECH token holders will have {rage_quit_hours} Hours to exit the DAO if they don't like the result of a vote (as long as they don't vote yes).
 
-    - There can be a maximum of {max_proposals_month} votes per year.
+- There can be a maximum of {max_proposals_month} votes per year.
 
-    - A proposal that passes can be executed {proposal_execution_hours} hours after it was proposed.
+- A proposal that passes can be executed {proposal_execution_hours} hours after it was proposed.
 
-    - A CSTK Token holder that has 2000 CSTK can send a max of {max_wxdai_ratio} wxDai to the Hatch
+- A CSTK Token holder that has 2000 CSTK can send a max of {max_wxdai_ratio} wxDai to the Hatch
 
-    Play with my parameters [here](http://localhost:5006/hatch?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}).
+Play with my parameters [here](http://localhost:5006/hatch?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}).
 
             """.format(comments=comments.value,
             tollgate_fee_xdai=dandelion.tollgate_fee_xdai,
@@ -193,7 +193,7 @@ def load_app(config_file):
             hatch_oracle_ratio=t.hatch_oracle_ratio,
             hatch_period_days=t.hatch_period_days,
             hatch_exchange_rate=t.hatch_exchange_rate,
-            hatch_tribute=t.hatch_tribute,
+            hatch_tribute_percentage=t.hatch_tribute_percentage,
             support_required=dandelion.support_required_percentage,
             minimum_accepted_quorum=dandelion.minimum_accepted_quorum_percentage,
             vote_buffer_hours=dandelion.vote_buffer_hours,

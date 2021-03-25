@@ -1,6 +1,6 @@
 hatch = {
+    "title": "TEC Hatch Dashboard",
     "tech": {
-        "title": "TEC Hatch Dashboard",
         "min_max_raise": {
             "value": (100000, 50000000),
             "bounds": (10000, 95000000),
@@ -35,10 +35,10 @@ hatch = {
             "bounds": (1, 100000),
             "step": 10,
         },
-        "hatch_tribute": {
-            "value": 0.05,
-            "bounds": (0, 1),
-            "step": 0.01,
+        "hatch_tribute_percentage": {
+            "value": 5,
+            "bounds": (0, 100),
+            "step": 1,
         },
         "output_scenario_raise": [
             300000, 400000, 500000, 600000, 700000, 800000, 900000, 1000000,
@@ -122,10 +122,10 @@ test_hatch = {
             "bounds": (1, 100000),
             "step": 10,
         },
-        "hatch_tribute": {
-            "value": 0.05,
-            "bounds": (0, 1),
-            "step": 0.01,
+        "hatch_tribute_percentage": {
+            "value": 5,
+            "bounds": (0, 100),
+            "step": 1,
         },
         "output_scenario_raise": [
             1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 75, 100, 150, 175,
