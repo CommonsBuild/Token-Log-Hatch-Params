@@ -179,7 +179,7 @@ def load_app(config_file):
 
 - A CSTK Token holder that has 2000 CSTK can send a max of {max_wxdai_ratio} wxDai to the Hatch
 
-Play with my parameters [here](http://localhost:5006/hatch?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}).
+Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}).
 
             """.format(comments=comments.value,
             tollgate_fee_xdai=dandelion.tollgate_fee_xdai,
@@ -199,11 +199,12 @@ Play with my parameters [here](http://localhost:5006/hatch?ihminr={ihf_minimum_r
             vote_buffer_hours=dandelion.vote_buffer_hours,
             max_proposals_month=int(365*24/dandelion.vote_buffer_hours),
             proposal_execution_hours=dandelion.vote_buffer_hours+dandelion.rage_quit_hours,
-            max_wxdai_ratio=int(2000*t.hatch_oracle_ratio))
+            max_wxdai_ratio=int(2000*t.hatch_oracle_ratio),
+            url=config_file['url'])
 
             markdown_panel = pn.pane.Markdown(parameters_data + string_data + output_data)
             body = urllib.parse.quote(markdown_panel.object, safe='')
-            url.value = "https://github.com/TECommons/Token-Log-Hatch-Params/issues/new?title=Vote%20for%20My%20Params&labels=TEST%20VOTE&body=" + body
+            url.value = "https://github.com/TECommons/Token-Log-Hatch-Params/issues/new?title=Vote%20for%20My%20Params&labels=TEC%20Hatch%20Params&body=" + body
 
         else:
             string_data=""
