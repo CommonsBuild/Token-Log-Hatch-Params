@@ -1,4 +1,6 @@
 hatch = {
+    "title": "TEC Hatch Dashboard",
+    "url": "http://params.tecommons.org/hatch",
     "tech": {
         "min_max_raise": {
             "value": (100000, 50000000),
@@ -6,7 +8,7 @@ hatch = {
         },
         "target_raise": {
             "value": 2500000,
-            "bounds": (100000, 50000000),
+            "bounds": (10000, 95000000),
             "step": 100,
         },
         "impact_hour_slope": {
@@ -34,10 +36,10 @@ hatch = {
             "bounds": (1, 100000),
             "step": 10,
         },
-        "hatch_tribute": {
-            "value": 0.05,
-            "bounds": (0, 1),
-            "step": 0.01,
+        "hatch_tribute_percentage": {
+            "value": 5,
+            "bounds": (0, 100),
+            "step": 1,
         },
         "output_scenario_raise": [
             300000, 400000, 500000, 600000, 700000, 800000, 900000, 1000000,
@@ -85,6 +87,8 @@ hatch = {
 # Add all the classes parameters to the config file, all of them on a tuple
 # format to represent the boundaries.
 test_hatch = {
+    "title": "TEC Test Hatch Dashboard",
+    "url": "http://params.tecommons.org/test-hatch",
     "tech": {
         "min_max_raise": {
             "value": (5, 1000),
@@ -120,10 +124,10 @@ test_hatch = {
             "bounds": (1, 100000),
             "step": 10,
         },
-        "hatch_tribute": {
-            "value": 0.05,
-            "bounds": (0, 1),
-            "step": 0.01,
+        "hatch_tribute_percentage": {
+            "value": 5,
+            "bounds": (0, 100),
+            "step": 1,
         },
         "output_scenario_raise": [
             1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 75, 100, 150, 175,

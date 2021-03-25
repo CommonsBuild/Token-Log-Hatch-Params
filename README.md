@@ -1,14 +1,28 @@
-# Token-Log-Hatch-Params
+# TEC Hatch Params Dashboard
+
+This dashboard is a tool to collect community opinions on the proper parameterization of the Token Engineering Commons.
 
 ## Requirements
 
-* NodeJS 12.x.x
-* Python 3.8
+- NodeJS 12
+- Python 3.8
 
-## Instal Dependencies and Run Locally
+## Installing Dependencies
 
 ```
 pip3 install -r requirements.txt
+pip install -e ./
 jupyter labextension install @pyviz/jupyterlab_pyviz
-panel serve --show app.py
 ```
+
+## Running Locally
+
+```
+panel serve --show apps/hatch.py [--dev tech/* apps/*]
+```
+
+## Resources
+
+- [The Hatch Overview](https://forum.tecommons.org/t/the-hatch-tl-dr/272)
+- [Understanding each Hatch Parameter](https://forum.tecommons.org/t/tec-test-hatch-implementation-specification/226)
+- [About the Token Engineering Commons](https://tecommons.org/)
