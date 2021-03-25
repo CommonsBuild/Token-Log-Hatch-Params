@@ -153,13 +153,15 @@ class TECH(param.Parameterized):
                                            xformatter='%.0f',
                                            yformatter='%.4f',
                                            hover=True,
-                                           xlim=self.param.min_max_raise.bounds
+                                           xlim=self.param.min_max_raise.bounds,
+                                           label='Hatch happens ✅'
                                            ).opts(axiswise=True)
         minimum_raise_plot = df_fill_minimum.hvplot.area(x='Total XDAI Raised',
                                                          xformatter='%.0f',
                                                          yformatter='%.4f',
                                                          color='red',
-                                                         xlim=self.param.min_max_raise.bounds
+                                                         xlim=self.param.min_max_raise.bounds,
+                                                         label='Hatch fails 🚫'
                                                          ).opts(axiswise=True)
 
         # Enables the edition of constant params
@@ -168,7 +170,11 @@ class TECH(param.Parameterized):
             self.target_cultural_build_tribute = round(100 * (self.total_impact_hours * self.target_impact_hour_rate)/self.target_raise, 2)
 
         #return impact_hours_plot * hv.VLine(expected_raise) * hv.HLine(expected_impact_hour_rate) * hv.VLine(self.target_raise) * hv.HLine(target_impact_hour_rate)
-        return impact_hours_plot * minimum_raise_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(self.target_impact_hour_rate).opts(color='#E31212')
+        return (impact_hours_plot * 
+                minimum_raise_plot *
+                hv.VLine(self.target_raise).opts(color='#E31212') *
+                hv.HLine(self.target_impact_hour_rate).opts(color='#E31212')
+                ).opts(legend_position='top_left')
 
     def output_scenarios(self):
         df_hatch_params = self.df_impact_hours
@@ -738,7 +744,7 @@ class DandelionVoting(param.Parameterized):
         total_votes_plot = df_fill.hvplot.area(
                 title = "Minimum Support and Quorum Accepted for Proposals to Pass",
                 x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='green',
-                xlabel='Total Token Votes (%)', ylabel='Yes Token Votes (%)', label='Yes votes 👍')
-        support_required_plot = df.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='red', label='No votes 👎')
+                xlabel='Total Token Votes (%)', ylabel='Yes Token Votes (%)', label='Yes votes ✅')
+        support_required_plot = df.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='red', label='No votes 🚫')
         quorum_accepted_plot = df_fill_q.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='yellow', label='Minimum quorum')
         return (total_votes_plot* support_required_plot * quorum_accepted_plot).opts(legend_position='top_left') 
