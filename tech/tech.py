@@ -64,10 +64,10 @@ class TECH(param.Parameterized):
     target_raise = param.Number(500, bounds=(5,1000), step=1, label="Target Goal (wxDai)")
     impact_hour_slope = param.Number(0.012, bounds=(0,1), step=0.001, label="Impact Hour Slope (wxDai/IH)")
     maximum_impact_hour_rate = param.Number(0.01, bounds=(0,1), step=0.01, label="Maximum Impact Hour Rate (wxDai/IH)")
-    hatch_oracle_ratio = param.Number(0.005, bounds=(0.001, 1), step=0.001, label="Membership Ratio")
-    hatch_period_days = param.Integer(15, bounds=(5, 30), step=2, label="Hatch Period")
-    hatch_exchange_rate = param.Number(10000, bounds=(1,100000), step=1, label="Hatch Minting Rate")
-    hatch_tribute = param.Number(0.05, bounds=(0,1), step=0.01, label="Hatch Tribute (%)")
+    hatch_oracle_ratio = param.Number(0.005, bounds=(0.001, 1), step=0.001, label="Membership Ratio (wxDai/CSTK)")
+    hatch_period_days = param.Integer(15, bounds=(5, 30), step=2, label="Hatch Period (days)")
+    hatch_exchange_rate = param.Number(10000, bounds=(1,100000), step=1, label="Hatch Minting Rate (TECH/wxDai)")
+    hatch_tribute_percentage = param.Number(5, bounds=(0,100), step=1, label="Hatch Tribute (%)")
     target_impact_hour_rate = param.Number(label="Target Impact Hour Rate (wxDai/hour)", constant=True)
     target_cultural_build_tribute = param.Number(label="Target Cultural Build Tribute (%)", constant=True)
 
@@ -107,9 +107,9 @@ class TECH(param.Parameterized):
         self.param.hatch_exchange_rate.step = config['hatch_exchange_rate']['step']
         self.hatch_exchange_rate = config['hatch_exchange_rate']['value']
 
-        self.param.hatch_tribute.bounds = config['hatch_tribute']['bounds']
-        self.param.hatch_tribute.step = config['hatch_tribute']['step']
-        self.hatch_tribute = config['hatch_tribute']['value']
+        self.param.hatch_tribute_percentage.bounds = config['hatch_tribute_percentage']['bounds']
+        self.param.hatch_tribute_percentage.step = config['hatch_tribute_percentage']['step']
+        self.hatch_tribute_percentage = config['hatch_tribute_percentage']['value']
 
     @param.depends('action')
     def payout_view(self):
@@ -135,8 +135,6 @@ class TECH(param.Parameterized):
 
     @param.depends('action')
     def impact_hours_view(self):
-        # Limits the target raise bounds when ploting the charts
-        self.bounds_target_raise()
         # Limits the target raise bounds when ploting the charts
         self.bounds_target_raise()
         self.df_impact_hours = self.impact_hours_formula(self.param.min_max_raise.bounds[0], self.min_max_raise[1])
@@ -166,8 +164,8 @@ class TECH(param.Parameterized):
 
         # Enables the edition of constant params
         with param.edit_constant(self):
-            self.target_impact_hour_rate = round(target_impact_hour_rate, 2)
-            self.target_cultural_build_tribute = round(100 * (self.total_impact_hours * self.target_impact_hour_rate)/self.target_raise, 2)
+            self.target_impact_hour_rate = round(target_impact_hour_rate, 4)
+            self.target_cultural_build_tribute = round(100 * (self.total_impact_hours * self.target_impact_hour_rate)/self.target_raise, 4)
 
         #return impact_hours_plot * hv.VLine(expected_raise) * hv.HLine(expected_impact_hour_rate) * hv.VLine(self.target_raise) * hv.HLine(target_impact_hour_rate)
         return (impact_hours_plot * 
@@ -179,7 +177,7 @@ class TECH(param.Parameterized):
     def output_scenarios(self):
         df_hatch_params = self.df_impact_hours
         df_hatch_params['Cultural Build Tribute'] = (self.total_impact_hours * df_hatch_params['Impact Hour Rate'])/df_hatch_params['Total XDAI Raised']
-        df_hatch_params['Hatch tribute'] = self.hatch_tribute
+        df_hatch_params['Hatch tribute'] = self.hatch_tribute_percentage / 100
         df_hatch_params['Redeemable'] = (1 - df_hatch_params['Hatch tribute'])/(1 + df_hatch_params['Cultural Build Tribute'])
         df_hatch_params['label'] = ""
 
@@ -194,15 +192,15 @@ class TECH(param.Parameterized):
         return df_hatch_params
 
     def output_scenarios_out_issue(self):
-        hatch_tribute = self.hatch_tribute
+        hatch_tribute = self.hatch_tribute_percentage / 100
         R = self.maximum_impact_hour_rate
         m = self.impact_hour_slope
         H = self.total_impact_hours
 
         df_hatch_params = self.impact_hours_formula(None, None, raise_scenarios=self.output_scenario_raise)
         df_hatch_params['Cultural Build Tribute'] = (H * df_hatch_params['Impact Hour Rate'])/df_hatch_params['Total XDAI Raised']
-        df_hatch_params['Hatch tribute'] = df_hatch_params['Total XDAI Raised'].mul(self.hatch_tribute)
-        df_hatch_params['Redeemable'] = (1 - self.hatch_tribute)/(1 + df_hatch_params['Cultural Build Tribute'])
+        df_hatch_params['Hatch tribute'] = df_hatch_params['Total XDAI Raised'].mul(hatch_tribute)
+        df_hatch_params['Redeemable'] = (1 - hatch_tribute)/(1 + df_hatch_params['Cultural Build Tribute'])
         df_hatch_params['label'] = ""
 
         minimum_raise = int(self.min_max_raise[0])
@@ -327,17 +325,19 @@ class TECH(param.Parameterized):
         scenarios = {
             'min_raise' : int(self.min_max_raise[0]),
             'target_raise' : self.target_raise,
-            'max_raise' : min(int(self.min_max_raise[1]), self.hatch_oracle_ratio * self.total_cstk_tokens),
+            'max_raise' : int(self.min_max_raise[1])
+            #'max_raise' : min(int(self.min_max_raise[1]), self.hatch_oracle_ratio * self.total_cstk_tokens),
         }
         return scenarios
 
     def get_funding_pool_data(self):
+        hatch_tribute = self.hatch_tribute_percentage / 100
         scenarios = self.get_raise_scenarios()
         funding_pool_data = {}
         for scenario, raise_amount in scenarios.items():
             cultural_tribute = min(raise_amount, self.get_impact_hour_rate(raise_amount) * self.total_impact_hours)
-            redeemable_reserve = (raise_amount-cultural_tribute) * (1 - self.hatch_tribute)
-            non_redeemable_reserve = (raise_amount-cultural_tribute) * self.hatch_tribute
+            redeemable_reserve = (raise_amount-cultural_tribute) * (1 - hatch_tribute)
+            non_redeemable_reserve = (raise_amount-cultural_tribute) * hatch_tribute
             funding_pool_data[scenario] = {
                 'Cultural tribute': cultural_tribute,
                 'Hatch tribute': non_redeemable_reserve,
@@ -358,16 +358,17 @@ class TECH(param.Parameterized):
         colors = ['#0F2EEE', '#0b0a15', '#DEFB48']
         chart_data = funding_pools.iloc[:,:-2]
         p1 = pie_chart(data=pd.Series(chart_data.loc['min_raise',:]),
-                       radius=[0.65, 0.55, 0.4][idx_rank.get_loc('min_raise')],
+                       radius=0.1 + 0.55 * int(self.min_max_raise[0])/int(self.param.min_max_raise.bounds[1]),
                        title="Min Raise", toolbar_location=None, plot_width=300,
                        show_legend=False, colors=colors)
         p2 = pie_chart(data=pd.Series(chart_data.loc['target_raise',:]),
-                       radius=[0.65, 0.55, 0.4][idx_rank.get_loc('target_raise')],
+                       radius=0.1 + 0.55 * int(self.target_raise)/int(self.param.min_max_raise.bounds[1]),
                        title="Target Raise", toolbar_location=None, plot_width=300,
                        show_legend=False, colors=colors)
         p3 = pie_chart(data=pd.Series(chart_data.loc['max_raise',:]),
-                       radius=[0.25, 0.2, 0.15][idx_rank.get_loc('max_raise')],
-                       title="Max Raise", x_range=(-0.5, 1), colors=colors)
+                       radius=0.1 + 0.55 * int(self.min_max_raise[1])/int(self.param.min_max_raise.bounds[1]),
+                       title="Max Raise", colors=colors)
+
 
         #return pn.Column('## Funding Pool', pn.Row(p1, p2, p3))
         return pn.Row(p1, p2, p3)
