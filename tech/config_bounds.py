@@ -53,7 +53,7 @@ hatch = {
     "dandelion_voting": {
         "support_required_percentage": {
             "value": 60,
-            "bounds": (50, 90),
+            "bounds": (50, 99),
             "step": 1,
         },
         "minimum_accepted_quorum_percentage": {
@@ -137,7 +137,7 @@ test_hatch = {
     "dandelion_voting": {
         "support_required_percentage": {
             "value": 60,
-            "bounds": (50, 90),
+            "bounds": (50, 99),
             "step": 1,
         },
         "minimum_accepted_quorum_percentage": {
