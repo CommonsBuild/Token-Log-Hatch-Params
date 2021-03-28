@@ -1,6 +1,6 @@
 hatch = {
     "title": "TEC Hatch Dashboard",
-    "url": "http://params.tecommons.org/hatch",
+    "url": "https://params.tecommons.org/hatch",
     "tech": {
         "min_max_raise": {
             "value": (100000, 50000000),
@@ -88,7 +88,7 @@ hatch = {
 # format to represent the boundaries.
 test_hatch = {
     "title": "TEC Test Hatch Dashboard",
-    "url": "http://params.tecommons.org/test-hatch",
+    "url": "https://params.tecommons.org/test-hatch",
     "tech": {
         "min_max_raise": {
             "value": (5, 1000),
