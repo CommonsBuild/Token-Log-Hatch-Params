@@ -77,7 +77,7 @@ def load_app(config_file):
         queries = { i: j[0] for i, j in queries.items() }
         if queries:
             if 'ihminr' in queries and 'ihmaxr' in queries:
-                t.min_max_raise = (int(queries['ihminr']), int(queries['ihmaxr']))
+                t.min_max_raise = (int(float(queries['ihminr'])), int(float(queries['ihmaxr'])))
             if 'hs' in queries:
                 t.impact_hour_slope = float(queries['hs'])
             if 'maxihr' in queries:
@@ -185,11 +185,11 @@ Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&
             tollgate_fee_xdai=dandelion.tollgate_fee_xdai,
             vote_duration_days=dandelion.vote_duration_days,
             rage_quit_hours=dandelion.rage_quit_hours,
-            ihf_minimum_raise=t.min_max_raise[0],
+            ihf_minimum_raise=int(t.min_max_raise[0]),
             hour_slope=t.impact_hour_slope,
             maximum_impact_hour_rate=t.maximum_impact_hour_rate,
             ihf_target_raise=t.target_raise,
-            ifh_maximum_raise=t.min_max_raise[1],
+            ifh_maximum_raise=int(t.min_max_raise[1]),
             hatch_oracle_ratio=t.hatch_oracle_ratio,
             hatch_period_days=t.hatch_period_days,
             hatch_exchange_rate=t.hatch_exchange_rate,
