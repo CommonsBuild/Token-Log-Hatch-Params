@@ -167,17 +167,17 @@ def load_app(config_file):
 
 <p>{comments}</p>
 
-- It costs {tollgate_fee_xdai} wxDAI to make a proposal
+- It costs {tollgate_fee_xdai} wxDAI to make a proposal.
 
-- Votes will be voted on for {vote_duration_days} days
+- Votes will be voted on for {vote_duration_days} days.
 
 - TECH token holders will have {rage_quit_hours} Hours to exit the DAO if they don't like the result of a vote (as long as they don't vote yes).
 
-- There can be a maximum of {max_proposals_month} votes per year.
+- There will be a minimum of {vote_buffer_hours} hours between proposals so people can exit safely in weird edge case scenarios.
 
 - A proposal that passes can be executed {proposal_execution_hours} hours after it was proposed.
 
-- A CSTK Token holder that has 2000 CSTK can send a max of {max_wxdai_ratio} wxDai to the Hatch
+- A CSTK Token holder that has 2000 CSTK can send a max of {max_wxdai_ratio} wxDai to the Hatch.
 
 Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}).
 
@@ -197,7 +197,6 @@ Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&
             support_required=dandelion.support_required_percentage,
             minimum_accepted_quorum=dandelion.minimum_accepted_quorum_percentage,
             vote_buffer_hours=dandelion.vote_buffer_hours,
-            max_proposals_month=int(365*24/dandelion.vote_buffer_hours),
             proposal_execution_hours=dandelion.vote_buffer_hours+dandelion.rage_quit_hours,
             max_wxdai_ratio=int(2000*t.hatch_oracle_ratio),
             url=config_file['url'])
