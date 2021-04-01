@@ -68,7 +68,7 @@ class TECH(param.Parameterized):
     hatch_period_days = param.Integer(15, label="Hatch Period (days)")
     hatch_exchange_rate = param.Number(10000, label="Hatch Minting Rate (TECH/wxDai)")
     hatch_tribute_percentage = param.Number(5, step=1, label="Hatch Tribute (%)")
-    maximum_impact_hour_rate = param.Number(0.01, (0, 1), label="Maximum Impact Hour Rate (wxDai/IH)")
+    maximum_impact_hour_rate = param.Number(0.01, bounds=(0, 1), label="Maximum Impact Hour Rate (wxDai/IH)")
     impact_hour_slope = param.Number(0.012, bounds=(0,1), step=0.001, label="Impact Hour Slope (wxDai/IH)")
     target_impact_hour_rate = param.Parameter(0, label="Target Impact Hour Rate (wxDai/hour)", constant=True)
     target_cultural_build_tribute = param.Parameter(0, label="Target Cultural Build Tribute (%)", constant=True)
