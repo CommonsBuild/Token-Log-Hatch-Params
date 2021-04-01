@@ -106,7 +106,7 @@ def load_app(config_file):
                 dandelion.tollgate_fee_xdai = float(queries['tfx'])
 
     @pn.depends(results_button)
-    def update_result_score(results_button):
+    def update_result_score(results_button_on):
         data_table = {'Parameters': ["Target raise (wxDai)", "Maximum raise (wxDai)", "Minimum raise (wxDai)",
         "Impact hour slope (wxDai/IH)", "Maximum impact hour rate (wxDai/IH)",
         "Hatch oracle ratio (wxDai/CSTK)", "Hatch period (days)",
@@ -121,7 +121,7 @@ def load_app(config_file):
         dandelion.vote_buffer_hours, dandelion.rage_quit_hours, dandelion.tollgate_fee_xdai]}
         df = pd.DataFrame(data=data_table)
 
-        if results_button:
+        if results_button_on:
             # Define output pane
             output_pane = pn.Row(pn.Column(t.impact_hours_view,
                                         t.redeemable_plot,
@@ -204,6 +204,7 @@ Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&
             markdown_panel = pn.pane.Markdown(parameters_data + string_data + output_data)
             body = urllib.parse.quote(markdown_panel.object, safe='')
             url.value = "https://github.com/TECommons/Token-Log-Hatch-Params/issues/new?title=Vote%20for%20My%20Params&labels=TEC%20Hatch%20Params&body=" + body
+            results_button.name = "Update your results"
 
         else:
             string_data=""
