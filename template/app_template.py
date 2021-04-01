@@ -106,22 +106,22 @@ def load_app(config_file):
                 dandelion.tollgate_fee_xdai = float(queries['tfx'])
 
     @pn.depends(results_button)
-    def update_result_score(results_button):
+    def update_result_score(results_button_on):
         data_table = {'Parameters': ["Target raise (wxDai)", "Maximum raise (wxDai)", "Minimum raise (wxDai)",
         "Impact hour slope (wxDai/IH)", "Maximum impact hour rate (wxDai/IH)",
         "Hatch oracle ratio (wxDai/CSTK)", "Hatch period (days)",
-        "Hatch exchange rate (TESTTECH/wxDai)", "Hatch tribute (%)", "Support required (%)",
+        "Hatch exchange rate (TECH/wxDai)", "Hatch tribute (%)", "Support required (%)",
         "Minimum accepted quorum (%)", "Vote duration (days)", "Vote buffer (hours)",
         "Rage quit (hours)", "Tollgate fee (wxDai)"],
-        'Values': [int(t.target_raise), int(t.min_max_raise[1]),
-        int(t.min_max_raise[0]), t.impact_hour_slope,
+        'Values': [int(t.target_raise), int(t.max_raise),
+        int(t.min_raise), t.impact_hour_slope,
         t.maximum_impact_hour_rate, t.hatch_oracle_ratio,
-        t.hatch_period_days, t.hatch_exchange_rate, t.hatch_tribute_percentage / 100,
+        t.hatch_period_days, t.hatch_exchange_rate, t.hatch_tribute_percentage,
         dandelion.support_required_percentage, dandelion.minimum_accepted_quorum_percentage, dandelion.vote_duration_days,
         dandelion.vote_buffer_hours, dandelion.rage_quit_hours, dandelion.tollgate_fee_xdai]}
         df = pd.DataFrame(data=data_table)
 
-        if results_button:
+        if results_button_on:
             # Define output pane
             output_pane = pn.Row(pn.Column(t.impact_hours_view,
                                         t.redeemable_plot,
@@ -160,24 +160,24 @@ def load_app(config_file):
 <h1>Parameters</h1>
 
 {params_table}
-            """.format(params_table=df.to_markdown(index=False, floatfmt=".2f"))
+            """.format(params_table=df.to_markdown(index=False, floatfmt=",.2f"))
 
             string_data = """
 <h1>Results</h1>
 
 <p>{comments}</p>
 
-- It costs {tollgate_fee_xdai} wxDAI to make a proposal
+- It costs {tollgate_fee_xdai} wxDAI to make a proposal.
 
-- Votes will be voted on for {vote_duration_days} days
+- Votes will be voted on for {vote_duration_days} days.
 
 - TECH token holders will have {rage_quit_hours} Hours to exit the DAO if they don't like the result of a vote (as long as they don't vote yes).
 
-- There can be a maximum of {max_proposals_month} votes per year.
+- There will be a minimum of {vote_buffer_hours} hours between proposals so people can exit safely in weird edge case scenarios.
 
 - A proposal that passes can be executed {proposal_execution_hours} hours after it was proposed.
 
-- A CSTK Token holder that has 2000 CSTK can send a max of {max_wxdai_ratio} wxDai to the Hatch
+- A CSTK Token holder that has 2000 CSTK can send a max of {max_wxdai_ratio} wxDai to the Hatch.
 
 Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}).
 
@@ -185,11 +185,11 @@ Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&
             tollgate_fee_xdai=dandelion.tollgate_fee_xdai,
             vote_duration_days=dandelion.vote_duration_days,
             rage_quit_hours=dandelion.rage_quit_hours,
-            ihf_minimum_raise=int(t.min_max_raise[0]),
+            ihf_minimum_raise=int(t.min_raise),
             hour_slope=t.impact_hour_slope,
             maximum_impact_hour_rate=t.maximum_impact_hour_rate,
             ihf_target_raise=t.target_raise,
-            ifh_maximum_raise=int(t.min_max_raise[1]),
+            ifh_maximum_raise=int(t.max_raise),
             hatch_oracle_ratio=t.hatch_oracle_ratio,
             hatch_period_days=t.hatch_period_days,
             hatch_exchange_rate=t.hatch_exchange_rate,
@@ -197,14 +197,14 @@ Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&
             support_required=dandelion.support_required_percentage,
             minimum_accepted_quorum=dandelion.minimum_accepted_quorum_percentage,
             vote_buffer_hours=dandelion.vote_buffer_hours,
-            max_proposals_month=int(365*24/dandelion.vote_buffer_hours),
             proposal_execution_hours=dandelion.vote_buffer_hours+dandelion.rage_quit_hours,
             max_wxdai_ratio=int(2000*t.hatch_oracle_ratio),
             url=config_file['url'])
 
             markdown_panel = pn.pane.Markdown(parameters_data + string_data + output_data)
             body = urllib.parse.quote(markdown_panel.object, safe='')
-            url.value = "https://github.com/TECommons/Token-Log-Hatch-Params/issues/new?title=Vote%20for%20My%20Params&labels=TEC%20Hatch%20Params&body=" + body
+            url.value = config_file['repo'] + "/issues/new?title=Vote%20for%20My%20Params&labels=" + config_file['label'] + "&body=" + body
+            results_button.name = "Update your results"
 
         else:
             string_data=""
@@ -221,9 +221,11 @@ Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&
     tmpl.add_panel('C', t.funding_pool_data_view)
     tmpl.add_panel('E', t.payout_view)
     tmpl.add_panel('D', pn.Column(t.impact_hours_view, t.redeemable_plot, t.cultural_build_tribute_plot))
+    tmpl.add_panel('M', pn.pane.JPG('https://i.imgflip.com/540z6u.jpg'))
     tmpl.add_panel('F', t.funding_pool_view)
     tmpl.add_panel('V', dandelion)
     tmpl.add_panel('W', dandelion.vote_pass_view)
+    tmpl.add_panel('G', pn.pane.GIF('media/inputs_outputs.gif'))
     tmpl.add_panel('R', update_result_score)
     tmpl.add_panel('CO', comments)
     tmpl.add_panel('BU', pn.Column(results_button, share_button, url))

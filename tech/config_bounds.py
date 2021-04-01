@@ -1,10 +1,13 @@
 hatch = {
     "title": "TEC Hatch Dashboard",
     "url": "https://params.tecommons.org/hatch",
+    "repo": "https://github.com/CommonsBuild/TEC-Hatch-Vote",
+    "label": "Vote",
     "tech": {
         "min_max_raise": {
             "value": (100000, 50000000),
             "bounds": (10000, 95000000),
+            "xlim": (10000, 4000000),
         },
         "target_raise": {
             "value": 2500000,
@@ -53,7 +56,7 @@ hatch = {
     "dandelion_voting": {
         "support_required_percentage": {
             "value": 60,
-            "bounds": (50, 90),
+            "bounds": (50, 99),
             "step": 1,
         },
         "minimum_accepted_quorum_percentage": {
@@ -89,10 +92,13 @@ hatch = {
 test_hatch = {
     "title": "TEC Test Hatch Dashboard",
     "url": "https://params.tecommons.org/test-hatch",
+    "repo": "https://github.com/CommonsBuild/Test-TEC-Hatch-Vote",
+    "label": "Test%20Vote",
     "tech": {
         "min_max_raise": {
             "value": (5, 1000),
             "bounds": (5, 1000),
+            "xlim": (5, 1000),
         },
         "target_raise": {
             "value": 500,
@@ -137,7 +143,7 @@ test_hatch = {
     "dandelion_voting": {
         "support_required_percentage": {
             "value": 60,
-            "bounds": (50, 90),
+            "bounds": (50, 99),
             "step": 1,
         },
         "minimum_accepted_quorum_percentage": {
