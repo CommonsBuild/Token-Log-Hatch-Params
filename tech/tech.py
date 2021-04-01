@@ -347,12 +347,14 @@ class TECH(param.Parameterized):
         scenarios = self.get_raise_scenarios()
         funding_pool_data = {}
         for scenario, raise_amount in scenarios.items():
+            impact_hour_rate = self.get_impact_hour_rate(raise_amount)
             cultural_tribute = min(raise_amount, self.get_impact_hour_rate(raise_amount) * self.total_impact_hours)
             redeemable_reserve = (raise_amount-cultural_tribute) * (1 - hatch_tribute)
             non_redeemable_reserve = (raise_amount-cultural_tribute) * hatch_tribute
             funding_pool_data[scenario] = {
-                'Cultural tribute': cultural_tribute,
+                'Impact Hour Rate (wxDai/hr)': impact_hour_rate,
                 'Hatch tribute': non_redeemable_reserve,
+                'Cultural tribute': cultural_tribute,
                 'Redeemable reserve': redeemable_reserve,
                 'total': raise_amount,
             }
@@ -361,6 +363,7 @@ class TECH(param.Parameterized):
     @param.depends('action')
     def funding_pool_view(self):
         funding_pools = self.get_funding_pool_data()
+        funding_pools = funding_pools.filter(items=['Cultural tribute', 'Hatch tribute', 'Redeemable reserve', 'total'])
         # return funding_pools.hvplot.bar(title="Funding Pools", ylim=(0,self.param['hatch_oracle_ratio'].bounds[1]*self.param['min_max_raise'].bounds[1]), rot=45, yformatter='%.0f').opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
         # raise_bars = bar_data.hvplot.bar(yformatter='%.0f', title="Funding Pools", stacked=True, y=['Funding Pool', 'Hatch Tribute']).opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
         funding_pools['rank'] = funding_pools['total'] / funding_pools['total'].sum()
@@ -388,7 +391,16 @@ class TECH(param.Parameterized):
     @param.depends('action')
     def funding_pool_data_view(self):
         funding_pools = self.get_funding_pool_data()
-        return funding_pools.T.reset_index().hvplot.table(width=300)
+        funding_pools['Cultural tribute'] = 100 * funding_pools['Cultural tribute'] / funding_pools['total']
+        funding_pools['Redeemable reserve'] = 100 * funding_pools['Redeemable reserve'] / funding_pools['total']
+        funding_pools = funding_pools.rename(columns={'Redeemable reserve': 'Redeemable %',
+                                                      'Cultural tribute': 'Cultural tribute %'})
+        funding_pools = funding_pools.T.reset_index()
+        funding_pools = funding_pools.rename(columns={'index': 'Output',
+                                                      'min_raise': 'Min Goal',
+                                                      'target_raise': 'Target Goal',
+                                                      'max_raise': 'Max Goal'})
+        return funding_pools.hvplot.table(width=300)
 
     @param.depends('action')
     def bounds_target_raise(self):
