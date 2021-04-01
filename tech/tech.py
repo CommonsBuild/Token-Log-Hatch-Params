@@ -68,8 +68,8 @@ class TECH(param.Parameterized):
     hatch_period_days = param.Integer(15, bounds=(5, 30), step=2, label="Hatch Period (days)")
     hatch_exchange_rate = param.Number(10000, bounds=(1,100000), step=1, label="Hatch Minting Rate (TECH/wxDai)")
     hatch_tribute_percentage = param.Number(5, bounds=(0,100), step=1, label="Hatch Tribute (%)")
-    target_impact_hour_rate = param.Number(label="Target Impact Hour Rate (wxDai/hour)", constant=True)
-    target_cultural_build_tribute = param.Number(label="Target Cultural Build Tribute (%)", constant=True)
+    target_impact_hour_rate = param.Parameter(0, label="Target Impact Hour Rate (wxDai/hour)", constant=True)
+    target_cultural_build_tribute = param.Parameter(0, label="Target Cultural Build Tribute (%)", constant=True)
 
     def __init__(self, total_impact_hours, impact_hour_data, total_cstk_tokens,
                  config, **params):
