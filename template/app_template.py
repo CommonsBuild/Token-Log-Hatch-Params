@@ -110,7 +110,7 @@ def load_app(config_file):
         data_table = {'Parameters': ["Target raise (wxDai)", "Maximum raise (wxDai)", "Minimum raise (wxDai)",
         "Impact hour slope (wxDai/IH)", "Maximum impact hour rate (wxDai/IH)",
         "Hatch oracle ratio (wxDai/CSTK)", "Hatch period (days)",
-        "Hatch exchange rate (TESTTECH/wxDai)", "Hatch tribute (%)", "Support required (%)",
+        "Hatch exchange rate (TECH/wxDai)", "Hatch tribute (%)", "Support required (%)",
         "Minimum accepted quorum (%)", "Vote duration (days)", "Vote buffer (hours)",
         "Rage quit (hours)", "Tollgate fee (wxDai)"],
         'Values': [int(t.target_raise), int(t.max_raise),
@@ -203,7 +203,7 @@ Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&
 
             markdown_panel = pn.pane.Markdown(parameters_data + string_data + output_data)
             body = urllib.parse.quote(markdown_panel.object, safe='')
-            url.value = "https://github.com/TECommons/Token-Log-Hatch-Params/issues/new?title=Vote%20for%20My%20Params&labels=TEC%20Hatch%20Params&body=" + body
+            url.value = config_file['repo'] + "/issues/new?title=Vote%20for%20My%20Params&labels=" + config_file['label'] + "&body=" + body
             results_button.name = "Update your results"
 
         else:
