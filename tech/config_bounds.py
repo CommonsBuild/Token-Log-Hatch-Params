@@ -5,6 +5,7 @@ hatch = {
         "min_max_raise": {
             "value": (100000, 50000000),
             "bounds": (10000, 95000000),
+            "xlim": (10000, 4000000),
         },
         "target_raise": {
             "value": 2500000,
@@ -93,6 +94,7 @@ test_hatch = {
         "min_max_raise": {
             "value": (5, 1000),
             "bounds": (5, 1000),
+            "xlim": (5, 1000),
         },
         "target_raise": {
             "value": 500,
