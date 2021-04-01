@@ -51,6 +51,11 @@ p {
 .secone {
     height: 1100px;
 }
+.meme {
+    height: 300px;
+    width: 400px;
+    margin: 0 auto;
+}
 .pie-charts {
     height: 400px;
 }
@@ -58,7 +63,7 @@ p {
     height: 150px;
 }
 .dandelion {
-    height: 800px;
+    height: 400px;
 }
 </style>
 
@@ -92,7 +97,7 @@ p {
                 {{ embed(roots.E) }}
             </div>
         </div>
-        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell secone">{{ embed(roots.D) }}</div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell secone">{{ embed(roots.D) }}<div class="meme">{{ embed(roots.M) }}</div></div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 grid-cell pie-charts">{{ embed(roots.F) }}</div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
             <h2>Section 2: Dandelion Voting - Dandelion DAO Initialization</h2>
@@ -101,7 +106,7 @@ p {
                 {{ embed(roots.V) }}
             </div>
         </div>
-        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell dandelion">{{ embed(roots.W) }}</div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell dandelion">{{ embed(roots.W) }}<div class="meme">{{ embed(roots.G) }}</div></div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
             <h2>Results</h2>
             <div style="height: 100px">
