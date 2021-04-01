@@ -352,7 +352,7 @@ class TECH(param.Parameterized):
             redeemable_reserve = (raise_amount-cultural_tribute) * (1 - hatch_tribute)
             non_redeemable_reserve = (raise_amount-cultural_tribute) * hatch_tribute
             funding_pool_data[scenario] = {
-                'Impact Hour Rate (wxDai/hr)': impact_hour_rate,
+                'Impact Hour Rate (wxDai/hour)': impact_hour_rate,
                 'Hatch tribute': non_redeemable_reserve,
                 'Cultural tribute': cultural_tribute,
                 'Redeemable reserve': redeemable_reserve,
