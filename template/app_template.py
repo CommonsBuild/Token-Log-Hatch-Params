@@ -223,7 +223,7 @@ Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&
     tmpl.add_panel('D', pn.Column(t.impact_hours_view, t.redeemable_plot, t.cultural_build_tribute_plot))
     tmpl.add_panel('F', t.funding_pool_view)
     tmpl.add_panel('V', dandelion)
-    tmpl.add_panel('W', dandelion.vote_pass_view)
+    tmpl.add_panel('W', pn.Column(dandelion.vote_pass_view, pn.pane.GIF('media/inputs_outputs.gif')))
     tmpl.add_panel('R', update_result_score)
     tmpl.add_panel('CO', comments)
     tmpl.add_panel('BU', pn.Column(results_button, share_button, url))
