@@ -116,7 +116,7 @@ def load_app(config_file):
         'Values': [int(t.target_raise), int(t.max_raise),
         int(t.min_raise), t.impact_hour_slope,
         t.maximum_impact_hour_rate, t.hatch_oracle_ratio,
-        t.hatch_period_days, t.hatch_exchange_rate, t.hatch_tribute_percentage / 100,
+        t.hatch_period_days, t.hatch_exchange_rate, t.hatch_tribute_percentage,
         dandelion.support_required_percentage, dandelion.minimum_accepted_quorum_percentage, dandelion.vote_duration_days,
         dandelion.vote_buffer_hours, dandelion.rage_quit_hours, dandelion.tollgate_fee_xdai]}
         df = pd.DataFrame(data=data_table)
