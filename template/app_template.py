@@ -160,7 +160,7 @@ def load_app(config_file):
 <h1>Parameters</h1>
 
 {params_table}
-            """.format(params_table=df.to_markdown(index=False, floatfmt=".2f"))
+            """.format(params_table=df.to_markdown(index=False, floatfmt=",.2f"))
 
             string_data = """
 <h1>Results</h1>
@@ -205,6 +205,7 @@ Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&
             body = urllib.parse.quote(markdown_panel.object, safe='')
             url.value = "https://github.com/TECommons/Token-Log-Hatch-Params/issues/new?title=Vote%20for%20My%20Params&labels=TEC%20Hatch%20Params&body=" + body
             results_button.name = "Update your results"
+            print("PARAMETERS DATA", parameters_data)
 
         else:
             string_data=""
