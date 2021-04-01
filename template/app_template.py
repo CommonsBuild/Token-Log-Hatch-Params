@@ -205,7 +205,6 @@ Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&
             body = urllib.parse.quote(markdown_panel.object, safe='')
             url.value = "https://github.com/TECommons/Token-Log-Hatch-Params/issues/new?title=Vote%20for%20My%20Params&labels=TEC%20Hatch%20Params&body=" + body
             results_button.name = "Update your results"
-            print("PARAMETERS DATA", parameters_data)
 
         else:
             string_data=""
