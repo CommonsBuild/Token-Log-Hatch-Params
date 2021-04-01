@@ -74,6 +74,7 @@ class TECH(param.Parameterized):
     def __init__(self, total_impact_hours, impact_hour_data, total_cstk_tokens,
                  config, **params):
         super(TECH, self).__init__(**params, name="Hatch")
+        self.config_bounds = config
         self.total_impact_hours = total_impact_hours
         self.impact_hour_data = impact_hour_data
         self.total_cstk_tokens = total_cstk_tokens
@@ -120,8 +121,15 @@ class TECH(param.Parameterized):
         return self.impact_hour_data.hvplot.table()
 
     def impact_hours_formula(self, minimum_raise, maximum_raise, raise_scenarios=None):
+        xlim = self.config_bounds['min_max_raise']['xlim'][1]
+
         if raise_scenarios is None:
-            x = np.linspace(minimum_raise, maximum_raise, num=500)
+            if maximum_raise > xlim:
+                x_1 = np.linspace(minimum_raise, xlim, num=500)
+                x_2 = np.linspace(xlim, maximum_raise, num=100)
+                x = np.concatenate([x_1, x_2])
+            else:
+                x = np.linspace(minimum_raise, maximum_raise, num=500)
         else:
             x = raise_scenarios
             
@@ -151,14 +159,14 @@ class TECH(param.Parameterized):
                                            xformatter='%.0f',
                                            yformatter='%.4f',
                                            hover=True,
-                                           xlim=self.param.min_max_raise.bounds,
+                                           xlim=self.config_bounds['min_max_raise']['xlim'],
                                            label='Hatch happens ✅'
                                            ).opts(axiswise=True)
         minimum_raise_plot = df_fill_minimum.hvplot.area(x='Total XDAI Raised',
                                                          xformatter='%.0f',
                                                          yformatter='%.4f',
                                                          color='red',
-                                                         xlim=self.param.min_max_raise.bounds,
+                                                         xlim=self.config_bounds['min_max_raise']['xlim'],
                                                          label='Hatch fails 🚫'
                                                          ).opts(axiswise=True)
 
@@ -269,7 +277,7 @@ class TECH(param.Parameterized):
                                                               yformatter='%.1f',
                                                               hover=True,
                                                               ylim=(0, 100),
-                                                              xlim=self.param.min_max_raise.bounds
+                                                              xlim=self.config_bounds['min_max_raise']['xlim']
                                                               ).opts(axiswise=True)
         try:
             redeemable_target = df_hatch_params_to_plot[df_hatch_params_to_plot['Total XDAI Raised'] >= self.target_raise].iloc[0]['Redeemable']
@@ -294,7 +302,7 @@ class TECH(param.Parameterized):
                                                                           yformatter='%.1f',
                                                                           hover=True,
                                                                           ylim=(0, 100),
-                                                                          xlim=self.param.min_max_raise.bounds
+                                                                          xlim=self.config_bounds['min_max_raise']['xlim']
                                                                           ).opts(axiswise=True)
         try:
             #cultural_build_tribute_target = df_hatch_params_to_plot.loc[df_hatch_params_to_plot['Total XDAI Raised'] == self.target_raise]['Cultural Build Tribute'].values[0]
