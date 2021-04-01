@@ -60,31 +60,36 @@ def read_cstk_data():
 
 class TECH(param.Parameterized):
     action = param.Action(lambda x: x.param.trigger('action'), label='Run simulation')
-    min_max_raise = param.Range((1, 1000), bounds=(1,1000), label="Minimum/Maximum Goal (wxDai)")
-    target_raise = param.Number(500, bounds=(5,1000), step=1, label="Target Goal (wxDai)")
+    #min_max_raise = param.Range((1, 1000), bounds=(1,1000), label="Minimum/Maximum Goal (wxDai)")
+    target_raise = param.Number(500, label="Target Goal (wxDai)")
+    min_raise = param.Integer(1, label="Minimum Goal (wxDai)")
+    max_raise = param.Integer(1, label="Maximum Goal (wxDai)")
+    hatch_oracle_ratio = param.Number(0.005, label="Membership Ratio (wxDai/CSTK)")
+    hatch_period_days = param.Integer(15, label="Hatch Period (days)")
+    hatch_exchange_rate = param.Number(10000, label="Hatch Minting Rate (TECH/wxDai)")
+    hatch_tribute_percentage = param.Number(5, step=1, label="Hatch Tribute (%)")
+    maximum_impact_hour_rate = param.Number(0.01, bounds=(0, 1), label="Maximum Impact Hour Rate (wxDai/IH)")
     impact_hour_slope = param.Number(0.012, bounds=(0,1), step=0.001, label="Impact Hour Slope (wxDai/IH)")
-    maximum_impact_hour_rate = param.Number(0.01, bounds=(0,1), step=0.01, label="Maximum Impact Hour Rate (wxDai/IH)")
-    hatch_oracle_ratio = param.Number(0.005, bounds=(0.001, 1), step=0.001, label="Membership Ratio (wxDai/CSTK)")
-    hatch_period_days = param.Integer(15, bounds=(5, 30), step=2, label="Hatch Period (days)")
-    hatch_exchange_rate = param.Number(10000, bounds=(1,100000), step=1, label="Hatch Minting Rate (TECH/wxDai)")
-    hatch_tribute_percentage = param.Number(5, bounds=(0,100), step=1, label="Hatch Tribute (%)")
-    target_impact_hour_rate = param.Number(label="Target Impact Hour Rate (wxDai/hour)", constant=True)
-    target_cultural_build_tribute = param.Number(label="Target Cultural Build Tribute (%)", constant=True)
+    target_impact_hour_rate = param.Parameter(0, label="Target Impact Hour Rate (wxDai/hour)", constant=True)
+    target_cultural_build_tribute = param.Parameter(0, label="Target Cultural Build Tribute (%)", constant=True)
 
     def __init__(self, total_impact_hours, impact_hour_data, total_cstk_tokens,
                  config, **params):
         super(TECH, self).__init__(**params, name="Hatch")
+        self.config_bounds = config
         self.total_impact_hours = total_impact_hours
         self.impact_hour_data = impact_hour_data
         self.total_cstk_tokens = total_cstk_tokens
         self.output_scenario_raise = config["output_scenario_raise"]
 
         # Change the parameter bound according the config_bound argument
-        self.param.min_max_raise.bounds = config['min_max_raise']['bounds']
-        self.min_max_raise = config['min_max_raise']['value']
+        #self.param.min_max_raise.bounds = config['min_max_raise']['bounds']
+        #self.min_max_raise = config['min_max_raise']['value']
+        self.min_raise = config['min_max_raise']['value'][0]
+        self.max_raise = config['min_max_raise']['value'][1]
 
-        self.param.target_raise.bounds = config['target_raise']['bounds']
-        self.param.target_raise.step = config['target_raise']['step']
+        #self.param.target_raise.bounds = config['target_raise']['bounds']
+        #self.param.target_raise.step = config['target_raise']['step']
         self.target_raise = config['target_raise']['value']
 
         self.param.impact_hour_slope.bounds = config['impact_hour_slope']['bounds']
@@ -95,20 +100,20 @@ class TECH(param.Parameterized):
         self.param.maximum_impact_hour_rate.step = config['maximum_impact_hour_rate']['step']
         self.maximum_impact_hour_rate = config['maximum_impact_hour_rate']['value']
 
-        self.param.hatch_oracle_ratio.bounds = config['hatch_oracle_ratio']['bounds']
-        self.param.hatch_oracle_ratio.step = config['hatch_oracle_ratio']['step']
+        #self.param.hatch_oracle_ratio.bounds = config['hatch_oracle_ratio']['bounds']
+        #self.param.hatch_oracle_ratio.step = config['hatch_oracle_ratio']['step']
         self.hatch_oracle_ratio = config['hatch_oracle_ratio']['value']
 
-        self.param.hatch_period_days.bounds = config['hatch_period_days']['bounds']
-        self.param.hatch_period_days.step = config['hatch_period_days']['step']
+        #self.param.hatch_period_days.bounds = config['hatch_period_days']['bounds']
+        #self.param.hatch_period_days.step = config['hatch_period_days']['step']
         self.hatch_period_days = config['hatch_period_days']['value']
 
-        self.param.hatch_exchange_rate.bounds = config['hatch_exchange_rate']['bounds']
-        self.param.hatch_exchange_rate.step = config['hatch_exchange_rate']['step']
+        #self.param.hatch_exchange_rate.bounds = config['hatch_exchange_rate']['bounds']
+        #self.param.hatch_exchange_rate.step = config['hatch_exchange_rate']['step']
         self.hatch_exchange_rate = config['hatch_exchange_rate']['value']
 
-        self.param.hatch_tribute_percentage.bounds = config['hatch_tribute_percentage']['bounds']
-        self.param.hatch_tribute_percentage.step = config['hatch_tribute_percentage']['step']
+        #self.param.hatch_tribute_percentage.bounds = config['hatch_tribute_percentage']['bounds']
+        #self.param.hatch_tribute_percentage.step = config['hatch_tribute_percentage']['step']
         self.hatch_tribute_percentage = config['hatch_tribute_percentage']['value']
 
     @param.depends('action')
@@ -120,8 +125,15 @@ class TECH(param.Parameterized):
         return self.impact_hour_data.hvplot.table()
 
     def impact_hours_formula(self, minimum_raise, maximum_raise, raise_scenarios=None):
+        xlim = self.config_bounds['min_max_raise']['xlim'][1]
+
         if raise_scenarios is None:
-            x = np.linspace(minimum_raise, maximum_raise, num=500)
+            if maximum_raise > xlim:
+                x_1 = np.linspace(minimum_raise, xlim, num=500)
+                x_2 = np.linspace(xlim, maximum_raise, num=100)
+                x = np.concatenate([x_1, x_2])
+            else:
+                x = np.linspace(minimum_raise, maximum_raise, num=500)
         else:
             x = raise_scenarios
             
@@ -137,9 +149,9 @@ class TECH(param.Parameterized):
     def impact_hours_view(self):
         # Limits the target raise bounds when ploting the charts
         self.bounds_target_raise()
-        self.df_impact_hours = self.impact_hours_formula(self.param.min_max_raise.bounds[0], self.min_max_raise[1])
+        self.df_impact_hours = self.impact_hours_formula(self.config_bounds['min_max_raise']['bounds'][0], self.max_raise)
         df = self.df_impact_hours
-        df_fill_minimum = df[df['Total XDAI Raised'] <= self.min_max_raise[0]]
+        df_fill_minimum = df[df['Total XDAI Raised'] <= self.min_raise]
 
         try:
             target_impact_hour_rate = df[df['Total XDAI Raised'] >= self.target_raise].iloc[0]['Impact Hour Rate']
@@ -151,14 +163,14 @@ class TECH(param.Parameterized):
                                            xformatter='%.0f',
                                            yformatter='%.4f',
                                            hover=True,
-                                           xlim=self.param.min_max_raise.bounds,
+                                           xlim=self.config_bounds['min_max_raise']['xlim'],
                                            label='Hatch happens ✅'
                                            ).opts(axiswise=True)
         minimum_raise_plot = df_fill_minimum.hvplot.area(x='Total XDAI Raised',
                                                          xformatter='%.0f',
                                                          yformatter='%.4f',
                                                          color='red',
-                                                         xlim=self.param.min_max_raise.bounds,
+                                                         xlim=self.config_bounds['min_max_raise']['xlim'],
                                                          label='Hatch fails 🚫'
                                                          ).opts(axiswise=True)
 
@@ -182,12 +194,12 @@ class TECH(param.Parameterized):
         df_hatch_params['label'] = ""
 
         # Add label case there is already a row with raise value
-        df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] == int(self.min_max_raise[0]), 'label'] = "Min Raise"
+        df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] == int(self.min_raise), 'label'] = "Min Raise"
         df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] == self.target_raise, 'label'] = "Target Raise"
-        df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] == int(self.min_max_raise[1]), 'label'] = "Max Raise"
-        df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] < int(self.min_max_raise[0]), ['Impact Hour Rate','Cultural Build Tribute', 'Hatch tribute']] = 0
-        df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] < int(self.min_max_raise[0]), 'Redeemable'] = 1
-        df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] > int(self.min_max_raise[1]), ['Impact Hour Rate','Cultural Build Tribute', 'Hatch tribute', 'Redeemable']] = np.nan
+        df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] == int(self.max_raise), 'label'] = "Max Raise"
+        df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] < int(self.min_raise), ['Impact Hour Rate','Cultural Build Tribute', 'Hatch tribute']] = 0
+        df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] < int(self.min_raise), 'Redeemable'] = 1
+        df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] > int(self.max_raise), ['Impact Hour Rate','Cultural Build Tribute', 'Hatch tribute', 'Redeemable']] = np.nan
 
         return df_hatch_params
 
@@ -203,8 +215,8 @@ class TECH(param.Parameterized):
         df_hatch_params['Redeemable'] = (1 - hatch_tribute)/(1 + df_hatch_params['Cultural Build Tribute'])
         df_hatch_params['label'] = ""
 
-        minimum_raise = int(self.min_max_raise[0])
-        maximum_raise = int(self.min_max_raise[1])
+        minimum_raise = int(self.min_raise)
+        maximum_raise = int(self.max_raise)
         # Add 'Min Raise' label case there is already a row with min_raise value
         df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] == minimum_raise, 'label'] = "Min Raise"
 
@@ -269,7 +281,7 @@ class TECH(param.Parameterized):
                                                               yformatter='%.1f',
                                                               hover=True,
                                                               ylim=(0, 100),
-                                                              xlim=self.param.min_max_raise.bounds
+                                                              xlim=self.config_bounds['min_max_raise']['xlim']
                                                               ).opts(axiswise=True)
         try:
             redeemable_target = df_hatch_params_to_plot[df_hatch_params_to_plot['Total XDAI Raised'] >= self.target_raise].iloc[0]['Redeemable']
@@ -294,7 +306,7 @@ class TECH(param.Parameterized):
                                                                           yformatter='%.1f',
                                                                           hover=True,
                                                                           ylim=(0, 100),
-                                                                          xlim=self.param.min_max_raise.bounds
+                                                                          xlim=self.config_bounds['min_max_raise']['xlim']
                                                                           ).opts(axiswise=True)
         try:
             #cultural_build_tribute_target = df_hatch_params_to_plot.loc[df_hatch_params_to_plot['Total XDAI Raised'] == self.target_raise]['Cultural Build Tribute'].values[0]
@@ -305,7 +317,7 @@ class TECH(param.Parameterized):
         #return cultural_build_tribute_plot * hv.VLine(self.target_raise).opts(color='#E31212')
     
     def get_impact_hour_rate(self, raise_amount):
-        rates = self.impact_hours_formula(0, int(self.min_max_raise[1]))
+        rates = self.impact_hours_formula(0, int(self.max_raise))
         try:
             rate = rates[rates['Total XDAI Raised'].gt(raise_amount)].iloc[0]['Impact Hour Rate']
         except:
@@ -323,9 +335,9 @@ class TECH(param.Parameterized):
 
     def get_raise_scenarios(self):
         scenarios = {
-            'min_raise' : int(self.min_max_raise[0]),
+            'min_raise' : int(self.min_raise),
             'target_raise' : self.target_raise,
-            'max_raise' : int(self.min_max_raise[1])
+            'max_raise' : int(self.max_raise)
             #'max_raise' : min(int(self.min_max_raise[1]), self.hatch_oracle_ratio * self.total_cstk_tokens),
         }
         return scenarios
@@ -335,12 +347,14 @@ class TECH(param.Parameterized):
         scenarios = self.get_raise_scenarios()
         funding_pool_data = {}
         for scenario, raise_amount in scenarios.items():
+            impact_hour_rate = self.get_impact_hour_rate(raise_amount)
             cultural_tribute = min(raise_amount, self.get_impact_hour_rate(raise_amount) * self.total_impact_hours)
             redeemable_reserve = (raise_amount-cultural_tribute) * (1 - hatch_tribute)
             non_redeemable_reserve = (raise_amount-cultural_tribute) * hatch_tribute
             funding_pool_data[scenario] = {
-                'Cultural tribute': cultural_tribute,
+                'Impact Hour Rate (wxDai/hour)': impact_hour_rate,
                 'Hatch tribute': non_redeemable_reserve,
+                'Cultural tribute': cultural_tribute,
                 'Redeemable reserve': redeemable_reserve,
                 'total': raise_amount,
             }
@@ -349,6 +363,7 @@ class TECH(param.Parameterized):
     @param.depends('action')
     def funding_pool_view(self):
         funding_pools = self.get_funding_pool_data()
+        funding_pools = funding_pools.filter(items=['Cultural tribute', 'Hatch tribute', 'Redeemable reserve', 'total'])
         # return funding_pools.hvplot.bar(title="Funding Pools", ylim=(0,self.param['hatch_oracle_ratio'].bounds[1]*self.param['min_max_raise'].bounds[1]), rot=45, yformatter='%.0f').opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
         # raise_bars = bar_data.hvplot.bar(yformatter='%.0f', title="Funding Pools", stacked=True, y=['Funding Pool', 'Hatch Tribute']).opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
         funding_pools['rank'] = funding_pools['total'] / funding_pools['total'].sum()
@@ -358,15 +373,15 @@ class TECH(param.Parameterized):
         colors = ['#0F2EEE', '#0b0a15', '#DEFB48']
         chart_data = funding_pools.iloc[:,:-2]
         p1 = pie_chart(data=pd.Series(chart_data.loc['min_raise',:]),
-                       radius=0.1 + 0.55 * int(self.min_max_raise[0])/int(self.param.min_max_raise.bounds[1]),
+                       radius=0.1 + 0.55 * int(self.min_raise)/int(self.config_bounds['min_max_raise']['bounds'][1]),
                        title="Min Raise", toolbar_location=None, plot_width=300,
                        show_legend=False, colors=colors)
         p2 = pie_chart(data=pd.Series(chart_data.loc['target_raise',:]),
-                       radius=0.1 + 0.55 * int(self.target_raise)/int(self.param.min_max_raise.bounds[1]),
+                       radius=0.1 + 0.55 * int(self.target_raise)/int(self.config_bounds['min_max_raise']['bounds'][1]),
                        title="Target Raise", toolbar_location=None, plot_width=300,
                        show_legend=False, colors=colors)
         p3 = pie_chart(data=pd.Series(chart_data.loc['max_raise',:]),
-                       radius=0.1 + 0.55 * int(self.min_max_raise[1])/int(self.param.min_max_raise.bounds[1]),
+                       radius=0.1 + 0.55 * int(self.max_raise)/int(self.config_bounds['min_max_raise']['bounds'][1]),
                        title="Max Raise", colors=colors)
 
 
@@ -376,14 +391,23 @@ class TECH(param.Parameterized):
     @param.depends('action')
     def funding_pool_data_view(self):
         funding_pools = self.get_funding_pool_data()
-        return funding_pools.T.reset_index().hvplot.table(width=300)
+        funding_pools['Cultural tribute'] = 100 * funding_pools['Cultural tribute'] / funding_pools['total']
+        funding_pools['Redeemable reserve'] = 100 * funding_pools['Redeemable reserve'] / funding_pools['total']
+        funding_pools = funding_pools.rename(columns={'Redeemable reserve': 'Redeemable %',
+                                                      'Cultural tribute': 'Cultural tribute %'})
+        funding_pools = funding_pools.T.reset_index()
+        funding_pools = funding_pools.rename(columns={'index': 'Output',
+                                                      'min_raise': 'Min Goal',
+                                                      'target_raise': 'Target Goal',
+                                                      'max_raise': 'Max Goal'})
+        return funding_pools.hvplot.table(width=300)
 
     @param.depends('action')
     def bounds_target_raise(self):
-        if self.target_raise > self.min_max_raise[1]:
-            self.target_raise = self.min_max_raise[1]
-        elif self.target_raise < self.min_max_raise[0]:
-            self.target_raise = self.min_max_raise[0]
+        if self.target_raise > self.max_raise:
+            self.target_raise = self.max_raise[1]
+        elif self.target_raise < self.min_raise:
+            self.target_raise = self.min_raise
 
 
 class ImpactHoursData(param.Parameterized):
@@ -693,10 +717,10 @@ class DandelionVoting(param.Parameterized):
     action = param.Action(lambda x: x.param.trigger('action'), label='Run simulation')
     support_required_percentage = param.Number(60, bounds=(50,90), step=1, label="Support Required (%)")
     minimum_accepted_quorum_percentage = param.Number(2, bounds=(1,100), step=1, label="Minimum Quorum (%)")
-    vote_duration_days = param.Number(3, bounds=(1,14), step=1, label="Vote Duration (days)")
-    vote_buffer_hours = param.Number(8, bounds=(1,48), step=1, label="Vote Proposal buffer (hours)")
-    rage_quit_hours = param.Number(24, bounds=(1, 48), step=1, label="Rage quit (hours)")
-    tollgate_fee_xdai = param.Number(3, bounds=(1,100), step=1, label="Tollgate fee (wxDai)")
+    vote_duration_days = param.Integer(3, label="Vote Duration (days)")
+    vote_buffer_hours = param.Integer(8, label="Vote Proposal buffer (hours)")
+    rage_quit_hours = param.Integer(24, label="Rage quit (hours)")
+    tollgate_fee_xdai = param.Number(3, label="Tollgate fee (wxDai)")
 
     def __init__(self, total_tokens, config, **params):
         super(DandelionVoting, self).__init__(**params, name="TEC Hatch DAO")
@@ -711,20 +735,20 @@ class DandelionVoting(param.Parameterized):
         self.param.minimum_accepted_quorum_percentage.step = config['minimum_accepted_quorum_percentage']['step']
         self.minimum_accepted_quorum_percentage = config['minimum_accepted_quorum_percentage']['value']
 
-        self.param.vote_duration_days.bounds = config['vote_duration_days']['bounds']
-        self.param.vote_duration_days.step = config['vote_duration_days']['step']
+        #self.param.vote_duration_days.bounds = config['vote_duration_days']['bounds']
+        #self.param.vote_duration_days.step = config['vote_duration_days']['step']
         self.vote_duration_days = config['vote_duration_days']['value']
 
-        self.param.vote_buffer_hours.bounds = config['vote_buffer_hours']['bounds']
-        self.param.vote_buffer_hours.step = config['vote_buffer_hours']['step']
+        #self.param.vote_buffer_hours.bounds = config['vote_buffer_hours']['bounds']
+        #self.param.vote_buffer_hours.step = config['vote_buffer_hours']['step']
         self.vote_buffer_hours = config['vote_buffer_hours']['value']
 
-        self.param.rage_quit_hours.bounds = config['rage_quit_hours']['bounds']
-        self.param.rage_quit_hours.step = config['rage_quit_hours']['step']
+        #self.param.rage_quit_hours.bounds = config['rage_quit_hours']['bounds']
+        #self.param.rage_quit_hours.step = config['rage_quit_hours']['step']
         self.rage_quit_hours = config['rage_quit_hours']['value']
 
-        self.param.tollgate_fee_xdai.bounds = config['tollgate_fee_xdai']['bounds']
-        self.param.tollgate_fee_xdai.step = config['tollgate_fee_xdai']['step']
+        #self.param.tollgate_fee_xdai.bounds = config['tollgate_fee_xdai']['bounds']
+        #self.param.tollgate_fee_xdai.step = config['tollgate_fee_xdai']['step']
         self.tollgate_fee_xdai = config['tollgate_fee_xdai']['value']
 
     def support_required(self):
