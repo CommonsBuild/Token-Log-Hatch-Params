@@ -1,6 +1,8 @@
 hatch = {
     "title": "TEC Hatch Dashboard",
     "url": "https://params.tecommons.org/hatch",
+    "repo": "https://github.com/CommonsBuild/TEC-Hatch-Vote",
+    "label": "Vote",
     "tech": {
         "min_max_raise": {
             "value": (100000, 50000000),
@@ -90,6 +92,8 @@ hatch = {
 test_hatch = {
     "title": "TEC Test Hatch Dashboard",
     "url": "https://params.tecommons.org/test-hatch",
+    "repo": "https://github.com/CommonsBuild/Test-TEC-Hatch-Vote",
+    "label": "Test%20Vote",
     "tech": {
         "min_max_raise": {
             "value": (5, 1000),
