@@ -61,15 +61,15 @@ def read_cstk_data():
 class TECH(param.Parameterized):
     action = param.Action(lambda x: x.param.trigger('action'), label='Run simulation')
     #min_max_raise = param.Range((1, 1000), bounds=(1,1000), label="Minimum/Maximum Goal (wxDai)")
+    target_raise = param.Number(500, label="Target Goal (wxDai)")
     min_raise = param.Integer(1, label="Minimum Goal (wxDai)")
     max_raise = param.Integer(1, label="Maximum Goal (wxDai)")
-    target_raise = param.Number(500, label="Target Goal (wxDai)")
-    maximum_impact_hour_rate = param.Number(0.01, label="Maximum Impact Hour Rate (wxDai/IH)")
     hatch_oracle_ratio = param.Number(0.005, label="Membership Ratio (wxDai/CSTK)")
     hatch_period_days = param.Integer(15, label="Hatch Period (days)")
     hatch_exchange_rate = param.Number(10000, label="Hatch Minting Rate (TECH/wxDai)")
+    hatch_tribute_percentage = param.Number(5, step=1, label="Hatch Tribute (%)")
+    maximum_impact_hour_rate = param.Number(0.01, (0, 1), label="Maximum Impact Hour Rate (wxDai/IH)")
     impact_hour_slope = param.Number(0.012, bounds=(0,1), step=0.001, label="Impact Hour Slope (wxDai/IH)")
-    hatch_tribute_percentage = param.Number(5, bounds=(0,100), step=1, label="Hatch Tribute (%)")
     target_impact_hour_rate = param.Parameter(0, label="Target Impact Hour Rate (wxDai/hour)", constant=True)
     target_cultural_build_tribute = param.Parameter(0, label="Target Cultural Build Tribute (%)", constant=True)
 
@@ -96,8 +96,8 @@ class TECH(param.Parameterized):
         self.param.impact_hour_slope.step = config['impact_hour_slope']['step']
         self.impact_hour_slope = config['impact_hour_slope']['value']
 
-        #self.param.maximum_impact_hour_rate.bounds = config['maximum_impact_hour_rate']['bounds']
-        #self.param.maximum_impact_hour_rate.step = config['maximum_impact_hour_rate']['step']
+        self.param.maximum_impact_hour_rate.bounds = config['maximum_impact_hour_rate']['bounds']
+        self.param.maximum_impact_hour_rate.step = config['maximum_impact_hour_rate']['step']
         self.maximum_impact_hour_rate = config['maximum_impact_hour_rate']['value']
 
         #self.param.hatch_oracle_ratio.bounds = config['hatch_oracle_ratio']['bounds']
@@ -112,8 +112,8 @@ class TECH(param.Parameterized):
         #self.param.hatch_exchange_rate.step = config['hatch_exchange_rate']['step']
         self.hatch_exchange_rate = config['hatch_exchange_rate']['value']
 
-        self.param.hatch_tribute_percentage.bounds = config['hatch_tribute_percentage']['bounds']
-        self.param.hatch_tribute_percentage.step = config['hatch_tribute_percentage']['step']
+        #self.param.hatch_tribute_percentage.bounds = config['hatch_tribute_percentage']['bounds']
+        #self.param.hatch_tribute_percentage.step = config['hatch_tribute_percentage']['step']
         self.hatch_tribute_percentage = config['hatch_tribute_percentage']['value']
 
     @param.depends('action')
