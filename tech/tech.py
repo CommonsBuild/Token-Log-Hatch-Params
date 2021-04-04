@@ -71,6 +71,7 @@ class TECH(param.Parameterized):
     maximum_impact_hour_rate = param.Number(0.01, (0, 1), label="Maximum Impact Hour Rate (wxDai/IH)")
     impact_hour_slope = param.Number(0.012, bounds=(0,1), step=0.001, label="Impact Hour Slope (wxDai/IH)")
     target_impact_hour_rate = param.Parameter(0, label="Target Impact Hour Rate (wxDai/hour)", constant=True)
+    target_redeemable = param.Parameter(0, label="Target Redeemable (%)", constant=True)
     target_cultural_build_tribute = param.Parameter(0, label="Target Cultural Build Tribute (%)", constant=True)
 
     def __init__(self, total_impact_hours, impact_hour_data, total_cstk_tokens,
@@ -176,8 +177,7 @@ class TECH(param.Parameterized):
 
         # Enables the edition of constant params
         with param.edit_constant(self):
-            self.target_impact_hour_rate = round(target_impact_hour_rate, 4)
-            self.target_cultural_build_tribute = round(100 * (self.total_impact_hours * self.target_impact_hour_rate)/self.target_raise, 4)
+            self.target_impact_hour_rate = round(target_impact_hour_rate, 2)
 
         #return impact_hours_plot * hv.VLine(expected_raise) * hv.HLine(expected_impact_hour_rate) * hv.VLine(self.target_raise) * hv.HLine(target_impact_hour_rate)
         return (impact_hours_plot * 
@@ -298,6 +298,9 @@ class TECH(param.Parameterized):
             redeemable_target = df_hatch_params_to_plot[df_hatch_params_to_plot['Total XDAI Raised'] >= self.target_raise].iloc[0]['Redeemable']
         except:
             redeemable_target = 0
+        
+        with param.edit_constant(self):
+            self.target_redeemable = round(redeemable_target, 2)
 
         return redeemable_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(redeemable_target).opts(color='#E31212')
 
@@ -324,6 +327,10 @@ class TECH(param.Parameterized):
             cultural_build_tribute_target = df_hatch_params_to_plot[df_hatch_params_to_plot['Total XDAI Raised'] >= self.target_raise].iloc[0]['Cultural Build Tribute']
         except:
             cultural_build_tribute_target = 0
+
+        with param.edit_constant(self):
+            self.target_cultural_build_tribute = round(cultural_build_tribute_target, 2)
+        
         return cultural_build_tribute_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(cultural_build_tribute_target).opts(color='#E31212')
         #return cultural_build_tribute_plot * hv.VLine(self.target_raise).opts(color='#E31212')
     
