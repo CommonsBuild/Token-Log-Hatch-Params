@@ -123,7 +123,7 @@ class TECH(param.Parameterized):
         self.impact_hour_data['Minimum Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * scenario_rates['min_rate']
         self.impact_hour_data['Target Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * self.target_impact_hour_rate
         self.impact_hour_data['Maximum Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * scenario_rates['max_rate']
-        return self.impact_hour_data.hvplot.table()
+        return self.impact_hour_data.hvplot.table(title='Impact Hour Results', width=450)
 
     def impact_hours_formula(self, minimum_raise, maximum_raise, raise_scenarios=None):
         xlim = self.config_bounds['min_max_raise']['xlim'][1]
@@ -418,7 +418,7 @@ class TECH(param.Parameterized):
                                                       'min_raise': 'Min Goal',
                                                       'target_raise': 'Target Goal',
                                                       'max_raise': 'Max Goal'})
-        return funding_pools.hvplot.table(width=300)
+        return funding_pools.hvplot.table(title='Outputs Overview', width=450)
 
     @param.depends('action')
     def bounds_target_raise(self):
