@@ -262,6 +262,17 @@ class TECH(param.Parameterized):
         df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] < minimum_raise, 'Redeemable'] = 1
         df_hatch_params.loc[df_hatch_params['Total XDAI Raised'] > maximum_raise, ['Impact Hour Rate','Cultural Build Tribute', 'Hatch tribute', 'Redeemable']] = np.nan
 
+        # Format final table columns
+        df_hatch_params['Redeemable'] = df_hatch_params['Redeemable'].mul(100)
+        df_hatch_params['Cultural Build Tribute'] = df_hatch_params['Cultural Build Tribute'].mul(100)
+        df_hatch_params = df_hatch_params.rename(columns={'Total XDAI Raised': 'Total wxDai Raised (wxDai)',
+                                                          'Impact Hour Rate': 'Impact Hour Rate (wxDai)',
+                                                          'Cultural Build Tribute': 'Cultural Build Tribute (%)',
+                                                          'Hatch tribute': 'Hatch Tribute (wxDai)',
+                                                          'Redeemable': 'Redeemable (%)',
+                                                          'label': 'Label'})
+        df_hatch_params = df_hatch_params.round(2)
+
         #df_hatch_params = df_hatch_params[df_hatch_params['Total XDAI Raised'].isin(x) | df_hatch_params['label'].isin(["Min Raise", "Target Raise", "Max Raise"])]
         return df_hatch_params
 
