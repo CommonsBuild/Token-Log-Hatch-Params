@@ -427,6 +427,13 @@ class TECH(param.Parameterized):
         elif self.target_raise < self.min_raise:
             self.target_raise = self.min_raise
 
+    @param.depends('action')
+    def trigger_target_cultural_build_tribute_too_high(self):
+        if self.target_cultural_build_tribute > 100:
+            return pn.pane.JPG('https://i.imgflip.com/540z6u.jpg')
+        else:
+            return pn.pane.Markdown('')
+
 
 class ImpactHoursData(param.Parameterized):
     historic = pd.read_csv('data/IHPredictions.csv').query('Model=="Historic"')
