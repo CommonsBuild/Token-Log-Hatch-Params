@@ -68,10 +68,11 @@ class TECH(param.Parameterized):
     hatch_period_days = param.Integer(15, label="Hatch Period (days)")
     hatch_exchange_rate = param.Number(10000, label="Hatch Minting Rate (TECH/wxDai)")
     hatch_tribute_percentage = param.Number(5, step=1, label="Hatch Tribute (%)")
-    maximum_impact_hour_rate = param.Number(0.01, (0, 1), label="Maximum Impact Hour Rate (wxDai/IH)")
     impact_hour_slope = param.Number(0.012, bounds=(0,1), step=0.001, label="Impact Hour Slope (wxDai/IH)")
     target_impact_hour_rate = param.Parameter(0, label="Target Impact Hour Rate (wxDai/hour)", constant=True)
+    maximum_impact_hour_rate = param.Number(0.01, bounds=(0, 1), label="Maximum Impact Hour Rate (wxDai/IH)")
     target_redeemable = param.Parameter(0, label="Target Redeemable (%)", constant=True)
+    target_impact_hour_rate = param.Parameter(0, label="Target Impact Hour Rate (wxDai/hour)", constant=True)
     target_cultural_build_tribute = param.Parameter(0, label="Target Cultural Build Tribute (%)", constant=True)
 
     def __init__(self, total_impact_hours, impact_hour_data, total_cstk_tokens,
@@ -87,11 +88,13 @@ class TECH(param.Parameterized):
         #self.param.min_max_raise.bounds = config['min_max_raise']['bounds']
         #self.min_max_raise = config['min_max_raise']['value']
         self.min_raise = config['min_max_raise']['value'][0]
+        self.param.min_raise.step = config['min_max_raise']['step']
         self.max_raise = config['min_max_raise']['value'][1]
+        self.param.max_raise.step = config['min_max_raise']['step']
 
         #self.param.target_raise.bounds = config['target_raise']['bounds']
-        #self.param.target_raise.step = config['target_raise']['step']
         self.target_raise = config['target_raise']['value']
+        self.param.target_raise.step = config['target_raise']['step']
 
         self.param.impact_hour_slope.bounds = config['impact_hour_slope']['bounds']
         self.param.impact_hour_slope.step = config['impact_hour_slope']['step']
@@ -370,7 +373,7 @@ class TECH(param.Parameterized):
             redeemable_reserve = (raise_amount-cultural_tribute) * (1 - hatch_tribute)
             non_redeemable_reserve = (raise_amount-cultural_tribute) * hatch_tribute
             funding_pool_data[scenario] = {
-                'Impact Hour Rate (wxDai/hr)': impact_hour_rate,
+                'Impact Hour Rate (wxDai/hour)': impact_hour_rate,
                 'Hatch tribute': non_redeemable_reserve,
                 'Cultural tribute': cultural_tribute,
                 'Redeemable reserve': redeemable_reserve,
@@ -418,7 +421,9 @@ class TECH(param.Parameterized):
                                                       'min_raise': 'Min Goal',
                                                       'target_raise': 'Target Goal',
                                                       'max_raise': 'Max Goal'})
+
         return funding_pools.hvplot.table(title='Outputs Overview', width=450)
+
 
     @param.depends('action')
     def bounds_target_raise(self):
@@ -433,6 +438,7 @@ class TECH(param.Parameterized):
             return pn.pane.JPG('https://i.imgflip.com/540z6u.jpg')
         else:
             return pn.pane.Markdown('')
+
 
 
 class ImpactHoursData(param.Parameterized):
