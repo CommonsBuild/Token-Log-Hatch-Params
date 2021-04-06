@@ -8,11 +8,12 @@ hatch = {
             "value": (100000, 50000000),
             "bounds": (10000, 95000000),
             "xlim": (10000, 4000000),
+            "step": 1000,
         },
         "target_raise": {
             "value": 2500000,
             "bounds": (10000, 95000000),
-            "step": 100,
+            "step": 1000,
         },
         "impact_hour_slope": {
             "value": 1000,
@@ -99,6 +100,7 @@ test_hatch = {
             "value": (5, 1000),
             "bounds": (5, 1000),
             "xlim": (5, 1000),
+            "step": 100,
         },
         "target_raise": {
             "value": 500,
