@@ -86,11 +86,13 @@ class TECH(param.Parameterized):
         #self.param.min_max_raise.bounds = config['min_max_raise']['bounds']
         #self.min_max_raise = config['min_max_raise']['value']
         self.min_raise = config['min_max_raise']['value'][0]
+        self.param.min_raise.step = config['min_max_raise']['step']
         self.max_raise = config['min_max_raise']['value'][1]
+        self.param.max_raise.step = config['min_max_raise']['step']
 
         #self.param.target_raise.bounds = config['target_raise']['bounds']
-        #self.param.target_raise.step = config['target_raise']['step']
         self.target_raise = config['target_raise']['value']
+        self.param.target_raise.step = config['target_raise']['step']
 
         self.param.impact_hour_slope.bounds = config['impact_hour_slope']['bounds']
         self.param.impact_hour_slope.step = config['impact_hour_slope']['step']
