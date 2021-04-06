@@ -749,9 +749,9 @@ class DandelionVoting(param.Parameterized):
     support_required_percentage = param.Number(60, bounds=(50,90), step=1, label="Support Required (%)")
     minimum_accepted_quorum_percentage = param.Number(2, bounds=(1,100), step=1, label="Minimum Quorum (%)")
     vote_duration_days = param.Integer(3, label="Vote Duration (days)")
-    vote_buffer_hours = param.Integer(8, label="Vote Proposal buffer (hours)")
-    rage_quit_hours = param.Integer(24, label="Rage quit (hours)")
-    tollgate_fee_xdai = param.Number(3, label="Tollgate fee (wxDai)")
+    vote_buffer_hours = param.Integer(8, label="Vote Proposal Buffer (hours)")
+    rage_quit_hours = param.Integer(24, label="Rage Quit Period (hours)")
+    tollgate_fee_xdai = param.Number(3, label="Tollgate Fee (wxDai)")
 
     def __init__(self, total_tokens, config, **params):
         super(DandelionVoting, self).__init__(**params, name="TEC Hatch DAO")

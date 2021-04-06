@@ -111,12 +111,12 @@ def load_app(config_file):
 
     @pn.depends(results_button)
     def update_result_score(results_button_on):
-        data_table = {'Parameters': ["Target raise (wxDai)", "Maximum raise (wxDai)", "Minimum raise (wxDai)",
+        data_table = {'Parameters': ["Target goal (wxDai)", "Maximum goal (wxDai)", "Minimum goal (wxDai)",
         "Impact hour slope (wxDai/IH)", "Maximum impact hour rate (wxDai/IH)",
-        "Hatch oracle ratio (wxDai/CSTK)", "Hatch period (days)",
-        "Hatch exchange rate (TECH/wxDai)", "Hatch tribute (%)", "Support required (%)",
-        "Minimum accepted quorum (%)", "Vote duration (days)", "Vote buffer (hours)",
-        "Rage quit (hours)", "Tollgate fee (wxDai)"],
+        "Membership ratio (wxDai/CSTK)", "Hatch period (days)",
+        "Hatch minting rate (TECH/wxDai)", "Hatch tribute (%)", "Support required (%)",
+        "Minimum quorum (%)", "Vote duration (days)", "Vote proposal buffer (hours)",
+        "Rage quit period (hours)", "Tollgate fee (wxDai)"],
         'Values': [int(t.target_raise), int(t.max_raise),
         int(t.min_raise), t.impact_hour_slope,
         t.maximum_impact_hour_rate, t.hatch_oracle_ratio,
@@ -171,7 +171,7 @@ def load_app(config_file):
 
 <p>{comments}</p>
 
-- It costs {tollgate_fee_xdai} wxDAI to make a proposal.
+- It costs {tollgate_fee_xdai} wxDai to make a proposal.
 
 - Votes will be voted on for {vote_duration_days} days.
 
