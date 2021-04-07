@@ -111,7 +111,7 @@ def load_app(config_file):
 
     @pn.depends(results_button)
     def update_result_score(results_button_on):
-        data_table = {'Parameters': ["Target goal (wxDai)", "Maximum goal (wxDai)", "Minimum goal (wxDai)",
+        data_table = {'Parameters': ["Target Goal (wxDai)", "Maximum Goal (wxDai)", "Minimum Goal (wxDai)",
         "Impact hour slope (wxDai/IH)", "Maximum impact hour rate (wxDai/IH)",
         "Membership ratio (wxDai/CSTK)", "Hatch period (days)",
         "Hatch minting rate (TECH/wxDai)", "Hatch tribute (%)", "Support required (%)",
