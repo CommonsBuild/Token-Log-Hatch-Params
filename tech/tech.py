@@ -33,21 +33,13 @@ sheets = [
 sheets = {i:sheet for i, sheet in enumerate(sheets)}
 
 def read_excel(sheet_name="Total Impact Hours so far", header=1, index_col=0, usecols=None) -> pd.DataFrame:
-    data = pd.read_excel(
-            os.path.join("data", "TEC Praise Quantification.xlsx"),
-            sheet_name=sheet_name,
-            engine='openpyxl',
-            header=header,
-            index_col=index_col,
-            usecols=usecols
-    ).reset_index().dropna(how='any')
+    data = pd.read_csv(os.path.join("data", "praise_quantification.csv"))
     return data
 
 
 def read_impact_hour_data():
     impact_hour_data_1 = read_excel()
-    impact_hour_data_2 = read_excel(sheet_name="IH Predictions", header=0, index_col=0, usecols='A:I').drop(index=19)
-    return (impact_hour_data_1, impact_hour_data_2)
+    return impact_hour_data_1
 
 
 def read_cstk_data():
@@ -124,8 +116,9 @@ class TECH(param.Parameterized):
     def payout_view(self):
         scenario_rates = self.get_rate_scenarios()
         self.impact_hour_data['Minimum Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * scenario_rates['min_rate']
-        self.impact_hour_data['Target Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * self.target_impact_hour_rate
+        self.impact_hour_data['Target Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * scenario_rates['target_rate']
         self.impact_hour_data['Maximum Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * scenario_rates['max_rate']
+        self.impact_hour_data = self.impact_hour_data.round(2)
         return self.impact_hour_data.hvplot.table(title='Impact Hour Results', width=450)
 
     def impact_hours_formula(self, minimum_raise, maximum_raise, raise_scenarios=None):
@@ -140,7 +133,7 @@ class TECH(param.Parameterized):
                 x = np.linspace(minimum_raise, maximum_raise, num=500)
         else:
             x = raise_scenarios
-            
+
         R = self.maximum_impact_hour_rate
         m = self.impact_hour_slope
         H = self.total_impact_hours
@@ -183,7 +176,7 @@ class TECH(param.Parameterized):
             self.target_impact_hour_rate = round(target_impact_hour_rate, 2)
 
         #return impact_hours_plot * hv.VLine(expected_raise) * hv.HLine(expected_impact_hour_rate) * hv.VLine(self.target_raise) * hv.HLine(target_impact_hour_rate)
-        return (impact_hours_plot * 
+        return (impact_hours_plot *
                 minimum_raise_plot *
                 hv.VLine(self.target_raise).opts(color='#E31212') *
                 hv.HLine(self.target_impact_hour_rate).opts(color='#E31212')
@@ -300,7 +293,7 @@ class TECH(param.Parameterized):
             redeemable_target = df_hatch_params_to_plot[df_hatch_params_to_plot['Total wxDai Raised'] >= self.target_raise].iloc[0]['Redeemable']
         except:
             redeemable_target = 0
-        
+
         with param.edit_constant(self):
             self.target_redeemable = round(redeemable_target, 2)
 
@@ -332,10 +325,10 @@ class TECH(param.Parameterized):
 
         with param.edit_constant(self):
             self.target_cultural_build_tribute = round(cultural_build_tribute_target, 2)
-        
+
         return cultural_build_tribute_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(cultural_build_tribute_target).opts(color='#E31212')
         #return cultural_build_tribute_plot * hv.VLine(self.target_raise).opts(color='#E31212')
-    
+
     def get_impact_hour_rate(self, raise_amount):
         rates = self.impact_hours_formula(0, int(self.max_raise))
         try:
@@ -384,6 +377,7 @@ class TECH(param.Parameterized):
     def funding_pool_view(self):
         funding_pools = self.get_funding_pool_data()
         funding_pools = funding_pools.filter(items=['Cultural tribute', 'Hatch tribute', 'Redeemable reserve', 'total'])
+        funding_pools = funding_pools.rename(columns={'Cultural tribute': 'Impact Hours'})
         # return funding_pools.hvplot.bar(title="Funding Pools", ylim=(0,self.param['hatch_oracle_ratio'].bounds[1]*self.param['min_max_raise'].bounds[1]), rot=45, yformatter='%.0f').opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
         # raise_bars = bar_data.hvplot.bar(yformatter='%.0f', title="Funding Pools", stacked=True, y=['Funding Pool', 'Hatch Tribute']).opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
         funding_pools['rank'] = funding_pools['total'] / funding_pools['total'].sum()
@@ -393,26 +387,27 @@ class TECH(param.Parameterized):
         colors = ['#0F2EEE', '#0b0a15', '#DEFB48']
         chart_data = funding_pools.iloc[:,:-2]
         p1 = pie_chart(data=pd.Series(chart_data.loc['min_raise',:]),
-                       radius=0.1 + 0.55 * int(self.min_raise)/int(self.config_bounds['min_max_raise']['bounds'][1]),
+                       radius=0.65,
                        title="Min Raise", toolbar_location=None, plot_width=300,
                        show_legend=False, colors=colors)
         p2 = pie_chart(data=pd.Series(chart_data.loc['target_raise',:]),
-                       radius=0.1 + 0.55 * int(self.target_raise)/int(self.config_bounds['min_max_raise']['bounds'][1]),
+                       radius=0.65,
                        title="Target Raise", toolbar_location=None, plot_width=300,
                        show_legend=False, colors=colors)
         p3 = pie_chart(data=pd.Series(chart_data.loc['max_raise',:]),
-                       radius=0.1 + 0.55 * int(self.max_raise)/int(self.config_bounds['min_max_raise']['bounds'][1]),
+                       radius=0.65,
                        title="Max Raise", colors=colors)
 
 
         #return pn.Column('## Funding Pool', pn.Row(p1, p2, p3))
         return pn.Row(p1, p2, p3)
-        
+
     @param.depends('action')
     def funding_pool_data_view(self):
         funding_pools = self.get_funding_pool_data()
         funding_pools['Cultural tribute'] = 100 * funding_pools['Cultural tribute'] / funding_pools['total']
         funding_pools['Redeemable reserve'] = 100 * funding_pools['Redeemable reserve'] / funding_pools['total']
+        funding_pools = funding_pools.round(2)
         funding_pools = funding_pools.rename(columns={'Redeemable reserve': 'Redeemable %',
                                                       'Cultural tribute': 'Cultural tribute %'})
         funding_pools = funding_pools.T.reset_index()
@@ -432,9 +427,14 @@ class TECH(param.Parameterized):
             self.target_raise = self.min_raise
 
     @param.depends('action')
-    def trigger_target_cultural_build_tribute_too_high(self):
+    def trigger_unbalanced_parameters(self):
         if self.target_cultural_build_tribute > 100:
-            return pn.pane.JPG('https://i.imgflip.com/540z6u.jpg')
+            if self.target_impact_hour_rate < 5:
+                return pn.pane.JPG('https://i.imgflip.com/54lvlm.jpg')
+            else:
+                return pn.pane.JPG('https://i.imgflip.com/540z6u.jpg')
+        elif self.target_impact_hour_rate < 5:
+            return pn.pane.JPG('https://i.imgflip.com/54tdpy.jpg')
         else:
             return pn.pane.Markdown('')
 
@@ -783,7 +783,7 @@ class DandelionVoting(param.Parameterized):
 
     def support_required(self):
         return self.support_required_percentage/100
-    
+
     def minimum_accepted_quorum(self):
         return self.minimum_accepted_quorum_percentage/100
 
@@ -802,4 +802,4 @@ class DandelionVoting(param.Parameterized):
                 xlabel='Total Token Votes (%)', ylabel='Yes Token Votes (%)', label='Proposal Passes ✅')
         support_required_plot = df.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='red', label='Proposal Fails 🚫')
         quorum_accepted_plot = df_fill_q.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='yellow', label='Minimum quorum')
-        return (total_votes_plot* support_required_plot * quorum_accepted_plot).opts(legend_position='top_left') 
+        return (total_votes_plot* support_required_plot * quorum_accepted_plot).opts(legend_position='top_left')
