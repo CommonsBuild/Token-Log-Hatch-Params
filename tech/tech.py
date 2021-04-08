@@ -116,8 +116,9 @@ class TECH(param.Parameterized):
     def payout_view(self):
         scenario_rates = self.get_rate_scenarios()
         self.impact_hour_data['Minimum Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * scenario_rates['min_rate']
-        self.impact_hour_data['Target Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * self.target_impact_hour_rate
+        self.impact_hour_data['Target Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * scenario_rates['target_rate']
         self.impact_hour_data['Maximum Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * scenario_rates['max_rate']
+        self.impact_hour_data = self.impact_hour_data.round(2)
         return self.impact_hour_data.hvplot.table(title='Impact Hour Results', width=450)
 
     def impact_hours_formula(self, minimum_raise, maximum_raise, raise_scenarios=None):
@@ -406,6 +407,7 @@ class TECH(param.Parameterized):
         funding_pools = self.get_funding_pool_data()
         funding_pools['Cultural tribute'] = 100 * funding_pools['Cultural tribute'] / funding_pools['total']
         funding_pools['Redeemable reserve'] = 100 * funding_pools['Redeemable reserve'] / funding_pools['total']
+        funding_pools = funding_pools.round(2)
         funding_pools = funding_pools.rename(columns={'Redeemable reserve': 'Redeemable %',
                                                       'Cultural tribute': 'Cultural tribute %'})
         funding_pools = funding_pools.T.reset_index()
