@@ -222,7 +222,7 @@ Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&
     tmpl.add_panel('C', t.funding_pool_data_view)
     tmpl.add_panel('E', t.payout_view)
     tmpl.add_panel('D', pn.Column(t.impact_hours_view, t.redeemable_plot, t.cultural_build_tribute_plot))
-    tmpl.add_panel('M', t.trigger_target_cultural_build_tribute_too_high)
+    tmpl.add_panel('M', t.trigger_unbalanced_parameters)
     tmpl.add_panel('F', t.funding_pool_view)
     tmpl.add_panel('V', dandelion)
     tmpl.add_panel('W', dandelion.vote_pass_view)

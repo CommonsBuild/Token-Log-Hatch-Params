@@ -140,7 +140,7 @@ class TECH(param.Parameterized):
                 x = np.linspace(minimum_raise, maximum_raise, num=500)
         else:
             x = raise_scenarios
-            
+
         R = self.maximum_impact_hour_rate
         m = self.impact_hour_slope
         H = self.total_impact_hours
@@ -183,7 +183,7 @@ class TECH(param.Parameterized):
             self.target_impact_hour_rate = round(target_impact_hour_rate, 2)
 
         #return impact_hours_plot * hv.VLine(expected_raise) * hv.HLine(expected_impact_hour_rate) * hv.VLine(self.target_raise) * hv.HLine(target_impact_hour_rate)
-        return (impact_hours_plot * 
+        return (impact_hours_plot *
                 minimum_raise_plot *
                 hv.VLine(self.target_raise).opts(color='#E31212') *
                 hv.HLine(self.target_impact_hour_rate).opts(color='#E31212')
@@ -300,7 +300,7 @@ class TECH(param.Parameterized):
             redeemable_target = df_hatch_params_to_plot[df_hatch_params_to_plot['Total wxDai Raised'] >= self.target_raise].iloc[0]['Redeemable']
         except:
             redeemable_target = 0
-        
+
         with param.edit_constant(self):
             self.target_redeemable = round(redeemable_target, 2)
 
@@ -332,10 +332,10 @@ class TECH(param.Parameterized):
 
         with param.edit_constant(self):
             self.target_cultural_build_tribute = round(cultural_build_tribute_target, 2)
-        
+
         return cultural_build_tribute_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(cultural_build_tribute_target).opts(color='#E31212')
         #return cultural_build_tribute_plot * hv.VLine(self.target_raise).opts(color='#E31212')
-    
+
     def get_impact_hour_rate(self, raise_amount):
         rates = self.impact_hours_formula(0, int(self.max_raise))
         try:
@@ -407,7 +407,7 @@ class TECH(param.Parameterized):
 
         #return pn.Column('## Funding Pool', pn.Row(p1, p2, p3))
         return pn.Row(p1, p2, p3)
-        
+
     @param.depends('action')
     def funding_pool_data_view(self):
         funding_pools = self.get_funding_pool_data()
@@ -432,9 +432,14 @@ class TECH(param.Parameterized):
             self.target_raise = self.min_raise
 
     @param.depends('action')
-    def trigger_target_cultural_build_tribute_too_high(self):
+    def trigger_unbalanced_parameters(self):
         if self.target_cultural_build_tribute > 100:
-            return pn.pane.JPG('https://i.imgflip.com/540z6u.jpg')
+            if self.target_impact_hour_rate < 5:
+                return pn.pane.JPG('https://i.imgflip.com/54lvlm.jpg')
+            else:
+                return pn.pane.JPG('https://i.imgflip.com/540z6u.jpg')
+        elif self.target_impact_hour_rate < 5:
+            return pn.pane.JPG('https://i.imgflip.com/54tdpy.jpg')
         else:
             return pn.pane.Markdown('')
 
@@ -783,7 +788,7 @@ class DandelionVoting(param.Parameterized):
 
     def support_required(self):
         return self.support_required_percentage/100
-    
+
     def minimum_accepted_quorum(self):
         return self.minimum_accepted_quorum_percentage/100
 
@@ -802,4 +807,4 @@ class DandelionVoting(param.Parameterized):
                 xlabel='Total Token Votes (%)', ylabel='Yes Token Votes (%)', label='Proposal Passes ✅')
         support_required_plot = df.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='red', label='Proposal Fails 🚫')
         quorum_accepted_plot = df_fill_q.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='yellow', label='Minimum quorum')
-        return (total_votes_plot* support_required_plot * quorum_accepted_plot).opts(legend_position='top_left') 
+        return (total_votes_plot* support_required_plot * quorum_accepted_plot).opts(legend_position='top_left')
