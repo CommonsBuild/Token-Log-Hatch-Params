@@ -63,7 +63,6 @@ class TECH(param.Parameterized):
     impact_hour_slope = param.Number(0.012, bounds=(0,1), step=0.001, label="Impact Hour Slope (wxDai/IH)")
     target_impact_hour_rate = param.Parameter(0, label="Target Impact Hour Rate (wxDai/hour)", constant=True)
     target_redeemable = param.Parameter(0, label="Target Redeemable (%)", constant=True)
-    target_impact_hour_rate = param.Parameter(0, label="Target Impact Hour Rate (wxDai/hour)", constant=True)
     target_cultural_build_tribute = param.Parameter(0, label="Target Cultural Build Tribute (%)", constant=True)
     action = param.Action(lambda x: x.param.trigger('action'), label='Run simulation')
 
