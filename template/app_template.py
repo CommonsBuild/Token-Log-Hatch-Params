@@ -171,7 +171,7 @@ def load_app(config_file):
 
 <p>{comments}</p>
 
-- It costs {tollgate_fee_xdai} wxDAI to make a proposal.
+- It costs {tollgate_fee_xdai} wxDai to make a proposal.
 
 - Votes will be voted on for {vote_duration_days} days.
 
