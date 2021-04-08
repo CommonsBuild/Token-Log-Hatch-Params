@@ -33,21 +33,13 @@ sheets = [
 sheets = {i:sheet for i, sheet in enumerate(sheets)}
 
 def read_excel(sheet_name="Total Impact Hours so far", header=1, index_col=0, usecols=None) -> pd.DataFrame:
-    data = pd.read_excel(
-            os.path.join("data", "TEC Praise Quantification.xlsx"),
-            sheet_name=sheet_name,
-            engine='openpyxl',
-            header=header,
-            index_col=index_col,
-            usecols=usecols
-    ).reset_index().dropna(how='any')
+    data = pd.read_csv(os.path.join("data", "praise_quantification.csv"))
     return data
 
 
 def read_impact_hour_data():
     impact_hour_data_1 = read_excel()
-    impact_hour_data_2 = read_excel(sheet_name="IH Predictions", header=0, index_col=0, usecols='A:I').drop(index=19)
-    return (impact_hour_data_1, impact_hour_data_2)
+    return impact_hour_data_1
 
 
 def read_cstk_data():
