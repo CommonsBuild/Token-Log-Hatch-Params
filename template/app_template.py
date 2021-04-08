@@ -76,8 +76,10 @@ def load_app(config_file):
         queries = curdoc().session_context.request.arguments
         queries = { i: j[0] for i, j in queries.items() }
         if queries:
-            if 'ihminr' in queries and 'ihmaxr' in queries:
-                t.min_max_raise = (int(float(queries['ihminr'])), int(float(queries['ihmaxr'])))
+            if 'ihminr' in queries:
+                t.min_raise = int(queries['ihminr'])
+            if 'ihmaxr' in queries:
+                t.max_raise = int(queries['ihmaxr'])
             if 'hs' in queries:
                 t.impact_hour_slope = float(queries['hs'])
             if 'maxihr' in queries:
@@ -97,13 +99,15 @@ def load_app(config_file):
             if 'maq' in queries:
                 dandelion.minimum_accepted_quorum_percentage = int(queries['maq'])
             if 'vdd' in queries:
-                dandelion.vote_duration_days = float(queries['vdd'])
+                dandelion.vote_duration_days = int(queries['vdd'])
             if 'vbh' in queries:
-                dandelion.vote_buffer_hours = float(queries['vbh'])
+                dandelion.vote_buffer_hours = int(queries['vbh'])
             if 'rqh' in queries:
-                dandelion.rage_quit_hours = float(queries['rqh'])
+                dandelion.rage_quit_hours = int(queries['rqh'])
             if 'tfx' in queries:
                 dandelion.tollgate_fee_xdai = float(queries['tfx'])
+
+            t.param.trigger('action')  # Update dashboard
 
     @pn.depends(results_button)
     def update_result_score(results_button_on):
@@ -167,7 +171,7 @@ def load_app(config_file):
 
 <p>{comments}</p>
 
-- It costs {tollgate_fee_xdai} wxDAI to make a proposal.
+- It costs {tollgate_fee_xdai} wxDai to make a proposal.
 
 - Votes will be voted on for {vote_duration_days} days.
 
