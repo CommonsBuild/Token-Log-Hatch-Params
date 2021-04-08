@@ -111,21 +111,21 @@ def load_app(config_file):
 
     @pn.depends(results_button)
     def update_result_score(results_button_on):
-        data_table = {'Parameters': ["Target Goal (wxDai)", "Maximum Goal (wxDai)", "Minimum Goal (wxDai)",
-        "Impact hour slope (wxDai/IH)", "Maximum impact hour rate (wxDai/IH)",
-        "Membership Ratio (wxDai/CSTK)", "Hatch Period (days)",
-        "Hatch Minting Rate (TECH/wxDai)", "Hatch Tribute (%)", "Support Required (%)",
-        "Minimum Quorum (%)", "Vote Duration (days)", "Vote Proposal Buffer (hours)",
-        "Rage Quit Period (hours)", "Tollgate Fee (wxDai)"],
-        'Values': [int(t.target_raise), int(t.max_raise),
-        int(t.min_raise), t.impact_hour_slope,
-        t.maximum_impact_hour_rate, t.hatch_oracle_ratio,
-        t.hatch_period_days, t.hatch_exchange_rate, t.hatch_tribute_percentage,
-        dandelion.support_required_percentage, dandelion.minimum_accepted_quorum_percentage, dandelion.vote_duration_days,
-        dandelion.vote_buffer_hours, dandelion.rage_quit_hours, dandelion.tollgate_fee_xdai]}
-        df = pd.DataFrame(data=data_table)
-
         if results_button_on:
+            data_table = {'Parameters': ["Target raise (wxDai)", "Maximum raise (wxDai)", "Minimum raise (wxDai)",
+            "Impact hour slope (wxDai/IH)", "Maximum impact hour rate (wxDai/IH)",
+            "Hatch oracle ratio (wxDai/CSTK)", "Hatch period (days)",
+            "Hatch exchange rate (TECH/wxDai)", "Hatch tribute (%)", "Support required (%)",
+            "Minimum accepted quorum (%)", "Vote duration (days)", "Vote buffer (hours)",
+            "Rage quit (hours)", "Tollgate fee (wxDai)"],
+            'Values': [int(t.target_raise), int(t.max_raise),
+            int(t.min_raise), t.impact_hour_slope,
+            t.maximum_impact_hour_rate, t.hatch_oracle_ratio,
+            t.hatch_period_days, t.hatch_exchange_rate, t.hatch_tribute_percentage,
+            dandelion.support_required_percentage, dandelion.minimum_accepted_quorum_percentage, dandelion.vote_duration_days,
+            dandelion.vote_buffer_hours, dandelion.rage_quit_hours, dandelion.tollgate_fee_xdai]}
+            df = pd.DataFrame(data=data_table)
+
             # Define output pane
             output_pane = pn.Row(pn.Column(t.impact_hours_view,
                                         t.redeemable_plot,
@@ -209,18 +209,15 @@ Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&
             body = urllib.parse.quote(markdown_panel.object, safe='')
             url.value = config_file['repo'] + "/issues/new?title=Vote%20for%20My%20Params&labels=" + config_file['label'] + "&body=" + body
             results_button.name = "Update your results"
+            markdown_panel = pn.pane.Markdown(string_data)
+            return pn.Row(df.hvplot.table(),markdown_panel)
 
-        else:
-            string_data=""
-        markdown_panel = pn.pane.Markdown(string_data)
-        return pn.Row(df.hvplot.table(),markdown_panel)
 
     pn.state.onload(update_params_by_url_query)
 
     # Front-end
     tmpl = pn.Template(template=template)
     tmpl.add_variable('app_title', config_file['title'])
-    tmpl.add_panel('A', i.impact_hours_accumulation)
     tmpl.add_panel('B', t)
     tmpl.add_panel('C', t.funding_pool_data_view)
     tmpl.add_panel('E', t.payout_view)

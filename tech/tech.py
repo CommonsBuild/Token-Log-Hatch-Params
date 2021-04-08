@@ -59,7 +59,6 @@ def read_cstk_data():
 
 
 class TECH(param.Parameterized):
-    action = param.Action(lambda x: x.param.trigger('action'), label='Run simulation')
     #min_max_raise = param.Range((1, 1000), bounds=(1,1000), label="Minimum/Maximum Goal (wxDai)")
     target_raise = param.Number(500, label="Target Goal (wxDai)")
     min_raise = param.Integer(1, label="Minimum Goal (wxDai)")
@@ -74,6 +73,7 @@ class TECH(param.Parameterized):
     target_redeemable = param.Parameter(0, label="Target Redeemable (%)", constant=True)
     target_impact_hour_rate = param.Parameter(0, label="Target Impact Hour Rate (wxDai/hour)", constant=True)
     target_cultural_build_tribute = param.Parameter(0, label="Target Cultural Build Tribute (%)", constant=True)
+    action = param.Action(lambda x: x.param.trigger('action'), label='Run simulation')
 
     def __init__(self, total_impact_hours, impact_hour_data, total_cstk_tokens,
                  config, **params):
@@ -427,7 +427,7 @@ class TECH(param.Parameterized):
     @param.depends('action')
     def bounds_target_raise(self):
         if self.target_raise > self.max_raise:
-            self.target_raise = self.max_raise[1]
+            self.target_raise = self.max_raise
         elif self.target_raise < self.min_raise:
             self.target_raise = self.min_raise
 
@@ -744,13 +744,13 @@ class Hatch(param.Parameterized):
 
 class DandelionVoting(param.Parameterized):
     #total_tokens = param.Number(17e6)
-    action = param.Action(lambda x: x.param.trigger('action'), label='Run simulation')
     support_required_percentage = param.Number(60, bounds=(50,90), step=1, label="Support Required (%)")
     minimum_accepted_quorum_percentage = param.Number(2, bounds=(1,100), step=1, label="Minimum Quorum (%)")
     vote_duration_days = param.Integer(3, label="Vote Duration (days)")
-    vote_buffer_hours = param.Integer(8, label="Vote Proposal Buffer (hours)")
-    rage_quit_hours = param.Integer(24, label="Rage Quit Period (hours)")
-    tollgate_fee_xdai = param.Number(3, label="Tollgate Fee (wxDai)")
+    vote_buffer_hours = param.Integer(8, label="Vote Proposal buffer (hours)")
+    rage_quit_hours = param.Integer(24, label="Rage quit (hours)")
+    tollgate_fee_xdai = param.Number(3, label="Tollgate fee (wxDai)")
+    action = param.Action(lambda x: x.param.trigger('action'), label='Run simulation')
 
     def __init__(self, total_tokens, config, **params):
         super(DandelionVoting, self).__init__(**params, name="TEC Hatch DAO")
