@@ -17,6 +17,7 @@ import os
 
 from tech.tech import read_impact_hour_data, read_cstk_data, TECH
 from tech.tech import ImpactHoursData, ImpactHoursFormula, Hatch, DandelionVoting
+from template.config_tooltips import tooltips
 #import tech.config_bounds as config_bounds
 import data
 
@@ -185,6 +186,7 @@ def load_app(config_file):
 
 Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}).
 
+To see the value of your individual Impact Hours, click [here to go to the Hatch Config Dashboard with these parameters]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}) and explore the Impact Hour Results table.
             """.format(comments=comments.value,
             tollgate_fee_xdai=dandelion.tollgate_fee_xdai,
             vote_duration_days=dandelion.vote_duration_days,
@@ -215,19 +217,105 @@ Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&
 
     pn.state.onload(update_params_by_url_query)
 
+    def help_icon(text):
+        return """
+        <style>
+        .tooltip {{
+            position: relative;
+            display: inline-block;
+            align-self: flex-end;
+        }}
+
+        .tooltip .tooltiptext {{
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }}
+
+        .tooltip .tooltiptext::after {{
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }}
+
+        .tooltip:hover .tooltiptext {{
+            visibility: visible;
+            opacity: 1;
+        }}
+
+        .icon {{
+            width: 24px;
+            height: 24px;
+        }}
+
+        .flex {{
+            height: 100%;
+            display: flex;
+            justify-content: center;
+        }}
+        </style>
+        <div class="flex">
+            <div class="tooltip">
+                <a href="https://forum.tecommons.org/t/tec-test-hatch-implementation-specification/226" target="_blank">
+                    <img class="icon" src="http://cdn.onlinewebfonts.com/svg/img_295214.png" />
+                </a>
+                <span class="tooltiptext">{text}</span>
+            </div>
+        </div>
+        """.format(text=text)
+
+    def param_with_tooltip(param, tooltip, height=50):
+        return pn.Row(pn.Column(param, sizing_mode="stretch_width"), pn.pane.HTML(help_icon(tooltips[tooltip]), sizing_mode="fixed", width=30, height=height, align="end"))
+
     # Front-end
     tmpl = pn.Template(template=template)
     tmpl.add_variable('app_title', config_file['title'])
-    tmpl.add_panel('B', t)
+    tmpl.add_panel('B', pn.Column(
+        param_with_tooltip(t.param.target_raise, tooltip='target_raise'), 
+        param_with_tooltip(t.param.min_raise, tooltip='min_raise'),
+        param_with_tooltip(t.param.max_raise, tooltip='max_raise'),
+        param_with_tooltip(t.param.hatch_oracle_ratio, tooltip='hatch_oracle_ratio'),
+        param_with_tooltip(t.param.hatch_period_days, tooltip='hatch_period_days'),
+        param_with_tooltip(t.param.hatch_exchange_rate, tooltip='hatch_exchange_rate'),
+        param_with_tooltip(t.param.hatch_tribute_percentage, tooltip='hatch_tribute_percentage'),
+        param_with_tooltip(t.param.maximum_impact_hour_rate, tooltip='maximum_impact_hour_rate', height=40),
+        param_with_tooltip(t.param.impact_hour_slope, tooltip='impact_hour_slope', height=40),
+        t.param.action,
+        t.param.target_impact_hour_rate,
+        t.param.target_redeemable,
+        t.param.target_cultural_build_tribute
+    ))
     tmpl.add_panel('C', t.funding_pool_data_view)
     tmpl.add_panel('E', t.payout_view)
     tmpl.add_panel('D', pn.Column(t.impact_hours_view, t.redeemable_plot, t.cultural_build_tribute_plot))
     tmpl.add_panel('M', t.trigger_unbalanced_parameters)
     tmpl.add_panel('F', t.funding_pool_view)
-    tmpl.add_panel('V', dandelion)
+    tmpl.add_panel('V', pn.Column(
+        param_with_tooltip(pn.Column(dandelion.param.support_required_percentage), tooltip='support_required_percentage', height=40), 
+        param_with_tooltip(dandelion.param.minimum_accepted_quorum_percentage, tooltip='minimum_accepted_quorum_percentage', height=40),
+        param_with_tooltip(dandelion.param.vote_duration_days, tooltip='vote_duration_days'),
+        param_with_tooltip(dandelion.param.vote_buffer_hours, tooltip='vote_buffer_hours'),
+        param_with_tooltip(dandelion.param.rage_quit_hours, tooltip='rage_quit_hours'),
+        param_with_tooltip(dandelion.param.tollgate_fee_xdai, tooltip='tollgate_fee_xdai'),
+        dandelion.param.action
+    ))
     tmpl.add_panel('W', dandelion.vote_pass_view)
     tmpl.add_panel('G', pn.pane.GIF('media/inputs_outputs.gif'))
-
     tmpl.add_panel('R', update_result_score)
     tmpl.add_panel('CO', comments)
     tmpl.add_panel('BU', pn.Column(results_button, share_button, url))

@@ -50,10 +50,11 @@ p {
 }
 .secone {
     height: 1100px;
+    z-index: -1;
 }
 .meme {
-    height: 300px;
-    width: 400px;
+    height: 250px;
+    width: 300px;
     margin: 0 auto;
 }
 .pie-charts {
@@ -62,8 +63,16 @@ p {
 .table {
     height: 190px;
 }
+.payout-table {
+    height: 350px;
+}
 .dandelion {
-    height: 400px;
+    overflow: hidden;
+    height: 650px;
+    z-index: -1;
+}
+.params {
+    z-index: 1;
 }
 </style>
 
@@ -87,26 +96,33 @@ p {
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
             <h2>Section 1: Choosing Parameters for Impact Hours - Rewarding TEC Contributions</h2>
             <p>The Hatch is the initialize phase that collects wxDai and mints TECH tokens for the TEC Hatch DAO, see the <a href="https://forum.tecommons.org/t/the-hatch-tl-dr/272" target="_blank">Hatch TL;DR</a> for a general overview. Designing the Hatch includes a few important concepts like: the Impact Hours Slope and Maximum Impact Hour Rate, which will award TECH tokens to the Impact Hour token holders via the Cultural Build Tribute; the Membership Ratio that determines how the CSTK Score influences how much wxDai each member of the Trusted Seed can send to the Hatch; the Hatch Tribute that sets wxDai aside for advancing Token Engineering and choosing the Minimum, Maximum Goals as well as specifying your Target Goal that you are designing around. For a more complete understanding of each Parameter, see the <a href="https://forum.tecommons.org/t/tec-test-hatch-implementation-specification/226" target="_blank">Hatch Spec</a>.</p>
-            <div>
+            <div class="params">
                 {{ embed(roots.B) }}
             </div>
             <div class="table">
                 {{ embed(roots.C) }}
             </div>
-            <div class="table">
-                {{ embed(roots.E) }}
-            </div>
         </div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell secone">{{ embed(roots.D) }}<div class="meme">{{ embed(roots.M) }}</div></div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 grid-cell payout-table">{{ embed(roots.E) }}</div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 grid-cell pie-charts">{{ embed(roots.F) }}</div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
             <h2>Section 2: Dandelion Voting - Dandelion DAO Initialization</h2>
             <p>The TEC Hatch DAO is effectively a Moloch DAO deployed using the Aragon framework. Designing how the DAO will make decisions is pretty straight forward, the variables that may need a special note are: Minimum Quorum which only counts yes votes; Vote Proposal Buffer, which is a precautionary variable that ensures DAO members have time between votes to Rage Quit and the Rage Quit Period which is the time after a vote that a DAO member has to exit with their share of the Redeemable Pool before the vote is executed. For a more complete understanding of each Parameter, see the <a href="https://forum.tecommons.org/t/tec-test-hatch-implementation-specification/226" target="_blank">Hatch Spec</a>.</p>
-            <div>
+            <div class="params">
                 {{ embed(roots.V) }}
             </div>
         </div>
-        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell dandelion">{{ embed(roots.W) }}<div class="meme">{{ embed(roots.G) }}</div></div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell">
+            <div class="dandelion">
+                <div style="height: 350px">
+                    {{ embed(roots.W) }}
+                </div>
+                <div class="meme">
+                    {{ embed(roots.G) }}
+                </div>
+            </div>
+        </div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
             <h2>Results</h2>
             <div style="height: 100px">
