@@ -67,7 +67,8 @@ p {
     height: 350px;
 }
 .dandelion {
-    height: 400px;
+    overflow: hidden;
+    height: 650px;
     z-index: -1;
 }
 .params {
@@ -112,7 +113,16 @@ p {
                 {{ embed(roots.V) }}
             </div>
         </div>
-        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell dandelion">{{ embed(roots.W) }}<div class="meme">{{ embed(roots.G) }}</div></div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell">
+            <div class="dandelion">
+                <div style="height: 350px">
+                    {{ embed(roots.W) }}
+                </div>
+                <div class="meme">
+                    {{ embed(roots.G) }}
+                </div>
+            </div>
+        </div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
             <h2>Results</h2>
             <div style="height: 100px">
