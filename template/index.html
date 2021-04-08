@@ -53,8 +53,8 @@ p {
     z-index: -1;
 }
 .meme {
-    height: 300px;
-    width: 400px;
+    height: 250px;
+    width: 300px;
     margin: 0 auto;
 }
 .pie-charts {
@@ -62,6 +62,9 @@ p {
 }
 .table {
     height: 190px;
+}
+.payout-table {
+    height: 350px;
 }
 .dandelion {
     height: 400px;
@@ -98,11 +101,9 @@ p {
             <div class="table">
                 {{ embed(roots.C) }}
             </div>
-            <div class="table">
-                {{ embed(roots.E) }}
-            </div>
         </div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell secone">{{ embed(roots.D) }}<div class="meme">{{ embed(roots.M) }}</div></div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 grid-cell payout-table">{{ embed(roots.E) }}</div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 grid-cell pie-charts">{{ embed(roots.F) }}</div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
             <h2>Section 2: Dandelion Voting - Dandelion DAO Initialization</h2>

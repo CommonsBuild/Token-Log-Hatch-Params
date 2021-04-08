@@ -114,11 +114,20 @@ class TECH(param.Parameterized):
     @param.depends('action')
     def payout_view(self):
         scenario_rates = self.get_rate_scenarios()
-        self.impact_hour_data['Minimum Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * scenario_rates['min_rate']
-        self.impact_hour_data['Target Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * scenario_rates['target_rate']
-        self.impact_hour_data['Maximum Payout (wXDAI)'] = self.impact_hour_data['Impact Hours'] * scenario_rates['max_rate']
+        self.impact_hour_data['Assumed Target Goal (wxDai)'] = (self.impact_hour_data['Assumed IH'] * scenario_rates['target_rate']).round(2)
+        self.impact_hour_data['Assumed Min Goal (wxDai)'] = (self.impact_hour_data['Assumed IH'] * scenario_rates['min_rate']).round(2)
+        self.impact_hour_data['Assumed Max Goal (wxDai)'] = (self.impact_hour_data['Assumed IH'] * scenario_rates['max_rate']).round(2)
+
+        self.impact_hour_data['Min IH Target Goal (wxDai)'] = (self.impact_hour_data['Min IH'] * scenario_rates['target_rate']).round(2)
+        self.impact_hour_data['Min IH Min Goal (wxDai)'] = (self.impact_hour_data['Min IH'] * scenario_rates['min_rate']).round(2)
+        self.impact_hour_data['Min IH Max Goal (wxDai)'] = (self.impact_hour_data['Min IH'] * scenario_rates['max_rate']).round(2)
+
+        self.impact_hour_data['Optimistic IH Target Goal (wxDai)'] = (self.impact_hour_data['Optimistic IH'] * scenario_rates['target_rate']).round(2)
+        self.impact_hour_data['Optimistic IH Min Goal (wxDai)'] = (self.impact_hour_data['Optimistic IH'] * scenario_rates['min_rate']).round(2)
+        self.impact_hour_data['Optimistic IH Max Goal (wxDai)'] = (self.impact_hour_data['Optimistic IH'] * scenario_rates['max_rate']).round(2)
+        
         self.impact_hour_data = self.impact_hour_data.round(2)
-        return self.impact_hour_data.hvplot.table(title='Impact Hour Results', width=450)
+        return self.impact_hour_data.hvplot.table(title='Impact Hour Results', width=1350)
 
     def impact_hours_formula(self, minimum_raise, maximum_raise, raise_scenarios=None):
         xlim = self.config_bounds['min_max_raise']['xlim'][1]
