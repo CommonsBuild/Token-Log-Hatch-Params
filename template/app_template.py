@@ -278,8 +278,8 @@ Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&
         </div>
         """.format(text=text)
 
-    def param_with_tooltip(param, tooltip, height=60):
-        return pn.Row(pn.Column(param, width=450, height=height), pn.pane.HTML(help_icon(tooltips[tooltip])))
+    def param_with_tooltip(param, tooltip, height=50):
+        return pn.Row(pn.Column(param, sizing_mode="stretch_width"), pn.pane.HTML(help_icon(tooltips[tooltip]), sizing_mode="fixed", width=30, height=height, align="end"))
 
     # Front-end
     tmpl = pn.Template(template=template)
@@ -305,8 +305,8 @@ Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&
     tmpl.add_panel('M', t.trigger_unbalanced_parameters)
     tmpl.add_panel('F', t.funding_pool_view)
     tmpl.add_panel('V', pn.Column(
-        param_with_tooltip(pn.Column(dandelion.param.support_required_percentage), tooltip='support_required_percentage', height=30), 
-        param_with_tooltip(dandelion.param.minimum_accepted_quorum_percentage, tooltip='minimum_accepted_quorum_percentage', height=30),
+        param_with_tooltip(pn.Column(dandelion.param.support_required_percentage), tooltip='support_required_percentage', height=40), 
+        param_with_tooltip(dandelion.param.minimum_accepted_quorum_percentage, tooltip='minimum_accepted_quorum_percentage', height=40),
         param_with_tooltip(dandelion.param.vote_duration_days, tooltip='vote_duration_days'),
         param_with_tooltip(dandelion.param.vote_buffer_hours, tooltip='vote_buffer_hours'),
         param_with_tooltip(dandelion.param.rage_quit_hours, tooltip='rage_quit_hours'),
