@@ -384,6 +384,7 @@ class TECH(param.Parameterized):
     def funding_pool_view(self):
         funding_pools = self.get_funding_pool_data()
         funding_pools = funding_pools.filter(items=['Cultural tribute', 'Hatch tribute', 'Redeemable reserve', 'total'])
+        funding_pools = funding_pools.rename(columns={'Cultural tribute': 'Impact Hours'})
         # return funding_pools.hvplot.bar(title="Funding Pools", ylim=(0,self.param['hatch_oracle_ratio'].bounds[1]*self.param['min_max_raise'].bounds[1]), rot=45, yformatter='%.0f').opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
         # raise_bars = bar_data.hvplot.bar(yformatter='%.0f', title="Funding Pools", stacked=True, y=['Funding Pool', 'Hatch Tribute']).opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
         funding_pools['rank'] = funding_pools['total'] / funding_pools['total'].sum()
@@ -393,15 +394,15 @@ class TECH(param.Parameterized):
         colors = ['#0F2EEE', '#0b0a15', '#DEFB48']
         chart_data = funding_pools.iloc[:,:-2]
         p1 = pie_chart(data=pd.Series(chart_data.loc['min_raise',:]),
-                       radius=0.1 + 0.55 * int(self.min_raise)/int(self.config_bounds['min_max_raise']['bounds'][1]),
+                       radius=0.65,
                        title="Min Raise", toolbar_location=None, plot_width=300,
                        show_legend=False, colors=colors)
         p2 = pie_chart(data=pd.Series(chart_data.loc['target_raise',:]),
-                       radius=0.1 + 0.55 * int(self.target_raise)/int(self.config_bounds['min_max_raise']['bounds'][1]),
+                       radius=0.65,
                        title="Target Raise", toolbar_location=None, plot_width=300,
                        show_legend=False, colors=colors)
         p3 = pie_chart(data=pd.Series(chart_data.loc['max_raise',:]),
-                       radius=0.1 + 0.55 * int(self.max_raise)/int(self.config_bounds['min_max_raise']['bounds'][1]),
+                       radius=0.65,
                        title="Max Raise", colors=colors)
 
 
