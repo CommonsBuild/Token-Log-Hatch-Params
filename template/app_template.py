@@ -212,7 +212,7 @@ Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&
 
     pn.state.onload(update_params_by_url_query)
 
-    def tooltip(text):
+    def help_icon(text):
         return """
         <style>
         .tooltip {{
@@ -244,7 +244,6 @@ Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&
             top: 100%;
             left: 50%;
             margin-left: -5px;
-            border-width: 5px;
             border-style: solid;
             border-color: #555 transparent transparent transparent;
         }}
@@ -275,19 +274,22 @@ Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&
         </div>
         """.format(text=text)
 
+    def param_with_tooltip(param, tooltip, height = 60):
+        return pn.Row(pn.Column(param, width=450, height=height), pn.pane.HTML(help_icon(tooltips[tooltip])))
+
     # Front-end
     tmpl = pn.Template(template=template)
     tmpl.add_variable('app_title', config_file['title'])
     tmpl.add_panel('B', pn.Column(
-        pn.Row(pn.panel(t.param.target_raise), pn.pane.HTML(tooltip(tooltips['target_raise']))), 
-        pn.Row(t.param.min_raise, pn.pane.HTML(tooltip(tooltips['min_raise']))),
-        pn.Row(t.param.max_raise, pn.pane.HTML(tooltip(tooltips['max_raise']))),
-        pn.Row(t.param.hatch_oracle_ratio, pn.pane.HTML(tooltip(tooltips['hatch_oracle_ratio']))),
-        pn.Row(t.param.hatch_period_days, pn.pane.HTML(tooltip(tooltips['hatch_period_days']))),
-        pn.Row(t.param.hatch_exchange_rate, pn.pane.HTML(tooltip(tooltips['hatch_exchange_rate']))),
-        pn.Row(t.param.hatch_tribute_percentage, pn.pane.HTML(tooltip(tooltips['hatch_tribute_percentage']))),
-        pn.Row(t.param.maximum_impact_hour_rate, pn.pane.HTML(tooltip(tooltips['maximum_impact_hour_rate']))),
-        pn.Row(t.param.impact_hour_slope, pn.pane.HTML(tooltip(tooltips['impact_hour_slope']))),
+        param_with_tooltip(t.param.target_raise, 'target_raise'), 
+        param_with_tooltip(t.param.min_raise, 'min_raise'),
+        param_with_tooltip(t.param.max_raise, 'max_raise'),
+        param_with_tooltip(t.param.hatch_oracle_ratio, 'hatch_oracle_ratio'),
+        param_with_tooltip(t.param.hatch_period_days, 'hatch_period_days'),
+        param_with_tooltip(t.param.hatch_exchange_rate, 'hatch_exchange_rate'),
+        param_with_tooltip(t.param.hatch_tribute_percentage, 'hatch_tribute_percentage'),
+        param_with_tooltip(t.param.maximum_impact_hour_rate, 'maximum_impact_hour_rate', 50),
+        param_with_tooltip(t.param.impact_hour_slope, 'impact_hour_slope', 50),
         t.param.action,
         t.param.target_impact_hour_rate,
         t.param.target_redeemable,
@@ -299,12 +301,12 @@ Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&
     tmpl.add_panel('M', t.trigger_target_cultural_build_tribute_too_high)
     tmpl.add_panel('F', t.funding_pool_view)
     tmpl.add_panel('V', pn.Column(
-        pn.Row(pn.Column(dandelion.param.support_required_percentage), pn.pane.HTML(tooltip(tooltips['support_required_percentage']))), 
-        pn.Row(dandelion.param.minimum_accepted_quorum_percentage, pn.pane.HTML(tooltip(tooltips['minimum_accepted_quorum_percentage']))),
-        pn.Row(dandelion.param.vote_duration_days, pn.pane.HTML(tooltip(tooltips['vote_duration_days']))),
-        pn.Row(dandelion.param.vote_buffer_hours, pn.pane.HTML(tooltip(tooltips['vote_buffer_hours']))),
-        pn.Row(dandelion.param.rage_quit_hours, pn.pane.HTML(tooltip(tooltips['rage_quit_hours']))),
-        pn.Row(dandelion.param.tollgate_fee_xdai, pn.pane.HTML(tooltip(tooltips['tollgate_fee_xdai']))),
+        param_with_tooltip(pn.Column(dandelion.param.support_required_percentage), 'support_required_percentage', 50), 
+        param_with_tooltip(dandelion.param.minimum_accepted_quorum_percentage, 'minimum_accepted_quorum_percentage', 50),
+        param_with_tooltip(dandelion.param.vote_duration_days, 'vote_duration_days'),
+        param_with_tooltip(dandelion.param.vote_buffer_hours, 'vote_buffer_hours'),
+        param_with_tooltip(dandelion.param.rage_quit_hours, 'rage_quit_hours'),
+        param_with_tooltip(dandelion.param.tollgate_fee_xdai, 'tollgate_fee_xdai'),
         dandelion.param.action
     ))
     tmpl.add_panel('W', dandelion.vote_pass_view)
