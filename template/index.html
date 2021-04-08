@@ -103,7 +103,16 @@ p {
                 {{ embed(roots.C) }}
             </div>
         </div>
-        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell secone">{{ embed(roots.D) }}<div class="meme">{{ embed(roots.M) }}</div></div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell" style="z-index: -1">
+            <div class="secone">
+                <div>
+                    {{ embed(roots.D) }}
+                </div>
+                <div class="meme">
+                    {{ embed(roots.M) }}
+                </div>
+            </div>
+        </div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 grid-cell payout-table">{{ embed(roots.E) }}</div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 grid-cell pie-charts">{{ embed(roots.F) }}</div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
@@ -113,7 +122,7 @@ p {
                 {{ embed(roots.V) }}
             </div>
         </div>
-        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell">
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell" style="z-index: -1">
             <div class="dandelion">
                 <div style="height: 350px">
                     {{ embed(roots.W) }}
