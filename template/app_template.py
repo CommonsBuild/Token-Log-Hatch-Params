@@ -17,6 +17,7 @@ import os
 
 from tech.tech import read_impact_hour_data, read_cstk_data, TECH
 from tech.tech import ImpactHoursData, ImpactHoursFormula, Hatch, DandelionVoting
+from template.config_tooltips import tooltips
 #import tech.config_bounds as config_bounds
 import data
 
@@ -211,19 +212,103 @@ Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&
 
     pn.state.onload(update_params_by_url_query)
 
+    def tooltip(text):
+        return """
+        <style>
+        .tooltip {{
+            position: relative;
+            display: inline-block;
+            align-self: flex-end;
+        }}
+
+        .tooltip .tooltiptext {{
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }}
+
+        .tooltip .tooltiptext::after {{
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }}
+
+        .tooltip:hover .tooltiptext {{
+            visibility: visible;
+            opacity: 1;
+        }}
+
+        .icon {{
+            width: 24px;
+            height: 24px;
+        }}
+
+        .flex {{
+            height: 100%;
+            display: flex;
+            justify-content: center;
+        }}
+        </style>
+        <div class="flex">
+            <div class="tooltip">
+                <a href="https://forum.tecommons.org/t/tec-test-hatch-implementation-specification/226" target="_blank">
+                    <img class="icon" src="http://cdn.onlinewebfonts.com/svg/img_295214.png" />
+                </a>
+                <span class="tooltiptext">{text}</span>
+            </div>
+        </div>
+        """.format(text=text)
+
     # Front-end
     tmpl = pn.Template(template=template)
     tmpl.add_variable('app_title', config_file['title'])
-    tmpl.add_panel('B', t)
+    tmpl.add_panel('B', pn.Column(
+        pn.Row(pn.panel(t.param.target_raise), pn.pane.HTML(tooltip(tooltips['target_raise']))), 
+        pn.Row(t.param.min_raise, pn.pane.HTML(tooltip(tooltips['min_raise']))),
+        pn.Row(t.param.max_raise, pn.pane.HTML(tooltip(tooltips['max_raise']))),
+        pn.Row(t.param.hatch_oracle_ratio, pn.pane.HTML(tooltip(tooltips['hatch_oracle_ratio']))),
+        pn.Row(t.param.hatch_period_days, pn.pane.HTML(tooltip(tooltips['hatch_period_days']))),
+        pn.Row(t.param.hatch_exchange_rate, pn.pane.HTML(tooltip(tooltips['hatch_exchange_rate']))),
+        pn.Row(t.param.hatch_tribute_percentage, pn.pane.HTML(tooltip(tooltips['hatch_tribute_percentage']))),
+        pn.Row(t.param.maximum_impact_hour_rate, pn.pane.HTML(tooltip(tooltips['maximum_impact_hour_rate']))),
+        pn.Row(t.param.impact_hour_slope, pn.pane.HTML(tooltip(tooltips['impact_hour_slope']))),
+        t.param.action,
+        t.param.target_impact_hour_rate,
+        t.param.target_redeemable,
+        t.param.target_cultural_build_tribute
+    ))
     tmpl.add_panel('C', t.funding_pool_data_view)
     tmpl.add_panel('E', t.payout_view)
     tmpl.add_panel('D', pn.Column(t.impact_hours_view, t.redeemable_plot, t.cultural_build_tribute_plot))
     tmpl.add_panel('M', t.trigger_target_cultural_build_tribute_too_high)
     tmpl.add_panel('F', t.funding_pool_view)
-    tmpl.add_panel('V', dandelion)
+    tmpl.add_panel('V', pn.Column(
+        pn.Row(pn.Column(dandelion.param.support_required_percentage), pn.pane.HTML(tooltip(tooltips['support_required_percentage']))), 
+        pn.Row(dandelion.param.minimum_accepted_quorum_percentage, pn.pane.HTML(tooltip(tooltips['minimum_accepted_quorum_percentage']))),
+        pn.Row(dandelion.param.vote_duration_days, pn.pane.HTML(tooltip(tooltips['vote_duration_days']))),
+        pn.Row(dandelion.param.vote_buffer_hours, pn.pane.HTML(tooltip(tooltips['vote_buffer_hours']))),
+        pn.Row(dandelion.param.rage_quit_hours, pn.pane.HTML(tooltip(tooltips['rage_quit_hours']))),
+        pn.Row(dandelion.param.tollgate_fee_xdai, pn.pane.HTML(tooltip(tooltips['tollgate_fee_xdai']))),
+        dandelion.param.action
+    ))
     tmpl.add_panel('W', dandelion.vote_pass_view)
     tmpl.add_panel('G', pn.pane.GIF('media/inputs_outputs.gif'))
-
     tmpl.add_panel('R', update_result_score)
     tmpl.add_panel('CO', comments)
     tmpl.add_panel('BU', pn.Column(results_button, share_button, url))
