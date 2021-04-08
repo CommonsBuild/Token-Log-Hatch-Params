@@ -34,7 +34,7 @@ HCTI_API_KEY = os.environ.get('HCTI_API_KEY')
 def load_app(config_file):
     pn.config.sizing_mode = 'stretch_both'
 
-    impact_hour_data_1, impact_hour_data_2 = read_impact_hour_data()
+    impact_hour_data_1 = read_impact_hour_data()
     impact_hours_data = ImpactHoursData()
 
     # ImpactHoursData
