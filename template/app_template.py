@@ -42,7 +42,7 @@ def load_app(config_file):
     i = ImpactHoursData()
 
     # TECH
-    t = TECH(total_impact_hours=i.total_impact_hours,
+    t = TECH(total_impact_hours = 6630.243,
             impact_hour_data=impact_hour_data_1, total_cstk_tokens=1000000,
             config=config_file['tech'])
 
