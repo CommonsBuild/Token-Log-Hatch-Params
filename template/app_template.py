@@ -35,15 +35,13 @@ HCTI_API_KEY = os.environ.get('HCTI_API_KEY')
 def load_app(config_file):
     pn.config.sizing_mode = 'stretch_both'
 
-    impact_hour_data_1 = read_impact_hour_data()
-    impact_hours_data = ImpactHoursData()
-
+    impact_hour_data = read_impact_hour_data()
     # ImpactHoursData
     i = ImpactHoursData()
 
     # TECH
-    t = TECH(total_impact_hours=i.total_impact_hours,
-            impact_hour_data=impact_hour_data_1, total_cstk_tokens=1000000,
+    t = TECH(total_impact_hours = impact_hour_data['Assumed IH'].sum(),
+            impact_hour_data=impact_hour_data, total_cstk_tokens=1000000,
             config=config_file['tech'])
 
 
@@ -109,6 +107,17 @@ def load_app(config_file):
                 dandelion.tollgate_fee_xdai = float(queries['tfx'])
 
             t.param.trigger('action')  # Update dashboard
+
+
+    @pn.depends(results_button)
+    def update_input_output_pane(results_button_on):
+        if results_button_on:
+            input_output_pane = pn.pane.GIF('media/inputs_outputs.gif')
+        else:
+            input_output_pane = pn.pane.Markdown('')
+        
+        return input_output_pane 
+    
 
     @pn.depends(results_button)
     def update_result_score(results_button_on):
@@ -315,7 +324,7 @@ To see the value of your individual Impact Hours, click [here to go to the Hatch
         dandelion.param.action
     ))
     tmpl.add_panel('W', dandelion.vote_pass_view)
-    tmpl.add_panel('G', pn.pane.GIF('media/inputs_outputs.gif'))
+    tmpl.add_panel('G', update_input_output_pane)
     tmpl.add_panel('R', update_result_score)
     tmpl.add_panel('CO', comments)
     tmpl.add_panel('BU', pn.Column(results_button, share_button, url))
