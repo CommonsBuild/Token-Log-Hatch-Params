@@ -74,6 +74,15 @@ p {
 .params {
     z-index: 1;
 }
+
+.video {
+    height: 315px;
+    width: 560px;
+    margin: 0 auto;
+    margin-top: 10px;
+    align-items: center;
+    justify-content: center;
+}
 </style>
 
 {% endblock %}
@@ -92,7 +101,8 @@ p {
             <h1>{{ app_title }}</h1>
             <p>This dashboard is a tool to collect community opinions on the proper parameterization of the Token Engineering Commons. There are two sections of the dashboard, where you can parameterize three different segments of the initial TEC ecosystem. At the end of the dashboard, you can choose to submit your parameterization configuration to the TEC GitHub, where it auto-compile into a report that can be compared and contrasted among other parameterization submissions by the community. This tool is meant to inform the community about the decisions that go into launching the TEC (and other Commons), and foster discourse in the ethical design of community ecosystems.</p>
         </div>
-        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell"></div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell"><div class="video"><iframe width="560" height="315" src="https://www.youtube.com/embed/7E8SGIIKiRk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        </div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
             <h2>Section 1: Choosing Parameters for Impact Hours - Rewarding TEC Contributions</h2>
             <p>The Hatch is the initialize phase that collects wxDai and mints TECH tokens for the TEC Hatch DAO, see the <a href="https://forum.tecommons.org/t/the-hatch-tl-dr/272" target="_blank">Hatch TL;DR</a> for a general overview. Designing the Hatch includes a few important concepts like: the Impact Hours Slope and Maximum Impact Hour Rate, which will award TECH tokens to the Impact Hour token holders via the Cultural Build Tribute; the Membership Ratio that determines how the CSTK Score influences how much wxDai each member of the Trusted Seed can send to the Hatch; the Hatch Tribute that sets wxDai aside for advancing Token Engineering and choosing the Minimum, Maximum Goals as well as specifying your Target Goal that you are designing around. For a more complete understanding of each Parameter, see the <a href="https://forum.tecommons.org/t/tec-test-hatch-implementation-specification/226" target="_blank">Hatch Spec</a>.</p>
