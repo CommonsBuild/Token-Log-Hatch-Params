@@ -7,7 +7,7 @@ services:
     build: .
     ports:
       - "5100:5100"
-    command: panel serve --show apps/hatch.py --allow-websocket-origin=* --port=5100 
+    command: panel serve apps/hatch.py apps/test-hatch.py --allow-websocket-origin=params.tecommons.org --alow-websocket-origin=95.111.227.14 --port=5100 
 
   nginx:
     container_name: nginx
