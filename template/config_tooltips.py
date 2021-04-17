@@ -1,6 +1,6 @@
 tooltips = {
-    "target_raise": "Total amount of funds raised or expected amount of funds raised. Theoretical number for the purpose of running the simulation.",
-    "min_raise": "The minimum amount that needs to be collected during the Hatch to create the TEC HatchDAO, if less than this is collected, the funds will be sent back to the addresses that sent it.",
+    "target_raise": "The amount of wxDai YOU believe the TEC will collect. Used to aid design.",
+    "min_raise": "The minimum amount of wxDai that needs to be collected during the hatch for it to succeed. If less than this is collected, 100% of the wxDai will be refunded.",
     "max_raise": "The maximum amount of wxDai that can be sent to the Hatch.",
     "hatch_oracle_ratio": "The amount of wxDAI (wrapped xDAI) each CSTK Token holder is able to send to the Hatch per CSTK they have.",
     "hatch_period_days": "How long the Hatch is open to collect funds.",
