@@ -125,7 +125,7 @@ class TECH(param.Parameterized):
         self.impact_hour_data['Optimistic IH Target Goal (wxDai)'] = (self.impact_hour_data['Optimistic IH'] * scenario_rates['target_rate']).round(2)
         self.impact_hour_data['Optimistic IH Min Goal (wxDai)'] = (self.impact_hour_data['Optimistic IH'] * scenario_rates['min_rate']).round(2)
         self.impact_hour_data['Optimistic IH Max Goal (wxDai)'] = (self.impact_hour_data['Optimistic IH'] * scenario_rates['max_rate']).round(2)
-        
+
         self.impact_hour_data = self.impact_hour_data.round(2)
         return self.impact_hour_data.hvplot.table(title='Impact Hour Results', width=1350)
 
@@ -442,7 +442,7 @@ class TECH(param.Parameterized):
             else:
                 return pn.pane.JPG('https://i.imgflip.com/540z6u.jpg')
         elif self.target_impact_hour_rate < 5:
-            return pn.pane.JPG('https://i.imgflip.com/54tdpy.jpg')
+            return pn.pane.JPG('https://i.imgflip.com/54l0iv.jpg')
         else:
             return pn.pane.Markdown('')
 
