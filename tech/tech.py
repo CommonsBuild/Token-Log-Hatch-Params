@@ -166,14 +166,14 @@ class TECH(param.Parameterized):
         impact_hours_plot = df.hvplot.area(title='Impact Hour Rate',
                                            x='Total wxDai Raised',
                                            xformatter='%.0f',
-                                           yformatter='%.4f',
+                                           yformatter='%.0f',
                                            hover=True,
                                            xlim=self.config_bounds['min_max_raise']['xlim'],
                                            label='Hatch happens ✅'
                                            ).opts(axiswise=True)
         minimum_raise_plot = df_fill_minimum.hvplot.area(x='Total wxDai Raised',
                                                          xformatter='%.0f',
-                                                         yformatter='%.4f',
+                                                         yformatter='%.0f',
                                                          color='red',
                                                          xlim=self.config_bounds['min_max_raise']['xlim'],
                                                          label='Hatch fails 🚫'
@@ -297,7 +297,7 @@ class TECH(param.Parameterized):
                                                               x='Total wxDai Raised',
                                                               y='Redeemable',
                                                               xformatter='%.0f',
-                                                              yformatter='%.1f',
+                                                              yformatter='%.0f',
                                                               hover=True,
                                                               ylim=(0, 100),
                                                               xlim=self.config_bounds['min_max_raise']['xlim']
