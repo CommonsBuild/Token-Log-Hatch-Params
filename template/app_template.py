@@ -107,6 +107,7 @@ def load_app(config_file):
                 dandelion.tollgate_fee_xdai = float(queries['tfx'])
 
             t.param.trigger('action')  # Update dashboard
+            dandelion.param.trigger('action')
 
 
     @pn.depends(results_button)
@@ -122,6 +123,8 @@ def load_app(config_file):
     @pn.depends(results_button)
     def update_result_score(results_button_on):
         if results_button_on:
+            t.param.trigger('action')  # Update dashboard
+            dandelion.param.trigger('action')
             data_table = {'Parameters': ["Target raise (wxDai)", "Maximum raise (wxDai)", "Minimum raise (wxDai)",
             "Impact hour slope (wxDai/IH)", "Maximum impact hour rate (wxDai/IH)",
             "Hatch oracle ratio (wxDai/CSTK)", "Hatch period (days)",
