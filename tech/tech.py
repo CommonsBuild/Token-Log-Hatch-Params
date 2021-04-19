@@ -271,12 +271,12 @@ class TECH(param.Parameterized):
         df_hatch_params = df_hatch_params.rename(columns={'Total wxDai Raised': 'Total wxDai Raised (wxDai)',
                                                           'Impact Hour Rate': 'Impact Hour Rate (wxDai)',
                                                           #'Cultural Build Tribute': 'Cultural Build Tribute (%)',
-                                                          'Hatch tribute': 'Hatch Tribute (wxDai)',
+                                                          'Hatch tribute': 'Non-redeemable (wxDai)',
                                                           'Redeemable': 'Redeemable (%)',
                                                           'label': 'Label'})
         df_hatch_params = df_hatch_params.filter(items=['Total wxDai Raised (wxDai)',
                                                         'Impact Hour Rate (wxDai)',
-                                                        'Hatch Tribute (wxDai)',
+                                                        'Non-redeemable (wxDai)',
                                                         'Redeemable (%)',
                                                         'Label'])
         df_hatch_params = df_hatch_params.round(2)
@@ -423,9 +423,10 @@ class TECH(param.Parameterized):
         funding_pools['Redeemable reserve'] = 100 * funding_pools['Redeemable reserve'] / funding_pools['total']
         funding_pools = funding_pools.round(2)
         funding_pools = funding_pools.rename(columns={'Redeemable reserve': 'Redeemable %',
+                                                      'Hatch tribute': 'Non-redeemable (wxDai)',
                                                       'total': 'Total'})
         funding_pools = funding_pools.filter(items=['Impact Hour Rate (wxDai/hour)',
-                                                    'Hatch tribute',
+                                                    'Non-redeemable (wxDai)',
                                                     'Redeemable %',
                                                     'Total'])
         funding_pools = funding_pools.T.reset_index()
