@@ -307,8 +307,8 @@ To see the value of your individual Impact Hours, click [here to go to the Hatch
         param_with_tooltip(t.param.hatch_period_days, tooltip='hatch_period_days'),
         param_with_tooltip(t.param.hatch_exchange_rate, tooltip='hatch_exchange_rate'),
         t.param.action,
-        t.param.target_impact_hour_rate,
-        t.param.target_redeemable,
+        #t.param.target_impact_hour_rate,
+        #t.param.target_redeemable,
         #t.param.target_cultural_build_tribute
     ))
     tmpl.add_panel('C', t.funding_pool_data_view)
