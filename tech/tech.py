@@ -63,7 +63,7 @@ class TECH(param.Parameterized):
     impact_hour_slope = param.Number(0.012, bounds=(0,1), step=0.001, label="Impact Hour Slope (wxDai/IH)")
     target_impact_hour_rate = param.Parameter(0, label="Target Impact Hour Rate (wxDai/hour)", constant=True)
     target_redeemable = param.Parameter(0, label="Target Redeemable (%)", constant=True)
-    target_cultural_build_tribute = param.Parameter(0, label="Target Cultural Build Tribute (%)", constant=True)
+    #target_cultural_build_tribute = param.Parameter(0, label="Target Cultural Build Tribute (%)", constant=True)
     action = param.Action(lambda x: x.param.trigger('action'), label='Run simulation')
 
     def __init__(self, total_impact_hours, impact_hour_data, total_cstk_tokens,
@@ -267,13 +267,18 @@ class TECH(param.Parameterized):
 
         # Format final table columns
         df_hatch_params['Redeemable'] = df_hatch_params['Redeemable'].mul(100)
-        df_hatch_params['Cultural Build Tribute'] = df_hatch_params['Cultural Build Tribute'].mul(100)
+        #df_hatch_params['Cultural Build Tribute'] = df_hatch_params['Cultural Build Tribute'].mul(100)
         df_hatch_params = df_hatch_params.rename(columns={'Total wxDai Raised': 'Total wxDai Raised (wxDai)',
                                                           'Impact Hour Rate': 'Impact Hour Rate (wxDai)',
-                                                          'Cultural Build Tribute': 'Cultural Build Tribute (%)',
+                                                          #'Cultural Build Tribute': 'Cultural Build Tribute (%)',
                                                           'Hatch tribute': 'Hatch Tribute (wxDai)',
                                                           'Redeemable': 'Redeemable (%)',
                                                           'label': 'Label'})
+        df_hatch_params = df_hatch_params.filter(items=['Total wxDai Raised (wxDai)',
+                                                        'Impact Hour Rate (wxDai)',
+                                                        'Hatch Tribute (wxDai)',
+                                                        'Redeemable (%)',
+                                                        'Label'])
         df_hatch_params = df_hatch_params.round(2)
 
         #df_hatch_params = df_hatch_params[df_hatch_params['Total XDAI Raised'].isin(x) | df_hatch_params['label'].isin(["Min Raise", "Target Raise", "Max Raise"])]
@@ -307,6 +312,7 @@ class TECH(param.Parameterized):
 
         return redeemable_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(redeemable_target).opts(color='#E31212')
 
+    """
     @param.depends('action')
     def cultural_build_tribute_plot(self):
         # Limits the target raise bounds when ploting the charts
@@ -336,6 +342,7 @@ class TECH(param.Parameterized):
 
         return cultural_build_tribute_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(cultural_build_tribute_target).opts(color='#E31212')
         #return cultural_build_tribute_plot * hv.VLine(self.target_raise).opts(color='#E31212')
+        """
 
     def get_impact_hour_rate(self, raise_amount):
         rates = self.impact_hours_formula(0, int(self.max_raise))
@@ -413,11 +420,14 @@ class TECH(param.Parameterized):
     @param.depends('action')
     def funding_pool_data_view(self):
         funding_pools = self.get_funding_pool_data()
-        funding_pools['Cultural tribute'] = 100 * funding_pools['Cultural tribute'] / funding_pools['total']
         funding_pools['Redeemable reserve'] = 100 * funding_pools['Redeemable reserve'] / funding_pools['total']
         funding_pools = funding_pools.round(2)
         funding_pools = funding_pools.rename(columns={'Redeemable reserve': 'Redeemable %',
-                                                      'Cultural tribute': 'Cultural tribute %'})
+                                                      'total': 'Total'})
+        funding_pools = funding_pools.filter(items=['Impact Hour Rate (wxDai/hour)',
+                                                    'Hatch tribute',
+                                                    'Redeemable %',
+                                                    'Total'])
         funding_pools = funding_pools.T.reset_index()
         funding_pools = funding_pools.rename(columns={'index': 'Output',
                                                       'min_raise': 'Min Goal',
@@ -436,12 +446,7 @@ class TECH(param.Parameterized):
 
     @param.depends('action')
     def trigger_unbalanced_parameters(self):
-        if self.target_cultural_build_tribute > 100:
-            if self.target_impact_hour_rate < 5:
-                return pn.pane.JPG('https://i.imgflip.com/54lvlm.jpg')
-            else:
-                return pn.pane.JPG('https://i.imgflip.com/540z6u.jpg')
-        elif self.target_impact_hour_rate < 5:
+        if self.target_impact_hour_rate < 5:
             return pn.pane.JPG('https://i.imgflip.com/54l0iv.jpg')
         else:
             return pn.pane.Markdown('')

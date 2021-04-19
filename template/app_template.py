@@ -141,8 +141,7 @@ def load_app(config_file):
 
             # Define output pane
             output_pane = pn.Row(pn.Column(t.impact_hours_view,
-                                        t.redeemable_plot,
-                                        t.cultural_build_tribute_plot),
+                                        t.redeemable_plot),
             pn.Column(dandelion.vote_pass_view, t.funding_pool_view))
             output_pane.save('output.html')
             pn.panel(t.output_scenarios_out_issue().hvplot.table()).save('out_scenarios.html')
@@ -310,11 +309,11 @@ To see the value of your individual Impact Hours, click [here to go to the Hatch
         t.param.action,
         t.param.target_impact_hour_rate,
         t.param.target_redeemable,
-        t.param.target_cultural_build_tribute
+        #t.param.target_cultural_build_tribute
     ))
     tmpl.add_panel('C', t.funding_pool_data_view)
     tmpl.add_panel('E', t.payout_view)
-    tmpl.add_panel('D', pn.Column(t.impact_hours_view, t.redeemable_plot, t.cultural_build_tribute_plot))
+    tmpl.add_panel('D', pn.Column(t.impact_hours_view, t.redeemable_plot))
     tmpl.add_panel('M', t.trigger_unbalanced_parameters)
     tmpl.add_panel('F', t.funding_pool_view)
     tmpl.add_panel('V', pn.Column(
