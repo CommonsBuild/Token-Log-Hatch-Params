@@ -48,8 +48,8 @@ def load_app(config_file):
     # ImpactHoursFormula
     #impact_hours_rewards = ImpactHoursFormula(i.total_impact_hours, impact_hour_data_1)
     #impact_rewards_view = pn.Column(impact_hours_rewards.impact_hours_rewards,
-    # impact_hours_rewards.redeemable,
-    # impact_hours_rewards.cultural_build_tribute)
+    # impact_hours_rewards.ragequit,
+    # impact_hours_rewards.impact_hour_minting)
 
     # Hatch
     cstk_data = read_cstk_data()
@@ -125,7 +125,7 @@ def load_app(config_file):
             data_table = {'Parameters': ["Target raise (wxDai)", "Maximum raise (wxDai)", "Minimum raise (wxDai)",
             "Impact hour slope (wxDai/IH)", "Maximum impact hour rate (wxDai/IH)",
             "Hatch oracle ratio (wxDai/CSTK)", "Hatch period (days)",
-            "Hatch exchange rate (TECH/wxDai)", "Hatch tribute (%)", "Support required (%)",
+            "Hatch exchange rate (TECH/wxDai)", "Hatch Tribute (%)", "Support required (%)",
             "Minimum accepted quorum (%)", "Vote duration (days)", "Vote buffer (hours)",
             "Rage quit (hours)", "Tollgate fee (wxDai)"],
             'Values': [int(t.target_raise), int(t.max_raise),
@@ -138,8 +138,8 @@ def load_app(config_file):
 
             # Define output pane
             output_pane = pn.Row(pn.Column(t.impact_hours_view,
-                                        t.redeemable_plot,
-                                        t.cultural_build_tribute_plot),
+                                        t.ragequit_plot,
+                                        t.impact_hour_minting_plot),
             pn.Column(dandelion.vote_pass_view, t.funding_pool_view))
             output_pane.save('output.html')
             pn.panel(t.output_scenarios_out_issue().hvplot.table()).save('out_scenarios.html')
@@ -306,12 +306,12 @@ To see the value of your individual Impact Hours, click [here to go to the Hatch
         param_with_tooltip(t.param.impact_hour_slope, tooltip='impact_hour_slope', height=40),
         t.param.action,
         t.param.target_impact_hour_rate,
-        t.param.target_redeemable,
-        t.param.target_cultural_build_tribute
+        t.param.target_ragequit,
+        t.param.target_impact_hour_minting
     ))
     tmpl.add_panel('C', t.funding_pool_data_view)
     tmpl.add_panel('E', t.payout_view)
-    tmpl.add_panel('D', pn.Column(t.impact_hours_view, t.redeemable_plot, t.cultural_build_tribute_plot))
+    tmpl.add_panel('D', pn.Column(t.impact_hours_view, t.ragequit_plot, t.impact_hour_minting_plot))
     tmpl.add_panel('M', t.trigger_unbalanced_parameters)
     tmpl.add_panel('F', t.funding_pool_view)
     tmpl.add_panel('V', pn.Column(
