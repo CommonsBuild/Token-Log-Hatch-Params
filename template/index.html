@@ -60,9 +60,6 @@ p {
 .pie-charts {
     height: 400px;
 }
-.table {
-    height: 190px;
-}
 .payout-table {
     height: 350px;
 }
@@ -74,7 +71,6 @@ p {
 .params {
     z-index: 1;
 }
-
 .video {
     height: 315px;
     width: 560px;
@@ -111,20 +107,23 @@ p {
             <div class="params">
                 {{ embed(roots.B) }}
             </div>
-            <div class="table">
-                {{ embed(roots.C) }}
-            </div>
         </div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell" style="z-index: -1">
             <div class="secone">
                 <div>
                     {{ embed(roots.D) }}
                 </div>
-                <div class="meme">
-                    {{ embed(roots.M) }}
+                <div style="display: flex;">
+                    <div style="flex: 50%;">
+                        {{ embed(roots.C) }}
+                    </div>
+                    <div class="meme" style="flex: 50%;">
+                        {{ embed(roots.M) }}
+                    </div>
                 </div>
             </div>
         </div>
+        <h3 class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 grid-cell">Redeem-ability of the DAO's wxDai</h3>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 grid-cell pie-charts">{{ embed(roots.F) }}</div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 grid-cell payout-table">{{ embed(roots.E) }}</div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
