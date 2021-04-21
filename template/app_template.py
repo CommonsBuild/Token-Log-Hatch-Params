@@ -60,16 +60,16 @@ def load_app(config_file):
     # DandelionVoting
     dandelion = DandelionVoting(17e6,config=config_file['dandelion_voting'])
 
-    # Import Params Button
-    import_params_button = pn.widgets.Button(name='Import params', button_type = 'primary')
-    import_description = pn.pane.Markdown('<h4>To import the parameters, click on the button below:</h4>')
-
     # Share Button
     comments = pn.widgets.TextAreaInput(name='Comments', max_length=1024, placeholder='Explain your thoughts on why you choose the params...')
     share_button = pn.widgets.Button(name='Share your results on GitHub!', button_type = 'primary')
     url = pn.widgets.TextInput(name='URL', value = '')
     share_button.js_on_click(args={'target': url}, code='window.open(target.value)')
     results_button = pn.widgets.Button(name='See your results', button_type = 'success')
+
+    # Run buttons
+    run_dandelion = pn.widgets.Button(name='Run simulation', button_type = 'primary')
+    run_impact_hours = pn.widgets.Button(name='Run simulation', button_type = 'primary')
 
     def update_params_by_url_query():
         queries = curdoc().session_context.request.arguments
@@ -118,7 +118,6 @@ def load_app(config_file):
             input_output_pane = pn.pane.Markdown('')
         
         return input_output_pane 
-    
 
     @pn.depends(results_button)
     def update_result_score(results_button_on):
@@ -228,7 +227,7 @@ To see the value of your individual Impact Hours, click [here to go to the Hatch
 
     pn.state.onload(update_params_by_url_query)
 
-    def help_icon(text):
+    def help_icon(href, text):
         return """
         <style>
         .tooltip {{
@@ -282,17 +281,31 @@ To see the value of your individual Impact Hours, click [here to go to the Hatch
         </style>
         <div class="flex">
             <div class="tooltip">
-                <a href="https://forum.tecommons.org/t/tec-test-hatch-implementation-specification/226" target="_blank">
+                <a href="{href}" target="_blank">
                     <img class="icon" src="http://cdn.onlinewebfonts.com/svg/img_295214.png" />
                 </a>
                 <span class="tooltiptext">{text}</span>
             </div>
         </div>
-        """.format(text=text)
+        """.format(href=href, text=text)
 
     def param_with_tooltip(param, tooltip, height=50):
-        return pn.Row(pn.Column(param, sizing_mode="stretch_width"), pn.pane.HTML(help_icon(tooltips[tooltip]), sizing_mode="fixed", width=30, height=height, align="end"))
+        return pn.Row(
+            pn.Column(param, sizing_mode="stretch_width"), 
+            pn.pane.HTML(help_icon(tooltips[tooltip]['href'], tooltips[tooltip]['text']), 
+            sizing_mode="fixed", width=30, height=height, align="end"
+        ))
 
+    
+    def run_simulation_dandelion(event):
+        dandelion.param.trigger('action')
+
+    def run_simulation_impact_hours(event):
+        t.param.trigger('action')
+    
+    run_dandelion.on_click(run_simulation_dandelion)
+    run_impact_hours.on_click(run_simulation_impact_hours)
+    
     # Front-end
     tmpl = pn.Template(template=template)
     tmpl.add_variable('app_title', config_file['title'])
@@ -306,10 +319,7 @@ To see the value of your individual Impact Hours, click [here to go to the Hatch
         param_with_tooltip(t.param.hatch_oracle_ratio, tooltip='hatch_oracle_ratio'),
         param_with_tooltip(t.param.hatch_period_days, tooltip='hatch_period_days'),
         param_with_tooltip(t.param.hatch_exchange_rate, tooltip='hatch_exchange_rate'),
-        t.param.action,
-        #t.param.target_impact_hour_rate,
-        #t.param.target_redeemable,
-        #t.param.target_cultural_build_tribute
+        run_impact_hours
     ))
     tmpl.add_panel('C', t.funding_pool_data_view)
     tmpl.add_panel('E', t.payout_view)
@@ -323,7 +333,7 @@ To see the value of your individual Impact Hours, click [here to go to the Hatch
         param_with_tooltip(dandelion.param.vote_buffer_hours, tooltip='vote_buffer_hours'),
         param_with_tooltip(dandelion.param.rage_quit_hours, tooltip='rage_quit_hours'),
         param_with_tooltip(dandelion.param.tollgate_fee_xdai, tooltip='tollgate_fee_xdai'),
-        dandelion.param.action
+        run_dandelion
     ))
     tmpl.add_panel('W', dandelion.vote_pass_view)
     tmpl.add_panel('G', update_input_output_pane)
