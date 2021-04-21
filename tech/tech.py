@@ -394,7 +394,7 @@ class TECH(param.Parameterized):
         funding_pools = self.get_funding_pool_data()
         funding_pools = funding_pools.filter(items=['Impact Hours', 'Hatch Tribute', 'Backer Ragequit Reserve', 'Total'])
         funding_pools = funding_pools.rename(columns={'Impact Hours': 'Builders can RageQuit',
-                                                      'Hatch tribute': 'Non-redeemable',
+                                                      'Hatch Tribute': 'Non-redeemable',
                                                       'Backer Ragequit Reserve': 'Backers can RageQuit'})
         # return funding_pools.hvplot.bar(title="Funding Pools", ylim=(0,self.param['hatch_oracle_ratio'].bounds[1]*self.param['min_max_raise'].bounds[1]), rot=45, yformatter='%.0f').opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
         # raise_bars = bar_data.hvplot.bar(yformatter='%.0f', title="Funding Pools", stacked=True, y=['Funding Pool', 'Hatch Tribute']).opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
@@ -426,7 +426,7 @@ class TECH(param.Parameterized):
         funding_pools['Backer Ragequit Reserve'] = 100 * funding_pools['Backer Ragequit Reserve'] / funding_pools['Total']
         funding_pools = funding_pools.round(2)
         funding_pools = funding_pools.rename(columns={'Backer Ragequit Reserve': 'Redeemable %',
-                                                      'Hatch tribute': 'Non-redeemable (wxDai)'})
+                                                      'Hatch Tribute': 'Non-redeemable (wxDai)'})
         funding_pools = funding_pools.filter(items=['Impact Hour Rate (wxDai/hour)',
                                                     'Non-redeemable (wxDai)',
                                                     'Redeemable %',
