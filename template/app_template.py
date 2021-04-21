@@ -107,6 +107,7 @@ def load_app(config_file):
                 dandelion.tollgate_fee_xdai = float(queries['tfx'])
 
             t.param.trigger('action')  # Update dashboard
+            dandelion.param.trigger('action')
 
 
     @pn.depends(results_button)
@@ -122,6 +123,8 @@ def load_app(config_file):
     @pn.depends(results_button)
     def update_result_score(results_button_on):
         if results_button_on:
+            t.param.trigger('action')  # Update dashboard
+            dandelion.param.trigger('action')
             data_table = {'Parameters': ["Target raise (wxDai)", "Maximum raise (wxDai)", "Minimum raise (wxDai)",
             "Impact hour slope (wxDai/IH)", "Maximum impact hour rate (wxDai/IH)",
             "Hatch oracle ratio (wxDai/CSTK)", "Hatch period (days)",
@@ -138,8 +141,7 @@ def load_app(config_file):
 
             # Define output pane
             output_pane = pn.Row(pn.Column(t.impact_hours_view,
-                                        t.ragequit_plot,
-                                        t.impact_hour_minting_plot),
+                                        t.redeemable_plot),
             pn.Column(dandelion.vote_pass_view, t.funding_pool_view))
             output_pane.save('output.html')
             pn.panel(t.output_scenarios_out_issue().hvplot.table()).save('out_scenarios.html')
@@ -298,20 +300,20 @@ To see the value of your individual Impact Hours, click [here to go to the Hatch
         param_with_tooltip(t.param.target_raise, tooltip='target_raise'), 
         param_with_tooltip(t.param.min_raise, tooltip='min_raise'),
         param_with_tooltip(t.param.max_raise, tooltip='max_raise'),
-        param_with_tooltip(t.param.hatch_oracle_ratio, tooltip='hatch_oracle_ratio'),
-        param_with_tooltip(t.param.hatch_period_days, tooltip='hatch_period_days'),
-        param_with_tooltip(t.param.hatch_exchange_rate, tooltip='hatch_exchange_rate'),
         param_with_tooltip(t.param.hatch_tribute_percentage, tooltip='hatch_tribute_percentage'),
         param_with_tooltip(t.param.maximum_impact_hour_rate, tooltip='maximum_impact_hour_rate', height=40),
         param_with_tooltip(t.param.impact_hour_slope, tooltip='impact_hour_slope', height=40),
+        param_with_tooltip(t.param.hatch_oracle_ratio, tooltip='hatch_oracle_ratio'),
+        param_with_tooltip(t.param.hatch_period_days, tooltip='hatch_period_days'),
+        param_with_tooltip(t.param.hatch_exchange_rate, tooltip='hatch_exchange_rate'),
         t.param.action,
-        t.param.target_impact_hour_rate,
-        t.param.target_ragequit,
-        t.param.target_impact_hour_minting
+        #t.param.target_impact_hour_rate,
+        #t.param.target_redeemable,
+        #t.param.target_cultural_build_tribute
     ))
     tmpl.add_panel('C', t.funding_pool_data_view)
     tmpl.add_panel('E', t.payout_view)
-    tmpl.add_panel('D', pn.Column(t.impact_hours_view, t.ragequit_plot, t.impact_hour_minting_plot))
+    tmpl.add_panel('D', pn.Column(t.impact_hours_view, t.redeemable_plot))
     tmpl.add_panel('M', t.trigger_unbalanced_parameters)
     tmpl.add_panel('F', t.funding_pool_view)
     tmpl.add_panel('V', pn.Column(
