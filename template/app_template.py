@@ -120,6 +120,15 @@ def load_app(config_file):
         return input_output_pane 
 
     @pn.depends(results_button)
+    def update_output_scenarios(results_button_on):
+        if results_button_on:
+            output_scenarios = pn.panel(t.output_scenarios_out_issue().hvplot.table())
+        else:
+            output_scenarios = pn.pane.Markdown('')
+        
+        return output_scenarios 
+
+    @pn.depends(results_button)
     def update_result_score(results_button_on):
         if results_button_on:
             t.param.trigger('action')  # Update dashboard
@@ -167,8 +176,8 @@ def load_app(config_file):
 <h1>Output Scenarios</h1>
 
 ![image]({image_scenarios})
-            """.format(image_charts=charts.json()['url'],
-            image_scenarios=scenarios.json()['url'])
+            """.format(image_charts='ksadokds',
+            image_scenarios='koska')
 
             parameters_data = """
 
@@ -340,4 +349,5 @@ To see the value of your individual Impact Hours, click [here to go to the Hatch
     tmpl.add_panel('R', update_result_score)
     tmpl.add_panel('CO', comments)
     tmpl.add_panel('BU', pn.Column(results_button, share_button, url))
+    tmpl.add_panel('OU', update_output_scenarios)
     tmpl.servable(title=config_file['title'])
