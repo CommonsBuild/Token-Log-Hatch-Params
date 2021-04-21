@@ -1,5 +1,5 @@
 hatch = {
-    "title": "TEC Hatch Dashboard",
+    "title": "TEC Hatch Config Dashboard",
     "url": "https://params.tecommons.org/hatch",
     "repo": "https://github.com/CommonsBuild/TEC-Hatch-Vote",
     "label": "Vote",
@@ -91,7 +91,7 @@ hatch = {
 # Add all the classes parameters to the config file, all of them on a tuple
 # format to represent the boundaries.
 test_hatch = {
-    "title": "TEC Test Hatch Dashboard",
+    "title": "TEC Test Hatch Config Dashboard",
     "url": "https://params.tecommons.org/test-hatch",
     "repo": "https://github.com/CommonsBuild/Test-TEC-Hatch-Vote",
     "label": "Test%20Vote",
