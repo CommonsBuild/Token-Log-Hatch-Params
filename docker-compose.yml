@@ -6,14 +6,5 @@ services:
     restart: always
     build: .
     ports:
-      - "5100:5100"
-    command: panel serve apps/hatch.py apps/test-hatch.py --allow-websocket-origin=params.tecommons.org --alow-websocket-origin=95.111.227.14 --port=5100 
-
-  nginx:
-    container_name: nginx
-    restart: always
-    build: ./nginx
-    ports:
       - "80:80"
-    depends_on:
-      - panel
+    command: panel serve apps/hatch.py apps/test-hatch.py --port=80 --allow-websocket-origin=params.tecommons.org --allow-websocket-origin=95.111.227.14

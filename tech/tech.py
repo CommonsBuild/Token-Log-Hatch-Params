@@ -63,7 +63,7 @@ class TECH(param.Parameterized):
     impact_hour_slope = param.Number(0.012, bounds=(0,1), step=0.001, label="Impact Hour Slope (wxDai/IH)")
     target_impact_hour_rate = param.Parameter(0, label="Target Impact Hour Rate (wxDai/hour)", constant=True)
     target_ragequit = param.Parameter(0, label="Target Ragequit (%)", constant=True)
-    target_impact_hour_minting = param.Parameter(0, label="Target Impact Hour Minting (%)", constant=True)
+    #target_impact_hour_minting = param.Parameter(0, label="Target Impact Hour Minting (%)", constant=True)
     action = param.Action(lambda x: x.param.trigger('action'), label='Run simulation')
 
     def __init__(self, total_impact_hours, impact_hour_data, total_cstk_tokens,
@@ -125,7 +125,7 @@ class TECH(param.Parameterized):
         self.impact_hour_data['Optimistic IH Target Goal (wxDai)'] = (self.impact_hour_data['Optimistic IH'] * scenario_rates['target_rate']).round(2)
         self.impact_hour_data['Optimistic IH Min Goal (wxDai)'] = (self.impact_hour_data['Optimistic IH'] * scenario_rates['min_rate']).round(2)
         self.impact_hour_data['Optimistic IH Max Goal (wxDai)'] = (self.impact_hour_data['Optimistic IH'] * scenario_rates['max_rate']).round(2)
-        
+
         self.impact_hour_data = self.impact_hour_data.round(2)
         return self.impact_hour_data.hvplot.table(title='Impact Hour Results', width=1350)
 
@@ -166,14 +166,14 @@ class TECH(param.Parameterized):
         impact_hours_plot = df.hvplot.area(title='Impact Hour Rate',
                                            x='Total wxDai Raised',
                                            xformatter='%.0f',
-                                           yformatter='%.4f',
+                                           yformatter='%.0f',
                                            hover=True,
                                            xlim=self.config_bounds['min_max_raise']['xlim'],
                                            label='Hatch happens ✅'
                                            ).opts(axiswise=True)
         minimum_raise_plot = df_fill_minimum.hvplot.area(x='Total wxDai Raised',
                                                          xformatter='%.0f',
-                                                         yformatter='%.4f',
+                                                         yformatter='%.0f',
                                                          color='red',
                                                          xlim=self.config_bounds['min_max_raise']['xlim'],
                                                          label='Hatch fails 🚫'
@@ -267,13 +267,18 @@ class TECH(param.Parameterized):
 
         # Format final table columns
         df_hatch_params['Ragequit'] = df_hatch_params['Ragequit'].mul(100)
-        df_hatch_params['Impact Hour Minting'] = df_hatch_params['Impact Hour Minting'].mul(100)
+        #df_hatch_params['Impact Hour Minting'] = df_hatch_params['Impact Hour Minting'].mul(100)
         df_hatch_params = df_hatch_params.rename(columns={'Total wxDai Raised': 'Total wxDai Raised (wxDai)',
                                                           'Impact Hour Rate': 'Impact Hour Rate (wxDai)',
-                                                          'Impact Hour Minting': 'Impact Hour Minting (%)',
+                                                          #'Impact Hour Minting': 'Impact Hour Minting (%)',
                                                           'Hatch Tribute': 'Hatch Tribute (wxDai)',
                                                           'Ragequit': 'Ragequit (%)',
                                                           'label': 'Label'})
+        df_hatch_params = df_hatch_params.filter(items=['Total wxDai Raised (wxDai)',
+                                                        'Impact Hour Rate (wxDai)',
+                                                        'Non-redeemable (wxDai)',
+                                                        'Redeemable (%)',
+                                                        'Label'])
         df_hatch_params = df_hatch_params.round(2)
 
         #df_hatch_params = df_hatch_params[df_hatch_params['Total XDAI Raised'].isin(x) | df_hatch_params['label'].isin(["Min Raise", "Target Raise", "Max Raise"])]
@@ -292,7 +297,7 @@ class TECH(param.Parameterized):
                                                               x='Total wxDai Raised',
                                                               y='Ragequit',
                                                               xformatter='%.0f',
-                                                              yformatter='%.1f',
+                                                              yformatter='%.0f',
                                                               hover=True,
                                                               ylim=(0, 100),
                                                               xlim=self.config_bounds['min_max_raise']['xlim']
@@ -307,6 +312,7 @@ class TECH(param.Parameterized):
 
         return ragequit_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(ragequit_target).opts(color='#E31212')
 
+    """
     @param.depends('action')
     def impact_hour_minting_plot(self):
         # Limits the target raise bounds when ploting the charts
@@ -336,6 +342,8 @@ class TECH(param.Parameterized):
 
         return impact_hour_minting_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(impact_hour_minting_target).opts(color='#E31212')
         #return impact_hour_minting_plot * hv.VLine(self.target_raise).opts(color='#E31212')
+        """
+
 
     def get_impact_hour_rate(self, raise_amount):
         rates = self.impact_hours_formula(0, int(self.max_raise))
@@ -385,7 +393,9 @@ class TECH(param.Parameterized):
     def funding_pool_view(self):
         funding_pools = self.get_funding_pool_data()
         funding_pools = funding_pools.filter(items=['Impact Hours', 'Hatch Tribute', 'Backer Ragequit Reserve', 'Total'])
-        funding_pools = funding_pools.rename(columns={'Impact Hours': 'Impact Hours Reserve'})
+        funding_pools = funding_pools.rename(columns={'Impact Hours': 'Builders can RageQuit',
+                                                      'Hatch tribute': 'Non-redeemable',
+                                                      'Backer Ragequit Reserve': 'Backers can RageQuit'})
         # return funding_pools.hvplot.bar(title="Funding Pools", ylim=(0,self.param['hatch_oracle_ratio'].bounds[1]*self.param['min_max_raise'].bounds[1]), rot=45, yformatter='%.0f').opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
         # raise_bars = bar_data.hvplot.bar(yformatter='%.0f', title="Funding Pools", stacked=True, y=['Funding Pool', 'Hatch Tribute']).opts(color=hv.Cycle(['#0F2EEE', '#0b0a15', '#DEFB48']))
         funding_pools['rank'] = funding_pools['Total'] / funding_pools['Total'].sum()
@@ -413,11 +423,14 @@ class TECH(param.Parameterized):
     @param.depends('action')
     def funding_pool_data_view(self):
         funding_pools = self.get_funding_pool_data()
-        funding_pools['Impact Hours'] = 100 * funding_pools['Impact Hours'] / funding_pools['Total']
         funding_pools['Backer Ragequit Reserve'] = 100 * funding_pools['Backer Ragequit Reserve'] / funding_pools['Total']
         funding_pools = funding_pools.round(2)
-        funding_pools = funding_pools.rename(columns={'Backer Ragequit Reserve': 'Ragequit %',
-                                                      'Impact Hours': 'Impact Hours %'})
+        funding_pools = funding_pools.rename(columns={'Backer Ragequit Reserve': 'Redeemable %',
+                                                      'Hatch tribute': 'Non-redeemable (wxDai)'})
+        funding_pools = funding_pools.filter(items=['Impact Hour Rate (wxDai/hour)',
+                                                    'Non-redeemable (wxDai)',
+                                                    'Redeemable %',
+                                                    'Total'])
         funding_pools = funding_pools.T.reset_index()
         funding_pools = funding_pools.rename(columns={'index': 'Output',
                                                       'min_raise': 'Min Goal',
@@ -436,14 +449,8 @@ class TECH(param.Parameterized):
 
     @param.depends('action')
     def trigger_unbalanced_parameters(self):
-        if self.target_impact_hour_minting > 100:
-            if self.target_impact_hour_rate < 5:
-                return pn.pane.JPG('https://i.imgflip.com/54lvlm.jpg')
-            else:
-                return pn.pane.JPG('https://i.imgflip.com/56bnfw.jpg')
-                #return pn.pane.JPG('https://i.imgflip.com/540z6u.jpg')
-        elif self.target_impact_hour_rate < 5:
-            return pn.pane.JPG('https://i.imgflip.com/54tdpy.jpg')
+        if self.target_impact_hour_rate < 5:
+            return pn.pane.JPG('https://i.imgflip.com/54l0iv.jpg')
         else:
             return pn.pane.Markdown('')
 
