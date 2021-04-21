@@ -176,8 +176,8 @@ def load_app(config_file):
 <h1>Output Scenarios</h1>
 
 ![image]({image_scenarios})
-            """.format(image_charts='ksadokds',
-            image_scenarios='koska')
+            """.format(image_charts=charts.json()['url'],
+            image_scenarios=scenarios.json()['url'])
 
             parameters_data = """
 
@@ -203,9 +203,9 @@ def load_app(config_file):
 
 - A CSTK Token holder that has 2000 CSTK can send a max of {max_wxdai_ratio} wxDai to the Hatch.
 
-Play with my parameters [here]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}).
+Play with my parameters <a href="{url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}" target="_blank">here</a>.
 
-To see the value of your individual Impact Hours, click [here to go to the Hatch Config Dashboard with these parameters]({url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}) and explore the Impact Hour Results table.
+To see the value of your individual Impact Hours, click <a href="{url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}" target="_blank">here to go to the Hatch Config Dashboard with these parameters</a> and explore the Impact Hour Results table.
             """.format(comments=comments.value,
             tollgate_fee_xdai=dandelion.tollgate_fee_xdai,
             vote_duration_days=dandelion.vote_duration_days,
