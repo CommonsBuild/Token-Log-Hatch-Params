@@ -313,7 +313,7 @@ To see the value of your individual Impact Hours, click [here to go to the Hatch
     ))
     tmpl.add_panel('C', t.funding_pool_data_view)
     tmpl.add_panel('E', t.payout_view)
-    tmpl.add_panel('D', pn.Column(t.impact_hours_view, t.redeemable_plot))
+    tmpl.add_panel('D', pn.Column(t.impact_hours_view, t.ragequit_plot))
     tmpl.add_panel('M', t.trigger_unbalanced_parameters)
     tmpl.add_panel('F', t.funding_pool_view)
     tmpl.add_panel('V', pn.Column(
