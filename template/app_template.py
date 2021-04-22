@@ -130,9 +130,9 @@ def load_app(config_file):
             df = pd.DataFrame(data=data_table)
 
             # Define output pane
-            output_pane = pn.Row(pn.Column(t.impact_hours_view,
+            output_pane = pn.Row(pn.Column(t.impact_hours_plot,
                                         t.redeemable_plot),
-            pn.Column(dandelion.vote_pass_view, t.funding_pool_view))
+            pn.Column(dandelion.vote_pass_view, t.pie_charts_view))
             output_pane.save('output.html')
             pn.panel(t.output_scenarios_view().hvplot.table()).save('out_scenarios.html')
 
@@ -314,9 +314,9 @@ To see the value of your individual Impact Hours, click <a href="{url}?ihminr={i
     ))
     tmpl.add_panel('C', t.outputs_overview_view)
     tmpl.add_panel('E', t.payout_view)
-    tmpl.add_panel('D', pn.Column(t.impact_hours_view, t.redeemable_plot))
+    tmpl.add_panel('D', pn.Column(t.impact_hours_plot, t.redeemable_plot))
     tmpl.add_panel('M', t.trigger_unbalanced_parameters)
-    tmpl.add_panel('F', t.funding_pool_view)
+    tmpl.add_panel('F', t.pie_charts_view)
     tmpl.add_panel('V', pn.Column(
         param_with_tooltip(pn.Column(dandelion.param.support_required_percentage), tooltip='support_required_percentage', height=40), 
         param_with_tooltip(dandelion.param.minimum_accepted_quorum_percentage, tooltip='minimum_accepted_quorum_percentage', height=40),

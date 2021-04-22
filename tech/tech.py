@@ -1,14 +1,9 @@
-doc = """
-This jupyter notebook is authored by ygg_anderson for the Token Engineering Commons. See appropriate licensing. 🐧 🐧 🐧
-"""
-
 import param
 import panel as pn
 import pandas as pd
 import hvplot.pandas
 import holoviews as hv
 import numpy as np
-from scipy.stats.mstats import gmean
 import os
 pn.extension()
 
@@ -22,15 +17,6 @@ def read_impact_hour_data():
     impact_hour_data = pd.read_csv(os.path.join("data", "praise_quantification.csv"))
     return impact_hour_data
 
-
-def read_cstk_data():
-    # Load CSTK data
-    cstk_data = pd.read_csv('data/CSTK_DATA.csv', header=None).reset_index().head(100)
-    cstk_data.columns = ['CSTK Token Holders', 'CSTK Tokens']
-    cstk_data['CSTK Tokens Capped'] = cstk_data['CSTK Tokens'].apply(lambda x: min(x, cstk_data['CSTK Tokens'].sum()/10))
-    return cstk_data
-
-
 class TECH(param.Parameterized):
     target_raise = param.Number(500, label="Target Goal (wxDai)")
     min_raise = param.Integer(1, label="Minimum Goal (wxDai)")
@@ -41,10 +27,6 @@ class TECH(param.Parameterized):
     hatch_tribute_percentage = param.Number(5, step=1, label="Hatch Tribute (%)")
     maximum_impact_hour_rate = param.Number(0.01, bounds=(0, 1), label="Maximum Impact Hour Rate (wxDai/IH)")
     impact_hour_slope = param.Number(0.012, bounds=(0,1), step=0.001, label="Impact Hour Slope (wxDai/IH)")
-    min_impact_hour_rate = param.Number(0)
-    target_impact_hour_rate = param.Number(0)
-    max_impact_hour_rate = param.Number(0)
-    target_redeemable = param.Parameter(0, label="Target Redeemable (%)", constant=True)
     action = param.Action(lambda x: x.param.trigger('action'), label='Run simulation')
 
     def __init__(self, total_impact_hours, impact_hour_data, total_cstk_tokens,
@@ -81,6 +63,19 @@ class TECH(param.Parameterized):
 
     # Utils
     def get_overview_data(self):
+        """
+        This function return key metrics for the 3 goal scenarios (Minimum goal,
+        Target goal, Maximum goal): it calculates the impact_hour_rate for each
+        scenario based on the impact hours formula; the backers ragequit
+        percentage based on the total raised and the total TECH tokens minted
+        for the builders; the total supply held by builders, simply the
+        proportion of total builders TECH tokens to the total TECH tokens; the
+        total TECH minted, that is the total TECH held by the builders and
+        backers; the non-redeemable, that is the hatch tribute in wxDai; the
+        backers amount, that is the total wxDai the backers can redeem for their
+        TECH tokens; the builders' amount, that is the wxDai the builders can
+        redeem for their TECH tokens.
+        """
         self.bounds_target_raise()
         hatch_tribute = self.hatch_tribute_percentage / 100
         scenarios = {
@@ -115,6 +110,23 @@ class TECH(param.Parameterized):
 
     def impact_hours_formula(self, minimum_raise=0, maximum_raise=0,
                              raise_scenarios=None, single_value=None):
+        """
+        This function returns the impact hour rate based on the raised amount
+        (wxDai), the maximum impact hour rate, the impact hour slope and the
+        total impact hours. The function accepts 3 different types of inputs.
+        The first option is to add just the arguments 'minimum_raise', and
+        'maximum_raise', and the function will return a dataframe with 500 or
+        100 points (depending on the size of the range) between the
+        'minimum_raise' and 'maximum_raise' using np.linspace() with the total
+        raised and its respective impact hour rate. The second option is to
+        input just the 'raise_scenarios' argument as a list of raise amounts,
+        where it will be returned a dataframe with only the raised amounts added
+        in the argument list and their respective impact hour rates. The third
+        option is to input only the argument 'single_value', where only one
+        value of raise amount is inputed and the function return its respective
+        impact hour rate.
+        """
+
         R = self.maximum_impact_hour_rate
         m = self.impact_hour_slope
         H = self.total_impact_hours
@@ -141,19 +153,36 @@ class TECH(param.Parameterized):
             return impact_hour
 
     def get_impact_hour_rate(self, raise_amount):
+        """
+        This is a simple wrapper for the impact_hours_formula using only one
+        raise_amount argument. It returns the impact hour rate given a raise
+        amount.
+        """
         rate = self.impact_hours_formula(single_value=raise_amount)
         return rate
     
     def get_rage_quit_percentage(self, raise_amount):
+        """
+        This function returns the rage quit percentage based on a raise amount.
+        The rage quit percentage defines how much % of wxDai a backer can get
+        from its initial investment in the commons.
+        """
         impact_hour_rate = self.get_impact_hour_rate(raise_amount)
         hatch_tribute = self.hatch_tribute_percentage / 100
         redeemable_reserve = raise_amount * (1 - hatch_tribute)
-
         rage_quit_percentage =  redeemable_reserve / (impact_hour_rate * self.total_impact_hours + redeemable_reserve)
 
         return rage_quit_percentage
 
     def bounds_target_raise(self):
+        """
+        This is a simple utility function for scenarios where the target raise
+        is not between the minimum raise and the maximum raise. If the targed
+        goal is higher than the maximum goal, the function will set the target
+        goal to the same value of the maximum goal. The same will happen if the
+        target goal is smaller than the minimum goal, in this case the target
+        goal will be set to the same value of the minimum goal.
+        """
         if self.target_raise > self.max_raise:
             self.target_raise = self.max_raise
         elif self.target_raise < self.min_raise:
@@ -161,18 +190,10 @@ class TECH(param.Parameterized):
         
         return self.target_raise
 
-    @param.depends('action')
-    def update_impact_hour_min_max_target(self):
-        self.bounds_target_raise()
-        self.min_impact_hour_rate = self.get_impact_hour_rate(self.min_raise)
-        self.target_impact_hour_rate = self.get_impact_hour_rate(self.target_raise)
-        self.max_impact_hour_rate = self.get_impact_hour_rate(self.max_raise)
-
     # Views
     @param.depends('action')
-    def impact_hours_view(self):
+    def impact_hours_plot(self):
         self.bounds_target_raise()
-        self.update_impact_hour_min_max_target()
         # Limits the target raise bounds when ploting the charts
         self.df_impact_hours = self.impact_hours_formula(self.config_bounds['min_max_raise']['bounds'][0], self.max_raise)
         df = self.df_impact_hours
@@ -199,14 +220,10 @@ class TECH(param.Parameterized):
                                                          label='Hatch fails 🚫'
                                                          ).opts(axiswise=True)
 
-        # Enables the edition of constant params
-        with param.edit_constant(self):
-            self.target_impact_hour_rate = round(target_impact_hour_rate, 2)
-
         return (impact_hours_plot *
                 minimum_raise_plot *
                 hv.VLine(self.target_raise).opts(color='#E31212') *
-                hv.HLine(self.target_impact_hour_rate).opts(color='#E31212')
+                hv.HLine(target_impact_hour_rate).opts(color='#E31212')
                 ).opts(legend_position='top_left')
 
     @param.depends('action')
@@ -260,8 +277,6 @@ class TECH(param.Parameterized):
         except:
             redeemable_target = 0
 
-        with param.edit_constant(self):
-            self.target_redeemable = round(redeemable_target, 2)
 
         return redeemable_plot * hv.VLine(self.target_raise).opts(color='#E31212') * hv.HLine(redeemable_target).opts(color='#E31212')
 
@@ -369,16 +384,16 @@ class TECH(param.Parameterized):
             return df_hatch_params
 
     @param.depends('action')
-    def funding_pool_view(self):
+    def pie_charts_view(self):
         self.bounds_target_raise()
         funding_pools = self.get_overview_data()
-        funding_pools = funding_pools.filter(items=['builders_amount', 'non_redeemable', 'backers_amount'])
+        funding_pools = funding_pools.filter(items=['non_redeemable', 'builders_amount', 'backers_amount'])
         funding_pools = funding_pools.rename(columns={'builders_amount': 'Builders can RageQuit',
                                                     'non_redeemable': 'Non-redeemable',
                                                     'backers_amount': 'Backers can RageQuit'})
 
         # Plot pie charts
-        colors = ['#0F2EEE', '#0b0a15', '#DEFB48']
+        colors = ['#0b0a15', '#0F2EEE', '#DEFB48']
         chart_data = funding_pools
         p1 = pie_chart(data=pd.Series(chart_data.loc['min_raise',:]),
                     radius=0.65,
@@ -397,15 +412,14 @@ class TECH(param.Parameterized):
     @param.depends('action')
     def trigger_unbalanced_parameters(self):
         self.bounds_target_raise()
-        if self.target_impact_hour_rate < 5:
+        target_impact_hour_rate = self.get_impact_hour_rate(self.target_raise)
+        if target_impact_hour_rate < 5:
             return pn.pane.JPG('https://i.imgflip.com/54l0iv.jpg')
         else:
             return pn.pane.Markdown('')
     
-    # Fix, simplify
     @param.depends('action')
     def outputs_overview_view(self):
-        self.update_impact_hour_min_max_target()
         funding_pools = self.get_overview_data()
         funding_pools = funding_pools.filter(items=["Impact Hour Rate (wxDai/hour)",
                                                     "Backer's RageQuit (%)",
@@ -413,7 +427,6 @@ class TECH(param.Parameterized):
                                                     "Total TECH Minted (TECH)"])
         funding_pools = funding_pools.round(2)
         funding_pools = funding_pools.T.reset_index()
-
         funding_pools = funding_pools.rename(columns={'index': 'Output',
                                                       'min_raise': 'Min Goal',
                                                       'target_raise': 'Target Goal',
