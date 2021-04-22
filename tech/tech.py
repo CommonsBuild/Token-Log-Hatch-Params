@@ -246,7 +246,6 @@ class TECH(param.Parameterized):
         df_hatch_params = self.df_impact_hours
         df_hatch_params['Cultural Build Tribute'] = (self.total_impact_hours * df_hatch_params['Impact Hour Rate'])/df_hatch_params['Total wxDai Raised']
         df_hatch_params['Hatch tribute'] = self.hatch_tribute_percentage / 100
-        #df_hatch_params['Redeemable'] = (1 - df_hatch_params['Hatch tribute'])/(1 + df_hatch_params['Cultural Build Tribute'])
         df_hatch_params["Backer's RageQuit (%)"] = df_hatch_params['Total wxDai Raised'].apply(self.get_rage_quit_percentage).round(4)
         df_hatch_params['label'] = ""
 
