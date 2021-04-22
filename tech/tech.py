@@ -176,7 +176,7 @@ class TECH(param.Parameterized):
     def bounds_target_raise(self):
         """
         This is a simple utility function for scenarios where the target raise
-        is not between the minimum raise and the maximum raise. If the targed
+        is not between the minimum raise and the maximum raise. If the target
         goal is higher than the maximum goal, the function will set the target
         goal to the same value of the maximum goal. The same will happen if the
         target goal is smaller than the minimum goal, in this case the target
