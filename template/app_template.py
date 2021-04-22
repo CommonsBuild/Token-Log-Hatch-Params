@@ -104,7 +104,7 @@ def load_app(config_file):
     @pn.depends(results_button)
     def update_output_scenarios(results_button_on):
         if results_button_on:
-            output_scenarios = pn.panel(t.output_scenarios_out_issue().hvplot.table())
+            output_scenarios = pn.panel(t.output_scenarios_view().hvplot.table())
         else:
             output_scenarios = pn.pane.Markdown('')
         

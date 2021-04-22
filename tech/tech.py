@@ -247,7 +247,8 @@ class TECH(param.Parameterized):
         df_hatch_params = self.df_impact_hours
         df_hatch_params['Cultural Build Tribute'] = (self.total_impact_hours * df_hatch_params['Impact Hour Rate'])/df_hatch_params['Total wxDai Raised']
         df_hatch_params['Hatch tribute'] = self.hatch_tribute_percentage / 100
-        df_hatch_params['Redeemable'] = (1 - df_hatch_params['Hatch tribute'])/(1 + df_hatch_params['Cultural Build Tribute'])
+        #df_hatch_params['Redeemable'] = (1 - df_hatch_params['Hatch tribute'])/(1 + df_hatch_params['Cultural Build Tribute'])
+        df_hatch_params["Backer's RageQuit (%)"] = df_hatch_params['Total wxDai Raised'].apply(self.get_rage_quit_percentage).round(4)
         df_hatch_params['label'] = ""
 
         # Add label case there is already a row with raise value
@@ -255,17 +256,17 @@ class TECH(param.Parameterized):
         df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == self.target_raise, 'label'] = "Target Raise"
         df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == int(self.max_raise), 'label'] = "Max Raise"
         df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] < int(self.min_raise), ['Impact Hour Rate','Cultural Build Tribute', 'Hatch tribute']] = 0
-        df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] < int(self.min_raise), 'Redeemable'] = 1
-        df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] > int(self.max_raise), ['Impact Hour Rate','Cultural Build Tribute', 'Hatch tribute', 'Redeemable']] = np.nan
+        df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] < int(self.min_raise), "Backer's RageQuit (%)"] = 1
+        df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] > int(self.max_raise), ['Impact Hour Rate','Cultural Build Tribute', 'Hatch tribute', "Backer's RageQuit (%)"]] = np.nan
 
         df_hatch_params_to_plot = df_hatch_params
         # Drop NaN rows
         df_hatch_params_to_plot = df_hatch_params_to_plot.dropna()
         with pd.option_context('mode.chained_assignment', None):
-            df_hatch_params_to_plot['Redeemable'] = df_hatch_params_to_plot['Redeemable'].mul(100)
-        redeemable_plot = df_hatch_params_to_plot.hvplot.area(title='Redeemable (%)',
+            df_hatch_params_to_plot["Backer's RageQuit (%)"] = df_hatch_params_to_plot["Backer's RageQuit (%)"].mul(100)
+        redeemable_plot = df_hatch_params_to_plot.hvplot.area(title="Backer's RageQuit (%)",
                                                               x='Total wxDai Raised',
-                                                              y='Redeemable',
+                                                              y="Backer's RageQuit (%)",
                                                               xformatter='%.0f',
                                                               yformatter='%.0f',
                                                               hover=True,
@@ -273,7 +274,7 @@ class TECH(param.Parameterized):
                                                               xlim=self.config_bounds['min_max_raise']['xlim']
                                                               ).opts(axiswise=True)
         try:
-            redeemable_target = df_hatch_params_to_plot[df_hatch_params_to_plot['Total wxDai Raised'] >= self.target_raise].iloc[0]['Redeemable']
+            redeemable_target = df_hatch_params_to_plot[df_hatch_params_to_plot['Total wxDai Raised'] >= self.target_raise].iloc[0]["Backer's RageQuit (%)"]
         except:
             redeemable_target = 0
 
@@ -289,7 +290,7 @@ class TECH(param.Parameterized):
             df_hatch_params = self.impact_hours_formula(raise_scenarios=self.output_scenario_raise)
             df_hatch_params['Cultural Build Tribute'] = (H * df_hatch_params['Impact Hour Rate'])/df_hatch_params['Total wxDai Raised']
             df_hatch_params['Hatch tribute'] = df_hatch_params['Total wxDai Raised'].mul(hatch_tribute)
-            df_hatch_params['Redeemable'] = (1 - hatch_tribute)/(1 + df_hatch_params['Cultural Build Tribute'])
+            df_hatch_params['Redeemable'] = df_hatch_params['Total wxDai Raised'].apply(self.get_rage_quit_percentage).round(4)
             df_hatch_params['Total TECH builders'] = df_hatch_params['Impact Hour Rate'] * self.total_impact_hours * self.hatch_exchange_rate
             df_hatch_params['Total TECH backers'] = df_hatch_params['Total wxDai Raised'] * (1 - hatch_tribute) * self.hatch_exchange_rate
             df_hatch_params['Total Supply held by Builders (%)'] = (100 * df_hatch_params['Total TECH builders'] / (df_hatch_params['Total TECH builders'] + df_hatch_params['Total TECH backers'])).round(2)
@@ -311,7 +312,13 @@ class TECH(param.Parameterized):
                 total_tech_minted = total_tech_backers + total_tech_builders
                 tech_builders_percentage = round(100 * total_tech_builders / total_tech_minted, 2)
                 
-                df_hatch_params = df_hatch_params.append({'Total wxDai Raised': minimum_raise, 'Impact Hour Rate':impact_hour_rate, 'Hatch tribute':self.min_raise * hatch_tribute, 'Redeemable':(1 - hatch_tribute)/(1 + cultural_build_tribute), 'Total Supply held by Builders (%)':tech_builders_percentage, 'label':'Min Raise'}, ignore_index=True)
+                df_hatch_params = df_hatch_params.append({'Total wxDai Raised': minimum_raise,
+                                                          'Impact Hour Rate':impact_hour_rate,
+                                                          'Hatch tribute':self.min_raise * hatch_tribute,
+                                                          'Redeemable':round(self.get_rage_quit_percentage(minimum_raise), 4),
+                                                          'Total Supply held by Builders (%)':tech_builders_percentage,
+                                                          'label':'Min Raise'},
+                                                          ignore_index=True)
                 df_hatch_params = df_hatch_params.sort_values(['Total wxDai Raised'])
 
             df_min_raise = df_hatch_params.query("label == 'Min Raise'")
@@ -330,7 +337,12 @@ class TECH(param.Parameterized):
                 total_tech_minted = total_tech_backers + total_tech_builders
                 tech_builders_percentage = round(100 * total_tech_builders / total_tech_minted, 2)
                 
-                df_hatch_params = df_hatch_params.append({'Total wxDai Raised': self.target_raise, 'Impact Hour Rate':impact_hour_rate, 'Hatch tribute':self.target_raise * hatch_tribute, 'Redeemable':(1 - hatch_tribute)/(1 + cultural_build_tribute), 'Total Supply held by Builders (%)':tech_builders_percentage, 'label':'Target Raise'}, ignore_index=True)
+                df_hatch_params = df_hatch_params.append({'Total wxDai Raised': self.target_raise,
+                                                          'Impact Hour Rate':impact_hour_rate,
+                                                          'Hatch tribute':self.target_raise * hatch_tribute,
+                                                          'Redeemable':round(self.get_rage_quit_percentage(self.target_raise), 4),
+                                                          'Total Supply held by Builders (%)':tech_builders_percentage,
+                                                          'label':'Target Raise'}, ignore_index=True)
                 df_hatch_params = df_hatch_params.sort_values(['Total wxDai Raised'])
 
             df_target_raise = df_hatch_params.query("label == 'Target Raise'")
@@ -348,7 +360,12 @@ class TECH(param.Parameterized):
                 total_tech_builders = self.total_impact_hours * self.get_impact_hour_rate(maximum_raise) * self.hatch_exchange_rate
                 total_tech_minted = total_tech_backers + total_tech_builders
                 tech_builders_percentage = round(100 * total_tech_builders / total_tech_minted, 2)
-                df_hatch_params = df_hatch_params.append({'Total wxDai Raised': maximum_raise, 'Impact Hour Rate':impact_hour_rate, 'Hatch tribute':maximum_raise * hatch_tribute, 'Redeemable':(1 - hatch_tribute)/(1 + cultural_build_tribute), 'Total Supply held by Builders (%)':tech_builders_percentage, 'label':'Max Raise'}, ignore_index=True)
+                df_hatch_params = df_hatch_params.append({'Total wxDai Raised': maximum_raise,
+                                                          'Impact Hour Rate':impact_hour_rate,
+                                                          'Hatch tribute':maximum_raise * hatch_tribute,
+                                                          'Redeemable':round(self.get_rage_quit_percentage(maximum_raise), 4),
+                                                          'Total Supply held by Builders (%)':tech_builders_percentage,
+                                                          'label':'Max Raise'}, ignore_index=True)
                 df_hatch_params = df_hatch_params.sort_values(['Total wxDai Raised'])
 
             df_max_raise = df_hatch_params.query("label == 'Max Raise'")
@@ -371,15 +388,15 @@ class TECH(param.Parameterized):
             df_hatch_params = df_hatch_params.rename(columns={'Total wxDai Raised': 'Total wxDai Raised (wxDai)',
                                                             'Impact Hour Rate': 'Impact Hour Rate (wxDai)',
                                                             'Hatch tribute': 'Non-redeemable (wxDai)',
-                                                            'Redeemable': 'Redeemable (%)',
+                                                            'Redeemable': "Backer's RageQuit (%)",
                                                             'label': 'Label'})
             df_hatch_params = df_hatch_params.filter(items=['Total wxDai Raised (wxDai)',
                                                             'Impact Hour Rate (wxDai)',
                                                             'Total Supply held by Builders (%)',
                                                             'Non-redeemable (wxDai)',
-                                                            'Redeemable (%)',
+                                                            "Backer's RageQuit (%)",
                                                             'Label'])
-            #df_hatch_params = df_hatch_params.round(2)
+            df_hatch_params = df_hatch_params.round(2)
 
             return df_hatch_params
 
