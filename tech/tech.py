@@ -327,7 +327,7 @@ class TECH(param.Parameterized):
             # Add 'Target Raise' label case there is already a row with target_raise value
             df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == self.target_raise, 'label'] = "Target Raise"
 
-            # Add a new row with target_raise vale case there is no row with its value
+            # Add a new row with target_raise value case there is no row with its value
             if "Target Raise" not in df_hatch_params['label']:
                 impact_hour_rate = R * (self.target_raise / (self.target_raise + m*H))
                 cultural_build_tribute = (H * impact_hour_rate)/self.target_raise
