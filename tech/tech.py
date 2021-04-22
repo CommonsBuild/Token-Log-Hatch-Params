@@ -61,52 +61,6 @@ class TECH(param.Parameterized):
 
 
     # Utils
-    def get_overview_data(self):
-        """
-        This function return key metrics for the 3 goal scenarios (Minimum goal,
-        Target goal, Maximum goal): it calculates the impact_hour_rate for each
-        scenario based on the impact hours formula; the backers ragequit
-        percentage based on the total raised and the total TECH tokens minted
-        for the builders; the total supply held by builders, simply the
-        proportion of total builders TECH tokens to the total TECH tokens; the
-        total TECH minted, that is the total TECH held by the builders and
-        backers; the non-redeemable, that is the hatch tribute in wxDai; the
-        backers amount, that is the total wxDai the backers can redeem for their
-        TECH tokens; the builders' amount, that is the wxDai the builders can
-        redeem for their TECH tokens.
-        """
-        self.bounds_target_raise()
-        hatch_tribute = self.hatch_tribute_percentage / 100
-        scenarios = {
-            'min_raise' : int(self.min_raise),
-            'target_raise' : self.target_raise,
-            'max_raise' : int(self.max_raise)
-        }
-
-        funding_pool_data = {}
-        for scenario, raise_amount in scenarios.items():
-            impact_hour_rate = self.get_impact_hour_rate(raise_amount)            
-            rage_quit_percentage = 100 * self.get_rage_quit_percentage(raise_amount)
-            total_tech_backers = raise_amount * (1 - hatch_tribute) * self.hatch_exchange_rate
-            total_tech_builders = self.total_impact_hours * self.get_impact_hour_rate(raise_amount) * self.hatch_exchange_rate
-            total_tech_minted = total_tech_backers + total_tech_builders
-            tech_builders_percentage = 100 * total_tech_builders / total_tech_minted
-
-            non_redeemable = raise_amount * hatch_tribute
-            backers_amount = (total_tech_backers/self.hatch_exchange_rate) * (rage_quit_percentage/100)
-            builders_amount = (total_tech_builders/self.hatch_exchange_rate) * (rage_quit_percentage/100)
-
-            funding_pool_data[scenario] = {
-                "Impact Hour Rate (wxDai/hour)": impact_hour_rate,
-                "Backer's RageQuit (%)" : rage_quit_percentage,
-                "Total Supply held by Builders (%)" : tech_builders_percentage,
-                "Total TECH Minted (TECH)": total_tech_minted,
-                "non_redeemable" : non_redeemable,
-                "backers_amount" : backers_amount,
-                "builders_amount" : builders_amount,
-            }
-        return pd.DataFrame(funding_pool_data).T
-
     def impact_hours_formula(self, minimum_raise=0, maximum_raise=0,
                              raise_scenarios=None, single_value=None):
         """
@@ -169,7 +123,8 @@ class TECH(param.Parameterized):
         impact_hour_rate = self.get_impact_hour_rate(raise_amount)
         hatch_tribute = self.hatch_tribute_percentage / 100
         redeemable_reserve = raise_amount * (1 - hatch_tribute)
-        rage_quit_percentage =  redeemable_reserve / (impact_hour_rate * self.total_impact_hours + redeemable_reserve)
+        tech_token_ratio = (redeemable_reserve / (impact_hour_rate * self.total_impact_hours + redeemable_reserve))
+        rage_quit_percentage = tech_token_ratio * (redeemable_reserve / raise_amount)
 
         return rage_quit_percentage
 
@@ -189,13 +144,59 @@ class TECH(param.Parameterized):
         
         return self.target_raise
 
+    def get_overview_data(self):
+            """
+            This function return key metrics for the 3 goal scenarios (Minimum goal,
+            Target goal, Maximum goal): it calculates the impact_hour_rate for each
+            scenario based on the impact hours formula; the backers ragequit
+            percentage based on the total raised and the total TECH tokens minted
+            for the builders; the total supply held by builders, simply the
+            proportion of total builders TECH tokens to the total TECH tokens; the
+            total TECH minted, that is the total TECH held by the builders and
+            backers; the non-redeemable, that is the hatch tribute in wxDai; the
+            backers amount, that is the total wxDai the backers can redeem for their
+            TECH tokens; the builders' amount, that is the wxDai the builders can
+            redeem for their TECH tokens.
+            """
+            self.bounds_target_raise()
+            hatch_tribute = self.hatch_tribute_percentage / 100
+            scenarios = {
+                'min_raise' : int(self.min_raise),
+                'target_raise' : self.target_raise,
+                'max_raise' : int(self.max_raise)
+            }
+
+            funding_pool_data = {}
+            for scenario, raise_amount in scenarios.items():
+                impact_hour_rate = self.get_impact_hour_rate(raise_amount)            
+                rage_quit_percentage = 100 * self.get_rage_quit_percentage(raise_amount)
+                total_tech_backers = raise_amount * (1 - hatch_tribute) * self.hatch_exchange_rate
+                total_tech_builders = self.total_impact_hours * self.get_impact_hour_rate(raise_amount) * self.hatch_exchange_rate
+                total_tech_minted = total_tech_backers + total_tech_builders
+                tech_builders_percentage = 100 * total_tech_builders / total_tech_minted
+                redeemable_reserve = raise_amount * (1 - hatch_tribute)
+                tech_token_ratio = (redeemable_reserve / (impact_hour_rate * self.total_impact_hours + redeemable_reserve))
+                non_redeemable = raise_amount * hatch_tribute
+                
+                backers_amount = (total_tech_backers/self.hatch_exchange_rate) * (tech_token_ratio)
+                builders_amount = (total_tech_builders/self.hatch_exchange_rate) * (tech_token_ratio)
+                funding_pool_data[scenario] = {
+                    "Impact Hour Rate (wxDai/hour)": impact_hour_rate,
+                    "Backer's RageQuit (%)" : rage_quit_percentage,
+                    "Total Supply held by Builders (%)" : tech_builders_percentage,
+                    "Total TECH Minted (TECH)": total_tech_minted,
+                    "non_redeemable" : non_redeemable,
+                    "backers_amount" : backers_amount,
+                    "builders_amount" : builders_amount,
+                }
+            return pd.DataFrame(funding_pool_data).T
+
     # Views
     @param.depends('action')
     def impact_hours_plot(self):
         self.bounds_target_raise()
         # Limits the target raise bounds when ploting the charts
-        self.df_impact_hours = self.impact_hours_formula(self.config_bounds['min_max_raise']['bounds'][0], self.max_raise)
-        df = self.df_impact_hours
+        df = self.impact_hours_formula(self.config_bounds['min_max_raise']['bounds'][0], self.max_raise)
         df_fill_minimum = df[df['Total wxDai Raised'] <= self.min_raise]
 
         try:
@@ -243,7 +244,7 @@ class TECH(param.Parameterized):
     def redeemable_plot(self):
         # Limits the target raise bounds when ploting the charts
         self.bounds_target_raise()
-        df_hatch_params = self.df_impact_hours
+        df_hatch_params = self.impact_hours_formula(self.config_bounds['min_max_raise']['bounds'][0], self.max_raise)
         df_hatch_params['Cultural Build Tribute'] = (self.total_impact_hours * df_hatch_params['Impact Hour Rate'])/df_hatch_params['Total wxDai Raised']
         df_hatch_params['Hatch tribute'] = self.hatch_tribute_percentage / 100
         df_hatch_params["Backer's RageQuit (%)"] = df_hatch_params['Total wxDai Raised'].apply(self.get_rage_quit_percentage).round(4)
