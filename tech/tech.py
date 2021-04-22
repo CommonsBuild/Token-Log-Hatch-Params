@@ -351,7 +351,7 @@ class TECH(param.Parameterized):
             # Add 'Max' label case there is already a row with max_raise value
             df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == self.max_raise, 'label'] = "Max Raise"
 
-            # Add a new row with max_raise vale case there is no row with its value
+            # Add a new row with max_raise value case there is no row with its value
             if "Max Raise" not in df_hatch_params['label']:
                 impact_hour_rate = R* (maximum_raise / (maximum_raise + m*H))
                 cultural_build_tribute = (H * impact_hour_rate)/maximum_raise
