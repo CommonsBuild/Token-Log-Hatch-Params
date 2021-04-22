@@ -301,7 +301,7 @@ class TECH(param.Parameterized):
             # Add 'Min Raise' label case there is already a row with min_raise value
             df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == minimum_raise, 'label'] = "Min Raise"
 
-            # Add a new row with min_raise vale case there is no row with its value
+            # Add a new row with min_raise value case there is no row with its value
             if "Min Raise" not in df_hatch_params['label']:
                 impact_hour_rate = R* (minimum_raise / (minimum_raise + m*H))
                 cultural_build_tribute = (H * impact_hour_rate)/minimum_raise
