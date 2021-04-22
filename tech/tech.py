@@ -122,7 +122,7 @@ class TECH(param.Parameterized):
         where it will be returned a dataframe with only the raised amounts added
         in the argument list and their respective impact hour rates. The third
         option is to input only the argument 'single_value', where only one
-        value of raise amount is inputed and the function return its respective
+        value of raise amount is inputted and the function returns its respective
         impact hour rate.
         """
 
