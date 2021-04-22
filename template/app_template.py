@@ -68,8 +68,8 @@ def load_app(config_file):
     results_button = pn.widgets.Button(name='See your results', button_type = 'success')
 
     # Run buttons
-    run_dandelion = pn.widgets.Button(name='Run simulation', button_type = 'primary')
-    run_impact_hours = pn.widgets.Button(name='Run simulation', button_type = 'primary')
+    run_dandelion = pn.widgets.Button(name='Run simulation', button_type = 'success')
+    run_impact_hours = pn.widgets.Button(name='Run simulation', button_type = 'success')
 
     def update_params_by_url_query():
         queries = curdoc().session_context.request.arguments
