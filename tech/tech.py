@@ -10,7 +10,6 @@ pn.extension()
 from tech.utils import pie_chart
 
 
-APP_PATH = './'
 
 
 def read_impact_hour_data():
