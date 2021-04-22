@@ -15,11 +15,8 @@ import sys
 import os
 
 
-from tech.tech import read_impact_hour_data, read_cstk_data, TECH
-from tech.tech import ImpactHoursData, ImpactHoursFormula, Hatch, DandelionVoting
+from tech.tech import TECH, DandelionVoting, read_impact_hour_data
 from template.config_tooltips import tooltips
-#import tech.config_bounds as config_bounds
-import data
 
 load_dotenv()
 
@@ -36,26 +33,11 @@ def load_app(config_file):
     pn.config.sizing_mode = 'stretch_both'
 
     impact_hour_data = read_impact_hour_data()
-    # ImpactHoursData
-    i = ImpactHoursData()
 
     # TECH
     t = TECH(total_impact_hours = impact_hour_data['Assumed IH'].sum(),
             impact_hour_data=impact_hour_data, total_cstk_tokens=1000000,
             config=config_file['tech'])
-
-
-    # ImpactHoursFormula
-    #impact_hours_rewards = ImpactHoursFormula(i.total_impact_hours, impact_hour_data_1)
-    #impact_rewards_view = pn.Column(impact_hours_rewards.impact_hours_rewards,
-    # impact_hours_rewards.redeemable,
-    # impact_hours_rewards.cultural_build_tribute)
-
-    # Hatch
-    cstk_data = read_cstk_data()
-    #hatch = Hatch(cstk_data, impact_hours_rewards.target_raise,
-    # i.total_impact_hours,
-    # impact_hours_rewards.target_impact_hour_rate)
 
     # DandelionVoting
     dandelion = DandelionVoting(17e6,config=config_file['dandelion_voting'])
@@ -122,7 +104,7 @@ def load_app(config_file):
     @pn.depends(results_button)
     def update_output_scenarios(results_button_on):
         if results_button_on:
-            output_scenarios = pn.panel(t.output_scenarios_out_issue().hvplot.table())
+            output_scenarios = pn.panel(t.output_scenarios_view().hvplot.table())
         else:
             output_scenarios = pn.pane.Markdown('')
         
@@ -148,11 +130,11 @@ def load_app(config_file):
             df = pd.DataFrame(data=data_table)
 
             # Define output pane
-            output_pane = pn.Row(pn.Column(t.impact_hours_view,
+            output_pane = pn.Row(pn.Column(t.impact_hours_plot,
                                         t.redeemable_plot),
-            pn.Column(dandelion.vote_pass_view, t.funding_pool_view))
+            pn.Column(dandelion.vote_pass_view, t.pie_charts_view))
             output_pane.save('output.html')
-            pn.panel(t.output_scenarios_out_issue().hvplot.table()).save('out_scenarios.html')
+            pn.panel(t.output_scenarios_view().hvplot.table()).save('out_scenarios.html')
 
             scenarios = codecs.open("out_scenarios.html", 'r')
             charts = codecs.open("output.html", 'r')
@@ -330,11 +312,11 @@ To see the value of your individual Impact Hours, click <a href="{url}?ihminr={i
         param_with_tooltip(t.param.hatch_exchange_rate, tooltip='hatch_exchange_rate'),
         run_impact_hours
     ))
-    tmpl.add_panel('C', t.funding_pool_data_view)
+    tmpl.add_panel('C', t.outputs_overview_view)
     tmpl.add_panel('E', t.payout_view)
-    tmpl.add_panel('D', pn.Column(t.impact_hours_view, t.redeemable_plot))
+    tmpl.add_panel('D', pn.Column(t.redeemable_plot, t.impact_hours_plot))
     tmpl.add_panel('M', t.trigger_unbalanced_parameters)
-    tmpl.add_panel('F', t.funding_pool_view)
+    tmpl.add_panel('F', t.pie_charts_view)
     tmpl.add_panel('V', pn.Column(
         param_with_tooltip(pn.Column(dandelion.param.support_required_percentage), tooltip='support_required_percentage', height=40), 
         param_with_tooltip(dandelion.param.minimum_accepted_quorum_percentage, tooltip='minimum_accepted_quorum_percentage', height=40),

@@ -18,12 +18,12 @@ hatch = {
         "impact_hour_slope": {
             "value": 1000,
             "bounds": (0, 10000),
-            "step": 1,
+            "step": 20,
         },
         "maximum_impact_hour_rate": {
             "value": 500,
             "bounds": (0, 1000),
-            "step": 1,
+            "step": 2,
         },
         "hatch_oracle_ratio": {
             "value": 10,
