@@ -49,12 +49,12 @@ p {
     text-align: justify;
 }
 .secone {
-    height: 900px;
+    height: 800px;
     z-index: -1;
 }
 .meme {
     height: 250px;
-    width: 300px;
+    width: 400px;
     margin: 0 auto;
 }
 .pie-charts {
@@ -65,7 +65,7 @@ p {
 }
 .dandelion {
     overflow: hidden;
-    height: 650px;
+    height: 600px;
     z-index: -1;
 }
 .params {
@@ -122,18 +122,13 @@ p {
                 <div>
                     {{ embed(roots.D) }}
                 </div>
-                <div style="display: flex;">
-                    <div style="flex: 50%;">
-                        {{ embed(roots.C) }}
-                    </div>
-                    <div class="meme" style="flex: 50%;">
-                        {{ embed(roots.M) }}
-                    </div>
+                <div>
+                    {{ embed(roots.C) }}
                 </div>
             </div>
         </div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 grid-cell">
-            <h3>Redeem-ability of the DAO's (wxDai)</h3>
+            <h3>Redeem-ability of the DAO's wxDai</h3>
             <div class="pie-charts">{{ embed(roots.F) }}</div>
         </div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 grid-cell payout-table">
@@ -156,8 +151,13 @@ p {
                 <div style="height: 350px">
                     {{ embed(roots.W) }}
                 </div>
-                <div class="meme">
-                    {{ embed(roots.G) }}
+                <div style="display: flex;">
+                    <div class="meme" style="flex: 50%;">
+                        {{ embed(roots.G) }}
+                    </div>
+                    <div class="meme" style="flex: 50%;">
+                        {{ embed(roots.M) }}
+                    </div>
                 </div>
             </div>
         </div>

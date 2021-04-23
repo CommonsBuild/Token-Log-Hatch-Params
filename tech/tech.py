@@ -229,13 +229,13 @@ class TECH(param.Parameterized):
     @param.depends('action')
     def payout_view(self):
         self.bounds_target_raise()
-        self.impact_hour_data['Equiv To Mint Target Goal (wxDai)'] = (self.impact_hour_data['Assumed IH'] * self.get_impact_hour_rate(self.target_raise)).round(2)
-        self.impact_hour_data['Minted Target Goal (TECH)'] = (self.impact_hour_data['Equiv To Mint Target Goal (wxDai)'] * self.hatch_exchange_rate).round(2)
-        self.impact_hour_data['RageQuit Value Target Goal (wxDai)'] = (self.impact_hour_data['Equiv To Mint Target Goal (wxDai)'] * self.get_rage_quit_percentage(self.target_raise)).round(2)
+        self.impact_hour_data['Equiv To Mint at Target Goal (wxDai)'] = (self.impact_hour_data['Assumed IH'] * self.get_impact_hour_rate(self.target_raise)).round(2)
+        self.impact_hour_data['Minted at Target Goal (TECH)'] = (self.impact_hour_data['Equiv To Mint at Target Goal (wxDai)'] * self.hatch_exchange_rate).round(2)
+        self.impact_hour_data['RageQuit Value at Target Goal (wxDai)'] = (self.impact_hour_data['Equiv To Mint at Target Goal (wxDai)'] * self.get_rage_quit_percentage(self.target_raise)).round(2)
         self.impact_hour_data = self.impact_hour_data[['Handle', 'Assumed IH',
-                                                       'Minted Target Goal (TECH)',
-                                                       'Equiv To Mint Target Goal (wxDai)',
-                                                       'RageQuit Value Target Goal (wxDai)']]
+                                                       'Minted at Target Goal (TECH)',
+                                                       'Equiv To Mint at Target Goal (wxDai)',
+                                                       'RageQuit Value at Target Goal (wxDai)']]
 
         self.impact_hour_data = self.impact_hour_data.round(2)
         return self.impact_hour_data.hvplot.table(title='Predicted Individual Impact Hour Results', width=1350)
@@ -448,7 +448,7 @@ class TECH(param.Parameterized):
                                                       'target_raise': 'Target Goal',
                                                       'max_raise': 'Max Goal'})
 
-        return funding_pools.hvplot.table(title='Outputs Overview', width=450)
+        return funding_pools.hvplot.table(title='Outputs Overview', width=880)
 
 
 class DandelionVoting(param.Parameterized):
