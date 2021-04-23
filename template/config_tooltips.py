@@ -1,7 +1,7 @@
 tooltips = {
     "target_raise": {
         "href": "https://forum.tecommons.org/t/hatch-goals-deep-dive/62",
-        "text": "The amount of wxDai YOU believe the TEC will collect used to aid design.",
+        "text": "The amount of wxDai YOU believe the TEC will collect. Used to aid design.",
     },
     "min_raise": {
         "href": "https://forum.tecommons.org/t/hatch-goals-deep-dive/62",
