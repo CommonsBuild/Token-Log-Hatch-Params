@@ -49,32 +49,28 @@ p {
     text-align: justify;
 }
 .secone {
-    height: 1100px;
+    height: 800px;
     z-index: -1;
 }
 .meme {
     height: 250px;
-    width: 300px;
+    width: 400px;
     margin: 0 auto;
 }
 .pie-charts {
     height: 400px;
-}
-.table {
-    height: 190px;
 }
 .payout-table {
     height: 350px;
 }
 .dandelion {
     overflow: hidden;
-    height: 650px;
+    height: 600px;
     z-index: -1;
 }
 .params {
     z-index: 1;
 }
-
 .video {
     height: 315px;
     width: 560px;
@@ -91,7 +87,9 @@ p {
 {% block contents %}
 <div class="appContent" slot="appContent">
     <div class="appBar">
-        <img class="logo" src="https://raw.githubusercontent.com/TECommons/tec-branding-assets/main/Logo/Light/TEC%20Logo%20Full%20Light.png" />
+        <a href="https://tecommons.org/" target="_blank">
+            <img class="logo" src="https://raw.githubusercontent.com/TECommons/tec-branding-assets/main/Logo/Light/TEC%20Logo%20Full%20Light.png" />
+        </a>
         <h1>{{ app_title }}</h1>
     </div>
     <div class="appMain">
@@ -99,18 +97,24 @@ p {
         <div class="mdc-layout-grid__inner">
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
             <h1>{{ app_title }}</h1>
-            <p>This dashboard is a tool to collect community opinions on the proper parameterization of the Token Engineering Commons. There are two sections of the dashboard, where you can parameterize three different segments of the initial TEC ecosystem. At the end of the dashboard, you can choose to submit your parameterization configuration to the TEC GitHub, where it auto-compile into a report that can be compared and contrasted among other parameterization submissions by the community. This tool is meant to inform the community about the decisions that go into launching the TEC (and other Commons), and foster discourse in the ethical design of community ecosystems.</p>
+            <p><b>NOTE: If there are multiple users, this page may take a few moments to load.</b></p>
+            <p>Welcome to the TEC Hatch Configuration Dashboard!</p>
+            <p>This tool will help YOU configure the parameters for the Hatch of the Token Engineering Commons. <b>Your Economy, Your Choice!</b></p>
+            <p>Select your parameters, run them through the simulation as often as you want, and once you are happy with the results, submit your final configuration and outputs.</p>
+            <p> The community will <a href="https://tokenlog.xyz/CommonsBuild/TEC-Hatch-Vote" target="_blank">vote on configuration submissions</a> and use them to foster discourse in the ethical design of the TEC and other community ecosystems!</p>
         </div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell"><div class="video"><iframe width="560" height="315" src="https://www.youtube.com/embed/7E8SGIIKiRk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
         </div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
-            <h2>Section 1: Choosing Parameters for Impact Hours - Rewarding TEC Contributions</h2>
-            <p>The Hatch is the initialize phase that collects wxDai and mints TECH tokens for the TEC Hatch DAO, see the <a href="https://forum.tecommons.org/t/the-hatch-tl-dr/272" target="_blank">Hatch TL;DR</a> for a general overview. Designing the Hatch includes a few important concepts like: the Impact Hours Slope and Maximum Impact Hour Rate, which will award TECH tokens to the Impact Hour token holders via the Cultural Build Tribute; the Membership Ratio that determines how the CSTK Score influences how much wxDai each member of the Trusted Seed can send to the Hatch; the Hatch Tribute that sets wxDai aside for advancing Token Engineering and choosing the Minimum, Maximum Goals as well as specifying your Target Goal that you are designing around. For a more complete understanding of each Parameter, see the <a href="https://forum.tecommons.org/t/tec-test-hatch-implementation-specification/226" target="_blank">Hatch Spec</a>.</p>
+            <h2>Section 1: Hatch Configuration</h2>
+            <p>
+                During the <a href="https://forum.tecommons.org/t/the-hatch-tl-dr/272" target="_blank">Hatch</a>, backers send in wxDai and are minted TECH. If the minimum goal is reached, TECH will also be minted for the builders that earned Impact Hours. The parameters you choose below will determine the distribution. 
+            </p>
+            <p>
+               <i> To learn more about each parameter, mouse over the “?” for definitions or click on it for a deep dive. You can also take a look at an <a href="https://forum.tecommons.org/t/tec-test-hatch-implementation-specification/226" target="_blank"> example Hatch Spec</a> for a more holistic explanation.</i>
+            </p>
             <div class="params">
                 {{ embed(roots.B) }}
-            </div>
-            <div class="table">
-                {{ embed(roots.C) }}
             </div>
         </div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell" style="z-index: -1">
@@ -118,16 +122,26 @@ p {
                 <div>
                     {{ embed(roots.D) }}
                 </div>
-                <div class="meme">
-                    {{ embed(roots.M) }}
+                <div>
+                    {{ embed(roots.C) }}
                 </div>
             </div>
         </div>
-        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 grid-cell payout-table">{{ embed(roots.E) }}</div>
-        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 grid-cell pie-charts">{{ embed(roots.F) }}</div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 grid-cell">
+            <h3>Redeem-ability of the DAO's wxDai</h3>
+            <div class="pie-charts">{{ embed(roots.F) }}</div>
+        </div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 grid-cell payout-table">
+            {{ embed(roots.E) }}
+        </div>
         <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 grid-cell">
-            <h2>Section 2: Dandelion Voting - Dandelion DAO Initialization</h2>
-            <p>The TEC Hatch DAO is effectively a Moloch DAO deployed using the Aragon framework. Designing how the DAO will make decisions is pretty straight forward, the variables that may need a special note are: Minimum Quorum which only counts yes votes; Vote Proposal Buffer, which is a precautionary variable that ensures DAO members have time between votes to Rage Quit and the Rage Quit Period which is the time after a vote that a DAO member has to exit with their share of the Redeemable Pool before the vote is executed. For a more complete understanding of each Parameter, see the <a href="https://forum.tecommons.org/t/tec-test-hatch-implementation-specification/226" target="_blank">Hatch Spec</a>.</p>
+            <h2>Section 2: DAO Configuration</h2>
+            <p>
+                The TEC Hatch DAO has a similar configuration space as a v1 Moloch DAO. The parameters you choose below will determine the criteria necessary for votes to pass and be executed.
+            </p>
+            <p>
+                <i> To learn more about each parameter, mouse over the “?” for definitions or click on it for a deep dive. You can also take a look at an <a href="https://forum.tecommons.org/t/tec-test-hatch-implementation-specification/226" target="_blank"> example Hatch Spec</a> for a more holistic explanation.</i>
+             </p>
             <div class="params">
                 {{ embed(roots.V) }}
             </div>
@@ -137,8 +151,13 @@ p {
                 <div style="height: 350px">
                     {{ embed(roots.W) }}
                 </div>
-                <div class="meme">
-                    {{ embed(roots.G) }}
+                <div style="display: flex;">
+                    <div class="meme" style="flex: 50%;">
+                        {{ embed(roots.G) }}
+                    </div>
+                    <div class="meme" style="flex: 50%;">
+                        {{ embed(roots.M) }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -151,7 +170,8 @@ p {
                 {{ embed(roots.BU) }}
             </div>
         </div>
-        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell" style="height: 420px">{{ embed(roots.R) }}</div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8 grid-cell" style="height: 450px">{{ embed(roots.R) }}</div>
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 grid-cell">{{ embed(roots.OU) }}</div>
     </div>
 </div>
 {% endblock %}
