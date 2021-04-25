@@ -10,8 +10,6 @@ pn.extension()
 from tech.utils import pie_chart
 
 
-
-
 def read_impact_hour_data():
     impact_hour_data = pd.read_csv(os.path.join("data", "praise_quantification.csv"))
     return impact_hour_data
@@ -123,8 +121,7 @@ class TECH(param.Parameterized):
         impact_hour_rate = self.get_impact_hour_rate(raise_amount)
         hatch_tribute = self.hatch_tribute_percentage / 100
         redeemable_reserve = raise_amount * (1 - hatch_tribute)
-        tech_token_ratio = (redeemable_reserve / (impact_hour_rate * self.total_impact_hours + redeemable_reserve))
-        rage_quit_percentage = tech_token_ratio * (redeemable_reserve / raise_amount)
+        rage_quit_percentage = (redeemable_reserve / (impact_hour_rate * self.total_impact_hours + raise_amount))
 
         return rage_quit_percentage
 
@@ -170,12 +167,12 @@ class TECH(param.Parameterized):
             for scenario, raise_amount in scenarios.items():
                 impact_hour_rate = self.get_impact_hour_rate(raise_amount)            
                 rage_quit_percentage = 100 * self.get_rage_quit_percentage(raise_amount)
-                total_tech_backers = raise_amount * (1 - hatch_tribute) * self.hatch_exchange_rate
+                total_tech_backers = raise_amount * self.hatch_exchange_rate
                 total_tech_builders = self.total_impact_hours * self.get_impact_hour_rate(raise_amount) * self.hatch_exchange_rate
                 total_tech_minted = total_tech_backers + total_tech_builders
                 tech_builders_percentage = 100 * total_tech_builders / total_tech_minted
                 redeemable_reserve = raise_amount * (1 - hatch_tribute)
-                tech_token_ratio = (redeemable_reserve / (impact_hour_rate * self.total_impact_hours + redeemable_reserve))
+                tech_token_ratio = (redeemable_reserve / (impact_hour_rate * self.total_impact_hours + raise_amount))
                 non_redeemable = raise_amount * hatch_tribute
                 
                 backers_amount = (total_tech_backers/self.hatch_exchange_rate) * (tech_token_ratio)
@@ -291,7 +288,7 @@ class TECH(param.Parameterized):
             df_hatch_params['Hatch tribute'] = df_hatch_params['Total wxDai Raised'].mul(hatch_tribute)
             df_hatch_params['Redeemable'] = df_hatch_params['Total wxDai Raised'].apply(self.get_rage_quit_percentage).round(4)
             df_hatch_params['Total TECH builders'] = df_hatch_params['Impact Hour Rate'] * self.total_impact_hours * self.hatch_exchange_rate
-            df_hatch_params['Total TECH backers'] = df_hatch_params['Total wxDai Raised'] * (1 - hatch_tribute) * self.hatch_exchange_rate
+            df_hatch_params['Total TECH backers'] = df_hatch_params['Total wxDai Raised'] * self.hatch_exchange_rate
             df_hatch_params['Total Supply held by Builders (%)'] = (100 * df_hatch_params['Total TECH builders'] / (df_hatch_params['Total TECH builders'] + df_hatch_params['Total TECH backers'])).round(2)
 
             df_hatch_params['label'] = ""
@@ -306,7 +303,7 @@ class TECH(param.Parameterized):
             if "Min Raise" not in df_hatch_params['label']:
                 impact_hour_rate = R* (minimum_raise / (minimum_raise + m*H))
                 cultural_build_tribute = (H * impact_hour_rate)/minimum_raise
-                total_tech_backers = minimum_raise * (1 - hatch_tribute) * self.hatch_exchange_rate
+                total_tech_backers = minimum_raise * self.hatch_exchange_rate
                 total_tech_builders = self.total_impact_hours * self.get_impact_hour_rate(minimum_raise) * self.hatch_exchange_rate
                 total_tech_minted = total_tech_backers + total_tech_builders
                 tech_builders_percentage = round(100 * total_tech_builders / total_tech_minted, 2)
@@ -331,7 +328,7 @@ class TECH(param.Parameterized):
             if "Target Raise" not in df_hatch_params['label']:
                 impact_hour_rate = R * (self.target_raise / (self.target_raise + m*H))
                 cultural_build_tribute = (H * impact_hour_rate)/self.target_raise
-                total_tech_backers = self.target_raise * (1 - hatch_tribute) * self.hatch_exchange_rate
+                total_tech_backers = self.target_raise * self.hatch_exchange_rate
                 total_tech_builders = self.total_impact_hours * self.get_impact_hour_rate(self.target_raise) * self.hatch_exchange_rate
                 total_tech_minted = total_tech_backers + total_tech_builders
                 tech_builders_percentage = round(100 * total_tech_builders / total_tech_minted, 2)
@@ -355,7 +352,7 @@ class TECH(param.Parameterized):
             if "Max Raise" not in df_hatch_params['label']:
                 impact_hour_rate = R* (maximum_raise / (maximum_raise + m*H))
                 cultural_build_tribute = (H * impact_hour_rate)/maximum_raise
-                total_tech_backers = maximum_raise * (1 - hatch_tribute) * self.hatch_exchange_rate
+                total_tech_backers = maximum_raise * self.hatch_exchange_rate
                 total_tech_builders = self.total_impact_hours * self.get_impact_hour_rate(maximum_raise) * self.hatch_exchange_rate
                 total_tech_minted = total_tech_backers + total_tech_builders
                 tech_builders_percentage = round(100 * total_tech_builders / total_tech_minted, 2)
