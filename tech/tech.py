@@ -426,7 +426,7 @@ class TECH(param.Parameterized):
     def trigger_unbalanced_parameters(self):
         self.bounds_target_raise()
         target_impact_hour_rate = self.get_impact_hour_rate(self.target_raise)
-        if target_impact_hour_rate < 5:
+        if target_impact_hour_rate < 15:
             return pn.pane.JPG('https://i.imgflip.com/54l0iv.jpg')
         else:
             return pn.pane.Markdown('')
