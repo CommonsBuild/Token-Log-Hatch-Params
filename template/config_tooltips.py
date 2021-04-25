@@ -13,7 +13,7 @@ tooltips = {
     },
     "hatch_oracle_ratio": {
         "href": "https://forum.tecommons.org/t/cstk-ratio-deep-dive/141",
-        "text": "The amount of wxDAI (wrapped xDAI) each CSTK Token holder is able to send to the Hatch per CSTK they have.",
+        "text": "Multiplied by CSTK score to create a wxDai Cap for every Trusted Seed Member. The minimum CSTK Score possible is 1125 CSTK. i.e if the Membership Ratio is 10, every member can send at least 11,250 wxDai to the Hatch.",
     },
     "hatch_period_days": {
         "href": "https://forum.tecommons.org/t/hatch-time-limit-deep-dive/63",
