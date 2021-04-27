@@ -43,7 +43,9 @@ def load_app(config_file):
     dandelion = DandelionVoting(17e6,config=config_file['dandelion_voting'])
 
     # Share Button
-    comments = pn.widgets.TextAreaInput(name='Comments', max_length=1024, placeholder='Explain your thoughts on why you choose the params...')
+    comments = pn.widgets.TextAreaInput(name='What is your DAO decision making strategy?',
+                                        max_length=1024,
+                                        placeholder='Tell us why you configured the DAO this way')
     share_button = pn.widgets.Button(name='Share your results on GitHub!', button_type = 'primary')
     url = pn.widgets.TextInput(name='URL', value = '')
     share_button.js_on_click(args={'target': url}, code='window.open(target.value)')
