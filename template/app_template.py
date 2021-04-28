@@ -216,7 +216,7 @@ To see the value of your individual Impact Hours, click <a href="{url}?ihminr={i
             url.value = config_file['repo'] + "/issues/new?title=Vote%20for%20My%20Params&labels=" + config_file['label'] + "&body=" + body
             results_button.name = "Update your results"
             markdown_panel = pn.pane.Markdown(results_header + string_data)
-            return pn.Row(df.hvplot.table(), markdown_panel)
+            return markdown_panel
 
 
     pn.state.onload(update_params_by_url_query)
