@@ -43,7 +43,9 @@ def load_app(config_file):
     dandelion = DandelionVoting(17e6,config=config_file['dandelion_voting'])
 
     # Share Button
-    comments = pn.widgets.TextAreaInput(name='Comments', max_length=1024, placeholder='Explain your thoughts on why you choose the params...')
+    comments = pn.widgets.TextAreaInput(name='What is your DAO decision making strategy?',
+                                        max_length=1024,
+                                        placeholder='Tell us why you configured the DAO this way')
     share_button = pn.widgets.Button(name='Share your results on GitHub!', button_type = 'primary')
     url = pn.widgets.TextInput(name='URL', value = '')
     share_button.js_on_click(args={'target': url}, code='window.open(target.value)')
@@ -168,10 +170,11 @@ def load_app(config_file):
 {params_table}
             """.format(params_table=df.to_markdown(index=False, floatfmt=",.2f"))
 
-            string_data = """
-<h1>Results</h1>
+            results_header = "<h1>Results</h1>"
 
-<p>{comments}</p>
+            string_comments = "<p>{comments}</p>".format(comments=comments.value)
+
+            string_data = """
 
 - It costs {tollgate_fee_xdai} wxDai to make a proposal.
 
@@ -208,12 +211,12 @@ To see the value of your individual Impact Hours, click <a href="{url}?ihminr={i
             max_wxdai_ratio=int(2000*t.hatch_oracle_ratio),
             url=config_file['url'])
 
-            markdown_panel = pn.pane.Markdown(parameters_data + string_data + output_data)
+            markdown_panel = pn.pane.Markdown(parameters_data + results_header + string_comments + string_data + output_data)
             body = urllib.parse.quote(markdown_panel.object, safe='')
             url.value = config_file['repo'] + "/issues/new?title=Vote%20for%20My%20Params&labels=" + config_file['label'] + "&body=" + body
             results_button.name = "Update your results"
-            markdown_panel = pn.pane.Markdown(string_data)
-            return pn.Row(df.hvplot.table(),markdown_panel)
+            markdown_panel = pn.pane.Markdown(results_header + string_data)
+            return markdown_panel
 
 
     pn.state.onload(update_params_by_url_query)
