@@ -43,7 +43,7 @@ def load_app(config_file):
     dandelion = DandelionVoting(17e6,config=config_file['dandelion_voting'])
 
     # Share Button
-    comments_tech = pn.widgets.TextAreaInput(name='What is your Hatch Strategy?',
+    comments_tech = pn.widgets.TextAreaInput(name='What is your Hatch strategy?',
                                         max_length=1024,
                                         placeholder='Tell us why you configured the Hatch this way')
     comments_dandelion = pn.widgets.TextAreaInput(name='What is your Dandelion Voting strategy?',
