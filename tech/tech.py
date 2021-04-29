@@ -340,9 +340,9 @@ class TECH(param.Parameterized):
             df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] > maximum_raise, ['Impact Hour Rate',
                                                                                         'Hatch tribute',
                                                                                         'Redeemable',
-                                                                                        'Total Supply held by Builders (%)']] = "Beyond Max Goal"
+                                                                                        'Total Supply held by Builders (%)']] = np.nan
 
-            # Format final table columns 
+            # Format final table columns
             df_hatch_params = df_hatch_params.rename(columns={'Total wxDai Raised': 'Total wxDai Raised (wxDai)',
                                                             'Impact Hour Rate': 'Impact Hour Rate (wxDai)',
                                                             'Hatch tribute': 'Non-redeemable (wxDai)',
@@ -355,6 +355,7 @@ class TECH(param.Parameterized):
                                                             "Backer's RageQuit (%)",
                                                             'Label'])
             df_hatch_params = df_hatch_params.round(2)
+            df_hatch_params = df_hatch_params.fillna("Beyond Max Goal")
 
             return df_hatch_params
 
