@@ -342,8 +342,7 @@ class TECH(param.Parameterized):
                                                                                         'Redeemable',
                                                                                         'Total Supply held by Builders (%)']] = np.nan
 
-            # Format final table columns 
-            df_hatch_params['Redeemable'] = df_hatch_params['Redeemable'].mul(100) 
+            # Format final table columns
             df_hatch_params = df_hatch_params.rename(columns={'Total wxDai Raised': 'Total wxDai Raised (wxDai)',
                                                             'Impact Hour Rate': 'Impact Hour Rate (wxDai)',
                                                             'Hatch tribute': 'Non-redeemable (wxDai)',
