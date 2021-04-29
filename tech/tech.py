@@ -248,9 +248,9 @@ class TECH(param.Parameterized):
         df_hatch_params['label'] = ""
 
         # Add label case there is already a row with raise value
-        df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == int(self.min_raise), 'label'] = "Min Raise"
-        df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == self.target_raise, 'label'] = "Target Raise"
-        df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == int(self.max_raise), 'label'] = "Max Raise"
+        df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == int(self.min_raise), 'label'] = "Min Goal"
+        df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == self.target_raise, 'label'] = "Target Goal"
+        df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == int(self.max_raise), 'label'] = "Max Goal"
         df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] < int(self.min_raise), ['Impact Hour Rate','Cultural Build Tribute', 'Hatch tribute']] = 0
         df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] < int(self.min_raise), "Backer's RageQuit (%)"] = 1
         df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] > int(self.max_raise), ['Impact Hour Rate','Cultural Build Tribute', 'Hatch tribute', "Backer's RageQuit (%)"]] = np.nan
@@ -296,11 +296,11 @@ class TECH(param.Parameterized):
             minimum_raise = int(self.min_raise)
             maximum_raise = int(self.max_raise)
 
-            # Add 'Min Raise' label case there is already a row with min_raise value
-            df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == minimum_raise, 'label'] = "Min Raise"
+            # Add 'Min Goal' label case there is already a row with min_raise value
+            df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == minimum_raise, 'label'] = "Min Goal"
 
             # Add a new row with min_raise value case there is no row with its value
-            if "Min Raise" not in df_hatch_params['label']:
+            if "Min Goal" not in df_hatch_params['label']:
                 impact_hour_rate = R* (minimum_raise / (minimum_raise + m*H))
                 cultural_build_tribute = (H * impact_hour_rate)/minimum_raise
                 total_tech_backers = minimum_raise * self.hatch_exchange_rate
@@ -313,19 +313,19 @@ class TECH(param.Parameterized):
                                                           'Hatch tribute':self.min_raise * hatch_tribute,
                                                           'Redeemable':round(self.get_rage_quit_percentage(minimum_raise), 4),
                                                           'Total Supply held by Builders (%)':tech_builders_percentage,
-                                                          'label':'Min Raise'},
+                                                          'label':'Min Goal'},
                                                           ignore_index=True)
                 df_hatch_params = df_hatch_params.sort_values(['Total wxDai Raised'])
 
-            df_min_raise = df_hatch_params.query("label == 'Min Raise'")
+            df_min_raise = df_hatch_params.query("label == 'Min Goal'")
             if len(df_min_raise) > 1:
                 df_hatch_params = df_hatch_params.drop(df_min_raise.first_valid_index())
 
-            # Add 'Target Raise' label case there is already a row with target_raise value
-            df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == self.target_raise, 'label'] = "Target Raise"
+            # Add 'Target Goal' label case there is already a row with target_raise value
+            df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == self.target_raise, 'label'] = "Target Goal"
 
             # Add a new row with target_raise value case there is no row with its value
-            if "Target Raise" not in df_hatch_params['label']:
+            if "Target Goal" not in df_hatch_params['label']:
                 impact_hour_rate = R * (self.target_raise / (self.target_raise + m*H))
                 cultural_build_tribute = (H * impact_hour_rate)/self.target_raise
                 total_tech_backers = self.target_raise * self.hatch_exchange_rate
@@ -338,18 +338,18 @@ class TECH(param.Parameterized):
                                                           'Hatch tribute':self.target_raise * hatch_tribute,
                                                           'Redeemable':round(self.get_rage_quit_percentage(self.target_raise), 4),
                                                           'Total Supply held by Builders (%)':tech_builders_percentage,
-                                                          'label':'Target Raise'}, ignore_index=True)
+                                                          'label':'Target Goal'}, ignore_index=True)
                 df_hatch_params = df_hatch_params.sort_values(['Total wxDai Raised'])
 
-            df_target_raise = df_hatch_params.query("label == 'Target Raise'")
+            df_target_raise = df_hatch_params.query("label == 'Target Goal'")
             if len(df_target_raise) > 1:
                 df_hatch_params = df_hatch_params.drop(df_target_raise.first_valid_index())
 
             # Add 'Max' label case there is already a row with max_raise value
-            df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == self.max_raise, 'label'] = "Max Raise"
+            df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == self.max_raise, 'label'] = "Max Goal"
 
             # Add a new row with max_raise value case there is no row with its value
-            if "Max Raise" not in df_hatch_params['label']:
+            if "Max Goal" not in df_hatch_params['label']:
                 impact_hour_rate = R* (maximum_raise / (maximum_raise + m*H))
                 cultural_build_tribute = (H * impact_hour_rate)/maximum_raise
                 total_tech_backers = maximum_raise * self.hatch_exchange_rate
@@ -361,10 +361,10 @@ class TECH(param.Parameterized):
                                                           'Hatch tribute':maximum_raise * hatch_tribute,
                                                           'Redeemable':round(self.get_rage_quit_percentage(maximum_raise), 4),
                                                           'Total Supply held by Builders (%)':tech_builders_percentage,
-                                                          'label':'Max Raise'}, ignore_index=True)
+                                                          'label':'Max Goal'}, ignore_index=True)
                 df_hatch_params = df_hatch_params.sort_values(['Total wxDai Raised'])
 
-            df_max_raise = df_hatch_params.query("label == 'Max Raise'")
+            df_max_raise = df_hatch_params.query("label == 'Max Goal'")
             if len(df_max_raise) > 1:
                 df_hatch_params = df_hatch_params.drop(df_max_raise.first_valid_index())
 
@@ -377,10 +377,10 @@ class TECH(param.Parameterized):
             df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] > maximum_raise, ['Impact Hour Rate',
                                                                                         'Hatch tribute',
                                                                                         'Redeemable',
-                                                                                        'Total Supply held by Builders (%)']] = np.nan
+                                                                                        'Total Supply held by Builders (%)']] = "Beyond Max Goal"
 
-            # Format final table columns
-            df_hatch_params['Redeemable'] = df_hatch_params['Redeemable'].mul(100)
+            # Format final table columns 
+            df_hatch_params['Redeemable'] = np.where(df_hatch_params['Redeemable'] != "Beyond Max Goal", df_hatch_params['Redeemable'].mul(100) , df_hatch_params['Redeemable'])
             df_hatch_params = df_hatch_params.rename(columns={'Total wxDai Raised': 'Total wxDai Raised (wxDai)',
                                                             'Impact Hour Rate': 'Impact Hour Rate (wxDai)',
                                                             'Hatch tribute': 'Non-redeemable (wxDai)',
