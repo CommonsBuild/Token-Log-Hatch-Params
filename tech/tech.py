@@ -302,7 +302,7 @@ class TECH(param.Parameterized):
                 # Add label case there is already a row with amount_raised value
                 df.loc[df['Total wxDai Raised'] == amount_raised, 'label'] = label
 
-                # Add a new row with min_raise value case there is no row with its value
+                # Add a new row with amount_raised value case there is no row with its value
                 if label not in df['label']:
                     impact_hour_rate = R* (amount_raised / (amount_raised + m*H))
                     cultural_build_tribute = (H * impact_hour_rate)/amount_raised
