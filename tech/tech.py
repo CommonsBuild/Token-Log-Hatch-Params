@@ -299,7 +299,7 @@ class TECH(param.Parameterized):
             maximum_raise = int(self.max_raise)
             
             def add_goal_to_table(df, amount_raised, label):
-                # Add 'Min Goal' label case there is already a row with min_raise value
+                # Add label case there is already a row with amount_raised value
                 df.loc[df['Total wxDai Raised'] == amount_raised, 'label'] = label
 
                 # Add a new row with min_raise value case there is no row with its value
