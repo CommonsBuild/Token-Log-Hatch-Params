@@ -55,7 +55,16 @@ class TECH(param.Parameterized):
         self.hatch_exchange_rate = config['hatch_exchange_rate']['value']
         self.hatch_tribute_percentage = config['hatch_tribute_percentage']['value']
 
+    def bounds_impact_hour_rate_at_target_goal(self):
+        if self.impact_hour_rate_at_target_goal <= 0:
+            self.impact_hour_rate_at_target_goal = 1
+        elif self.impact_hour_rate_at_target_goal > self.maximum_impact_hour_rate:
+            self.impact_hour_rate_at_target_goal = self.maximum_impact_hour_rate
+        
+        return self.impact_hour_rate_at_target_goal
+
     def get_impact_hour_slope(self):
+        self.bounds_impact_hour_rate_at_target_goal()
         impact_hour_slope = (self.maximum_impact_hour_rate / self.impact_hour_rate_at_target_goal - 1) * (self.target_raise / self.total_impact_hours)
         return impact_hour_slope
 
