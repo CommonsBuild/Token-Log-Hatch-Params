@@ -33,7 +33,7 @@ tooltips = {
     },
     "impact_hour_rate_at_target_goal": {
         "href": "https://forum.tecommons.org/t/impact-hour-rate-deep-dive/90/17",
-        "text": "The parameter that effects the curvature of the Impact Hour graph, also the impact hour rate the builders will receive at the target goal",
+        "text": "Sets the TECH Minting rate for Builders at the Target Goal, making 1 Impact Hour equivalent to sending this amount of wxDai to the Hatch.",
     },
     "support_required_percentage": {
         "href": "https://forum.tecommons.org/t/support-required-deep-dive/108",
