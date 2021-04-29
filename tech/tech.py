@@ -284,6 +284,7 @@ class TECH(param.Parameterized):
             H = self.total_impact_hours
 
             df_hatch_params = self.impact_hours_formula(raise_scenarios=self.output_scenario_raise)
+            df_hatch_params['Impact Hour Rate'] = df_hatch_params['Impact Hour Rate'].round(2)
             df_hatch_params['Cultural Build Tribute'] = (H * df_hatch_params['Impact Hour Rate'])/df_hatch_params['Total wxDai Raised']
             df_hatch_params['Hatch tribute'] = df_hatch_params['Total wxDai Raised'].mul(hatch_tribute)
             df_hatch_params['Redeemable'] = df_hatch_params['Total wxDai Raised'].apply(self.get_rage_quit_percentage).round(4)
@@ -294,79 +295,40 @@ class TECH(param.Parameterized):
             df_hatch_params['label'] = ""
 
             minimum_raise = int(self.min_raise)
+            target_raise = int(self.target_raise)
             maximum_raise = int(self.max_raise)
+            
+            def add_goal_to_table(df, amount_raised, label):
+                # Add 'Min Goal' label case there is already a row with min_raise value
+                df.loc[df['Total wxDai Raised'] == amount_raised, 'label'] = label
 
-            # Add 'Min Goal' label case there is already a row with min_raise value
-            df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == minimum_raise, 'label'] = "Min Goal"
+                # Add a new row with min_raise value case there is no row with its value
+                if label not in df['label']:
+                    impact_hour_rate = R* (amount_raised / (amount_raised + m*H))
+                    cultural_build_tribute = (H * impact_hour_rate)/amount_raised
+                    total_tech_backers = amount_raised * self.hatch_exchange_rate
+                    total_tech_builders = self.total_impact_hours * self.get_impact_hour_rate(amount_raised) * self.hatch_exchange_rate
+                    total_tech_minted = total_tech_backers + total_tech_builders
+                    tech_builders_percentage = round(100 * total_tech_builders / total_tech_minted, 2)
+                    
+                    df = df.append({'Total wxDai Raised': amount_raised,
+                                                            'Impact Hour Rate':round(impact_hour_rate, 2),
+                                                            'Hatch tribute':self.min_raise * hatch_tribute,
+                                                            'Redeemable':round(self.get_rage_quit_percentage(amount_raised), 2),
+                                                            'Total Supply held by Builders (%)':tech_builders_percentage,
+                                                            'label':label},
+                                                            ignore_index=True)
+                    df = df.sort_values(['Total wxDai Raised'])
 
-            # Add a new row with min_raise value case there is no row with its value
-            if "Min Goal" not in df_hatch_params['label']:
-                impact_hour_rate = R* (minimum_raise / (minimum_raise + m*H))
-                cultural_build_tribute = (H * impact_hour_rate)/minimum_raise
-                total_tech_backers = minimum_raise * self.hatch_exchange_rate
-                total_tech_builders = self.total_impact_hours * self.get_impact_hour_rate(minimum_raise) * self.hatch_exchange_rate
-                total_tech_minted = total_tech_backers + total_tech_builders
-                tech_builders_percentage = round(100 * total_tech_builders / total_tech_minted, 2)
+                df_min_raise = df.query("label == '{}'".format(label))
+                if len(df_min_raise) > 1:
+                    df = df.drop(df_min_raise.first_valid_index())
                 
-                df_hatch_params = df_hatch_params.append({'Total wxDai Raised': minimum_raise,
-                                                          'Impact Hour Rate':impact_hour_rate,
-                                                          'Hatch tribute':self.min_raise * hatch_tribute,
-                                                          'Redeemable':round(self.get_rage_quit_percentage(minimum_raise), 4),
-                                                          'Total Supply held by Builders (%)':tech_builders_percentage,
-                                                          'label':'Min Goal'},
-                                                          ignore_index=True)
-                df_hatch_params = df_hatch_params.sort_values(['Total wxDai Raised'])
-
-            df_min_raise = df_hatch_params.query("label == 'Min Goal'")
-            if len(df_min_raise) > 1:
-                df_hatch_params = df_hatch_params.drop(df_min_raise.first_valid_index())
-
-            # Add 'Target Goal' label case there is already a row with target_raise value
-            df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == self.target_raise, 'label'] = "Target Goal"
-
-            # Add a new row with target_raise value case there is no row with its value
-            if "Target Goal" not in df_hatch_params['label']:
-                impact_hour_rate = R * (self.target_raise / (self.target_raise + m*H))
-                cultural_build_tribute = (H * impact_hour_rate)/self.target_raise
-                total_tech_backers = self.target_raise * self.hatch_exchange_rate
-                total_tech_builders = self.total_impact_hours * self.get_impact_hour_rate(self.target_raise) * self.hatch_exchange_rate
-                total_tech_minted = total_tech_backers + total_tech_builders
-                tech_builders_percentage = round(100 * total_tech_builders / total_tech_minted, 2)
-                
-                df_hatch_params = df_hatch_params.append({'Total wxDai Raised': self.target_raise,
-                                                          'Impact Hour Rate':impact_hour_rate,
-                                                          'Hatch tribute':self.target_raise * hatch_tribute,
-                                                          'Redeemable':round(self.get_rage_quit_percentage(self.target_raise), 4),
-                                                          'Total Supply held by Builders (%)':tech_builders_percentage,
-                                                          'label':'Target Goal'}, ignore_index=True)
-                df_hatch_params = df_hatch_params.sort_values(['Total wxDai Raised'])
-
-            df_target_raise = df_hatch_params.query("label == 'Target Goal'")
-            if len(df_target_raise) > 1:
-                df_hatch_params = df_hatch_params.drop(df_target_raise.first_valid_index())
-
-            # Add 'Max' label case there is already a row with max_raise value
-            df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == self.max_raise, 'label'] = "Max Goal"
-
-            # Add a new row with max_raise value case there is no row with its value
-            if "Max Goal" not in df_hatch_params['label']:
-                impact_hour_rate = R* (maximum_raise / (maximum_raise + m*H))
-                cultural_build_tribute = (H * impact_hour_rate)/maximum_raise
-                total_tech_backers = maximum_raise * self.hatch_exchange_rate
-                total_tech_builders = self.total_impact_hours * self.get_impact_hour_rate(maximum_raise) * self.hatch_exchange_rate
-                total_tech_minted = total_tech_backers + total_tech_builders
-                tech_builders_percentage = round(100 * total_tech_builders / total_tech_minted, 2)
-                df_hatch_params = df_hatch_params.append({'Total wxDai Raised': maximum_raise,
-                                                          'Impact Hour Rate':impact_hour_rate,
-                                                          'Hatch tribute':maximum_raise * hatch_tribute,
-                                                          'Redeemable':round(self.get_rage_quit_percentage(maximum_raise), 4),
-                                                          'Total Supply held by Builders (%)':tech_builders_percentage,
-                                                          'label':'Max Goal'}, ignore_index=True)
-                df_hatch_params = df_hatch_params.sort_values(['Total wxDai Raised'])
-
-            df_max_raise = df_hatch_params.query("label == 'Max Goal'")
-            if len(df_max_raise) > 1:
-                df_hatch_params = df_hatch_params.drop(df_max_raise.first_valid_index())
+                return df
+            
+            df_hatch_params = add_goal_to_table(df=df_hatch_params, amount_raised=minimum_raise, label='Minimum Goal')
+            df_hatch_params = add_goal_to_table(df=df_hatch_params, amount_raised=target_raise, label='Target Goal')
+            df_hatch_params = add_goal_to_table(df=df_hatch_params, amount_raised=maximum_raise, label='Maximum Goal')
 
             # Send to zero the IH rate, cultural build tribute and hatch tribue of
             # amount raises smaller than the min target
@@ -374,13 +336,13 @@ class TECH(param.Parameterized):
                                                                                         'Hatch tribute',
                                                                                         'Total Supply held by Builders (%)']] = 0
             df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] < minimum_raise, 'Redeemable'] = 1
+            df_hatch_params['Redeemable'] = df_hatch_params['Redeemable'].mul(100).round(2)
             df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] > maximum_raise, ['Impact Hour Rate',
                                                                                         'Hatch tribute',
                                                                                         'Redeemable',
                                                                                         'Total Supply held by Builders (%)']] = "Beyond Max Goal"
 
             # Format final table columns 
-            df_hatch_params['Redeemable'] = np.where(df_hatch_params['Redeemable'] != "Beyond Max Goal", df_hatch_params['Redeemable'].mul(100) , df_hatch_params['Redeemable'])
             df_hatch_params = df_hatch_params.rename(columns={'Total wxDai Raised': 'Total wxDai Raised (wxDai)',
                                                             'Impact Hour Rate': 'Impact Hour Rate (wxDai)',
                                                             'Hatch tribute': 'Non-redeemable (wxDai)',
