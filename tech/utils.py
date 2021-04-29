@@ -8,17 +8,17 @@ import pandas as pd
 from typing import List
 
 
-def pie_chart(data: pd.Series, 
-              colors: List[str] = None, 
-              title: str = None, 
-              plot_height: int = 250, 
+def pie_chart(data: pd.Series,
+              colors: List[str] = None,
+              title: str = None,
+              plot_height: int = 250,
               plot_width=None,
-              radius: int = 0.1, 
+              radius: int = 0.1,
               toolbar_location: str = 'right',
               x_range=None,
               show_legend=True
-             ) -> Figure:
-    data = data.reset_index(name='value').rename(columns={'index':'column'})
+              ) -> Figure:
+    data = data.reset_index(name='value').rename(columns={'index': 'column'})
     data['angle'] = data['value']/data['value'].sum() * 2*pi
     data['perc'] = data['value']/data['value'].sum() * 100
     if colors:
@@ -29,20 +29,19 @@ def pie_chart(data: pd.Series,
     p = figure(plot_height=plot_height,
                title=title, toolbar_location=toolbar_location,
                tools="pan,save,hover", tooltips="@column: @value (@perc%)",
-               x_range=x_range,
-              )
+               x_range=x_range)
 
     p.wedge(x=0, y=1, radius=radius,
-            start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
-            line_color="white", fill_color='color', legend_field='column', source=data)
+            start_angle=cumsum('angle', include_zero=True),
+            end_angle=cumsum('angle'), line_color="white", fill_color='color',
+            legend_field='column', source=data)
 
     p.axis.axis_label = None
     p.axis.visible = False
     p.grid.grid_line_color = None
     p.legend.visible = show_legend
-    
+
     if plot_width:
         p.width = plot_width
-        
-    return p
 
+    return p

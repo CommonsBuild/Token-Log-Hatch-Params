@@ -60,7 +60,7 @@ class TECH(param.Parameterized):
             self.impact_hour_rate_at_target_goal = 1
         elif self.impact_hour_rate_at_target_goal > self.maximum_impact_hour_rate:
             self.impact_hour_rate_at_target_goal = self.maximum_impact_hour_rate
-        
+
         return self.impact_hour_rate_at_target_goal
 
     def get_impact_hour_slope(self):
