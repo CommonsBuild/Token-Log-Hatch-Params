@@ -66,8 +66,8 @@ def load_app(config_file):
                 t.min_raise = int(queries['ihminr'])
             if 'ihmaxr' in queries:
                 t.max_raise = int(queries['ihmaxr'])
-            if 'hs' in queries:
-                t.impact_hour_slope = float(queries['hs'])
+            if 'tgihr' in queries:
+                t.impact_hour_rate_at_target_goal = float(queries['tgihr'])
             if 'maxihr' in queries:
                 t.maximum_impact_hour_rate = float(queries['maxihr'])
             if 'ihtr' in queries:
@@ -121,13 +121,13 @@ def load_app(config_file):
             t.param.trigger('action')  # Update dashboard
             dandelion.param.trigger('action')
             data_table = {'Parameters': ["Target raise (wxDai)", "Maximum raise (wxDai)", "Minimum raise (wxDai)",
-            "Impact hour slope (wxDai/IH)", "Maximum impact hour rate (wxDai/IH)",
+            "Impact Hour Rate at Target Goal (wxDai/IH)", "Maximum impact hour rate (wxDai/IH)",
             "Hatch oracle ratio (wxDai/CSTK)", "Hatch period (days)",
             "Hatch exchange rate (TECH/wxDai)", "Hatch tribute (%)", "Support required (%)",
             "Minimum accepted quorum (%)", "Vote duration (days)", "Vote buffer (hours)",
             "Rage quit (hours)", "Tollgate fee (wxDai)"],
             'Values': [int(t.target_raise), int(t.max_raise),
-            int(t.min_raise), t.impact_hour_slope,
+            int(t.min_raise), t.impact_hour_rate_at_target_goal,
             t.maximum_impact_hour_rate, t.hatch_oracle_ratio,
             t.hatch_period_days, t.hatch_exchange_rate, t.hatch_tribute_percentage,
             dandelion.support_required_percentage, dandelion.minimum_accepted_quorum_percentage, dandelion.vote_duration_days,
@@ -212,14 +212,14 @@ def load_app(config_file):
 - To prevent griefing attacks, it will cost {tollgate_fee_xdai} wxDai to make a proposal.
 
 
-Play with my parameters <a href="{url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}" target="_blank">here</a>.
+Play with my parameters <a href="{url}?ihminr={ihf_minimum_raise}&tgihr={impact_hour_rate_at_target_goal}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}" target="_blank">here</a>.
 
-To see the value of your individual Impact Hours, click <a href="{url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}" target="_blank">here to go to the Hatch Config Dashboard with these parameters</a> and explore the Impact Hour Results table.
+To see the value of your individual Impact Hours, click <a href="{url}?ihminr={ihf_minimum_raise}&tgihr={impact_hour_rate_at_target_goal}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}" target="_blank">here to go to the Hatch Config Dashboard with these parameters</a> and explore the Impact Hour Results table.
             """.format(tollgate_fee_xdai=dandelion.tollgate_fee_xdai,
             vote_duration_days=dandelion.vote_duration_days,
             rage_quit_hours=dandelion.rage_quit_hours,
             ihf_minimum_raise=int(t.min_raise),
-            hour_slope=t.impact_hour_slope,
+            impact_hour_rate_at_target_goal=t.impact_hour_rate_at_target_goal,
             maximum_impact_hour_rate=t.maximum_impact_hour_rate,
             ihf_target_raise=t.target_raise,
             ifh_maximum_raise=int(t.max_raise),
@@ -338,7 +338,7 @@ To see the value of your individual Impact Hours, click <a href="{url}?ihminr={i
         param_with_tooltip(t.param.max_raise, tooltip='max_raise'),
         param_with_tooltip(t.param.hatch_tribute_percentage, tooltip='hatch_tribute_percentage'),
         param_with_tooltip(t.param.maximum_impact_hour_rate, tooltip='maximum_impact_hour_rate', height=40),
-        param_with_tooltip(t.param.impact_hour_slope, tooltip='impact_hour_slope', height=40),
+        param_with_tooltip(t.param.impact_hour_rate_at_target_goal, tooltip='impact_hour_rate_at_target_goal', height=40),
         param_with_tooltip(t.param.hatch_oracle_ratio, tooltip='hatch_oracle_ratio'),
         param_with_tooltip(t.param.hatch_period_days, tooltip='hatch_period_days'),
         param_with_tooltip(t.param.hatch_exchange_rate, tooltip='hatch_exchange_rate'),

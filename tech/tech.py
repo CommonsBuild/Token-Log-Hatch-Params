@@ -23,7 +23,7 @@ class TECH(param.Parameterized):
     hatch_exchange_rate = param.Number(10000, label="Hatch Minting Rate (TECH/wxDai)")
     hatch_tribute_percentage = param.Number(5, step=1, label="Hatch Tribute (%)")
     maximum_impact_hour_rate = param.Number(0.01, bounds=(0, 1), label="Maximum Impact Hour Rate (wxDai/IH)")
-    impact_hour_rate_at_target_goal = param.Number(10, label="Impact Hour Rate at Target Goal (wxDai/IH)")
+    impact_hour_rate_at_target_goal = param.Number(10, step=1, label="Impact Hour Rate at Target Goal (wxDai/IH)")
     action = param.Action(lambda x: x.param.trigger('action'), label='Run simulation')
 
     def __init__(self, total_impact_hours, impact_hour_data, total_cstk_tokens,

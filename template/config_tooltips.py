@@ -31,9 +31,9 @@ tooltips = {
         "href": "https://forum.tecommons.org/t/impact-hour-rewards-deep-dive/90/10",
         "text": "The theoretical maximum rate that Impact Hour token holders would be able to receive.",
     },
-    "impact_hour_slope": {
-        "href": "https://forum.tecommons.org/t/impact-hour-rewards-deep-dive/90/10",
-        "text": "The parameter that effects the curvature of the Impact Hour graph, also the amount needed to be collected to reach 1/2 of the Max IH Rate divided by total IH.",
+    "impact_hour_rate_at_target_goal": {
+        "href": "https://forum.tecommons.org/t/impact-hour-rate-deep-dive/90/17",
+        "text": "The parameter that effects the curvature of the Impact Hour graph, also the impact hour rate the builders will receive at the target goal",
     },
     "support_required_percentage": {
         "href": "https://forum.tecommons.org/t/support-required-deep-dive/108",
