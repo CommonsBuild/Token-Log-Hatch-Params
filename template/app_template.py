@@ -43,9 +43,12 @@ def load_app(config_file):
     dandelion = DandelionVoting(17e6,config=config_file['dandelion_voting'])
 
     # Share Button
-    comments = pn.widgets.TextAreaInput(name='What is your DAO decision making strategy?',
+    comments_tech = pn.widgets.TextAreaInput(name='What is your Hatch strategy?',
                                         max_length=1024,
-                                        placeholder='Tell us why you configured the DAO this way')
+                                        placeholder='Tell us why you configured the Hatch this way')
+    comments_dandelion = pn.widgets.TextAreaInput(name='What is your Dandelion Voting strategy?',
+                                        max_length=1024,
+                                        placeholder='What intended effects will your Dandelion Voting Parameters have?')
     share_button = pn.widgets.Button(name='Share your results on GitHub!', button_type = 'primary')
     url = pn.widgets.TextInput(name='URL', value = '')
     share_button.js_on_click(args={'target': url}, code='window.open(target.value)')
@@ -172,7 +175,19 @@ def load_app(config_file):
 
             results_header = "<h1>Results</h1>"
 
-            string_comments = "<p>{comments}</p>".format(comments=comments.value)
+            string_comments_tech = """
+
+<h2>Hatch Comments</h2>
+
+<p>{comments}</p>
+            """.format(comments=comments_tech.value)
+          
+            string_comments_dandelion = """
+
+<h2>Dandelion Voting Comments</h2>
+
+<p>{comments}</p>
+            """.format(comments=comments_dandelion.value)
 
             string_data = """
 
@@ -191,8 +206,7 @@ def load_app(config_file):
 Play with my parameters <a href="{url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}" target="_blank">here</a>.
 
 To see the value of your individual Impact Hours, click <a href="{url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}" target="_blank">here to go to the Hatch Config Dashboard with these parameters</a> and explore the Impact Hour Results table.
-            """.format(comments=comments.value,
-            tollgate_fee_xdai=dandelion.tollgate_fee_xdai,
+            """.format(tollgate_fee_xdai=dandelion.tollgate_fee_xdai,
             vote_duration_days=dandelion.vote_duration_days,
             rage_quit_hours=dandelion.rage_quit_hours,
             ihf_minimum_raise=int(t.min_raise),
@@ -211,7 +225,12 @@ To see the value of your individual Impact Hours, click <a href="{url}?ihminr={i
             max_wxdai_ratio=int(2000*t.hatch_oracle_ratio),
             url=config_file['url'])
 
-            markdown_panel = pn.pane.Markdown(parameters_data + results_header + string_comments + string_data + output_data)
+            markdown_panel = pn.pane.Markdown(parameters_data +
+                                              string_comments_tech +
+                                              string_comments_dandelion +
+                                              results_header +
+                                              string_data +
+                                              output_data)
             body = urllib.parse.quote(markdown_panel.object, safe='')
             url.value = config_file['repo'] + "/issues/new?title=Vote%20for%20My%20Params&labels=" + config_file['label'] + "&body=" + body
             results_button.name = "Update your results"
@@ -332,7 +351,7 @@ To see the value of your individual Impact Hours, click <a href="{url}?ihminr={i
     tmpl.add_panel('W', dandelion.vote_pass_view)
     tmpl.add_panel('G', update_input_output_pane)
     tmpl.add_panel('R', update_result_score)
-    tmpl.add_panel('CO', comments)
+    tmpl.add_panel('CO', pn.Column(comments_tech, comments_dandelion))
     tmpl.add_panel('BU', pn.Column(results_button, share_button, url))
     tmpl.add_panel('OU', update_output_scenarios)
     tmpl.servable(title=config_file['title'])
