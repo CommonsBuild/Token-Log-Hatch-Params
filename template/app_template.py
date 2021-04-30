@@ -173,7 +173,7 @@ def load_app(config_file):
 {params_table}
             """.format(params_table=df.to_markdown(index=False, floatfmt=",.2f"))
 
-            results_header = "<h1>Results</h1>"
+            results_header = "<h1>Summary</h1>"
 
             string_comments_tech = """
 
@@ -191,17 +191,26 @@ def load_app(config_file):
 
             string_data = """
 
-- It costs {tollgate_fee_xdai} wxDai to make a proposal.
+ <h2>Hatch Details</h2>
 
-- Votes will be voted on for {vote_duration_days} days.
+- Trusted Seed members can send wxDai to the Hatch for {hatch_period_days} days.
 
-- TECH token holders will have {rage_quit_hours} Hours to exit the DAO if they don't like the result of a vote (as long as they don't vote yes).
+- The target goal will be {ihf_target_raise} wxDai, with a minimum of {ihf_minimum_raise} wxDai necessary for the TEC Hatch DAO to be launched and a cap at {ifh_maximum_raise} wxDai.
 
-- There will be a minimum of {vote_buffer_hours} hours between proposals so people can exit safely in weird edge case scenarios.
+- Backers will need to send in {single_tech_mint} wxDai to mint 1 TECH.
 
-- A proposal that passes can be executed {proposal_execution_hours} hours after it was proposed.
+- The membership ratio is set at {hatch_oracle_ratio} wxDai/CSTK, so a Trusted Seed member with the minimum CSTK Score of 1125 CSTK can send up to {max_wxdai_ratio}  wxDai to the Hatch.
 
-- A CSTK Token holder that has 2000 CSTK can send a max of {max_wxdai_ratio} wxDai to the Hatch.
+<h2>TEC Hatch DAO Voting Details</h2>
+
+- Proposals will be voted on for {vote_duration_days} days. They will require at least {support_required}% support, and a minimum of {minimum_accepted_quorum}% of the TECH Tokens will have to vote yes for a proposal to pass.
+
+- TECH token holders will have {rage_quit_hours} hours to exit the DAO if they don't like the result of a vote (as long as they didn't vote yes) before it is executed.
+
+- There will be a minimum of {vote_buffer_hours} hours between proposals so people always have time to exit safely if they voted yes on a previous vote, this means we can have at most {total_votes_per_year} votes per year.
+
+- To prevent griefing attacks, it will cost {tollgate_fee_xdai} wxDai to make a proposal.
+
 
 Play with my parameters <a href="{url}?ihminr={ihf_minimum_raise}&hs={hour_slope}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}" target="_blank">here</a>.
 
@@ -222,7 +231,9 @@ To see the value of your individual Impact Hours, click <a href="{url}?ihminr={i
             minimum_accepted_quorum=dandelion.minimum_accepted_quorum_percentage,
             vote_buffer_hours=dandelion.vote_buffer_hours,
             proposal_execution_hours=dandelion.vote_buffer_hours+dandelion.rage_quit_hours,
-            max_wxdai_ratio=int(2000*t.hatch_oracle_ratio),
+            max_wxdai_ratio=int(1225*t.hatch_oracle_ratio),
+            total_votes_per_year=int(24/dandelion.vote_buffer_hours*365),
+            single_tech_mint=float(1/t.hatch_exchange_rate),
             url=config_file['url'])
 
             markdown_panel = pn.pane.Markdown(parameters_data +
