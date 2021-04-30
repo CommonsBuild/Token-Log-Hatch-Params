@@ -15,10 +15,8 @@ hatch = {
             "bounds": (10000, 95000000),
             "step": 1000,
         },
-        "impact_hour_slope": {
-            "value": 1000,
-            "bounds": (0, 10000),
-            "step": 20,
+        "impact_hour_rate_at_target_goal": {
+            "value": 150,
         },
         "maximum_impact_hour_rate": {
             "value": 500,
@@ -107,10 +105,8 @@ test_hatch = {
             "bounds": (5, 1000),
             "step": 1,
         },
-        "impact_hour_slope": {
-            "value": 0.01,
-            "bounds": (0, 1),
-            "step": 0.01,
+        "impact_hour_rate_at_target_goal": {
+            "value": 0.005,
         },
         "maximum_impact_hour_rate": {
             "value": 0.01,
