@@ -22,9 +22,9 @@ class TECH(param.Parameterized):
     hatch_period_days = param.Integer(15, label="Hatch Period (days)")
     hatch_exchange_rate = param.Number(10000, label="Hatch Minting Rate (TECH/wxDai)")
     hatch_tribute_percentage = param.Number(5, step=1, label="Hatch Tribute (%)")
-    maximum_impact_hour_rate = param.Number(0.01, bounds=(0, 1), label="Maximum Impact Hour Rate (wxDai/IH)")
+    maximum_impact_hour_rate = param.Number(0.01, bounds=(0, 1), label="Impact Hour Rate at Infinity (wxDai/IH)")
     impact_hour_rate_at_target_goal = param.Number(10, step=1, label="Impact Hour Rate at Target Goal (wxDai/IH)")
-    action = param.Action(lambda x: x.param.trigger('action'), label='Run simulation')
+    action = param.Action(lambda x: x.param.trigger('action'), label='Run Simulation')
 
     def __init__(self, total_impact_hours, impact_hour_data, total_cstk_tokens,
                  config, **params):
@@ -429,10 +429,10 @@ class DandelionVoting(param.Parameterized):
     support_required_percentage = param.Number(60, bounds=(50, 90), step=1, label="Support Required (%)")
     minimum_accepted_quorum_percentage = param.Number(2, bounds=(1, 100), step=1, label="Minimum Quorum (%)")
     vote_duration_days = param.Integer(3, label="Vote Duration (days)")
-    vote_buffer_hours = param.Integer(8, label="Vote Proposal buffer (hours)")
-    rage_quit_hours = param.Integer(24, label="Rage quit (hours)")
-    tollgate_fee_xdai = param.Number(3, label="Tollgate fee (wxDai)")
-    action = param.Action(lambda x: x.param.trigger('action'), label='Run simulation')
+    vote_buffer_hours = param.Integer(8, label="Vote Proposal Buffer (hours)")
+    rage_quit_hours = param.Integer(24, label="Ragequit (hours)")
+    tollgate_fee_xdai = param.Number(3, label="Tollgate Fee (wxDai)")
+    action = param.Action(lambda x: x.param.trigger('action'), label='Run Simulation')
 
     def __init__(self, total_tokens, config, **params):
         super(DandelionVoting, self).__init__(**params, name="TEC Hatch DAO")
