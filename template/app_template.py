@@ -383,7 +383,7 @@ To see the value of your individual Impact Hours, click <a href="{url}?ihminr={i
             tooltip='target_raise'),
         param_with_tooltip(
             t.param.impact_hour_rate_at_target_goal,
-            tooltip='impact_hour_rate_at_target_goal', height=40),
+            tooltip='impact_hour_rate_at_target_goal'),
         param_with_tooltip(
             t.param.maximum_impact_hour_rate,
             tooltip='maximum_impact_hour_rate', height=40),
