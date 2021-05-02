@@ -327,7 +327,7 @@ class TECH(param.Parameterized):
                     df = df.append({
                         'Total wxDai Raised': amount_raised,
                         'Impact Hour Rate': round(impact_hour_rate, 2),
-                        'Hatch tribute': self.min_raise * hatch_tribute,
+                        'Hatch tribute': amount_raised * hatch_tribute,
                         'Redeemable': round(self.get_rage_quit_percentage(amount_raised), 2),
                         'Total Supply held by Builders (%)': tech_builders_percentage,
                         'label': label},

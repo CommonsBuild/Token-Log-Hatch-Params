@@ -269,7 +269,7 @@ To see the value of your individual Impact Hours, click <a href="{url}?ihminr={i
             support_required=dandelion.support_required_percentage,
             minimum_accepted_quorum=dandelion.minimum_accepted_quorum_percentage,
             vote_buffer_hours=dandelion.vote_buffer_hours,
-            max_wxdai_ratio=int(1225*t.hatch_oracle_ratio),
+            max_wxdai_ratio=int(1125*t.hatch_oracle_ratio),
             total_votes_per_year=int(24/dandelion.vote_buffer_hours*365),
             single_tech_mint=float(1/t.hatch_exchange_rate),
             url=config_file['url'])
