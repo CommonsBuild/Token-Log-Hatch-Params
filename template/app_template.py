@@ -130,21 +130,21 @@ def load_app(config_file):
             dandelion.param.trigger('action')
             data_table = {
                 'Parameters': [
-                    "Target raise (wxDai)",
-                    "Maximum raise (wxDai)",
-                    "Minimum raise (wxDai)",
+                    "Target Goal (wxDai)",
+                    "Maximum Goal (wxDai)",
+                    "Minimum Goal (wxDai)",
                     "Impact Hour Rate at Target Goal (wxDai/IH)",
-                    "Maximum impact hour rate (wxDai/IH)",
-                    "Hatch oracle ratio (wxDai/CSTK)",
-                    "Hatch period (days)",
-                    "Hatch exchange rate (TECH/wxDai)",
-                    "Hatch tribute (%)",
-                    "Support required (%)",
-                    "Minimum accepted quorum (%)",
-                    "Vote duration (days)",
-                    "Vote buffer (hours)",
-                    "Rage quit (hours)",
-                    "Tollgate fee (wxDai)"],
+                    "Impact Hour Rate at Infinity (wxDai/IH)",
+                    "Hatch Membership Ratio (wxDai/CSTK)",
+                    "Hatch Period (days)",
+                    "Hatch Minting rate (TECH/wxDai)",
+                    "Hatch Tribute (%)",
+                    "Support Required (%)",
+                    "Minimum Quorum (%)",
+                    "Vote Duration (days)",
+                    "Vote Buffer (hours)",
+                    "Ragequit (hours)",
+                    "Tollgate Fee (wxDai)"],
                 'Values': [
                     int(t.target_raise),
                     int(t.max_raise),
@@ -373,23 +373,23 @@ To see the value of your individual Impact Hours, click <a href="{url}?ihminr={i
     tmpl.add_variable('app_title', config_file['title'])
     tmpl.add_panel('B', pn.Column(
         param_with_tooltip(
-            t.param.target_raise,
-            tooltip='target_raise'),
-        param_with_tooltip(
             t.param.min_raise,
             tooltip='min_raise'),
         param_with_tooltip(
             t.param.max_raise,
             tooltip='max_raise'),
         param_with_tooltip(
-            t.param.hatch_tribute_percentage,
-            tooltip='hatch_tribute_percentage'),
+            t.param.target_raise,
+            tooltip='target_raise'),
+        param_with_tooltip(
+            t.param.impact_hour_rate_at_target_goal,
+            tooltip='impact_hour_rate_at_target_goal', height=40),
         param_with_tooltip(
             t.param.maximum_impact_hour_rate,
             tooltip='maximum_impact_hour_rate', height=40),
         param_with_tooltip(
-            t.param.impact_hour_rate_at_target_goal,
-            tooltip='impact_hour_rate_at_target_goal', height=40),
+            t.param.hatch_tribute_percentage,
+            tooltip='hatch_tribute_percentage'),
         param_with_tooltip(
             t.param.hatch_oracle_ratio,
             tooltip='hatch_oracle_ratio'),
@@ -414,17 +414,17 @@ To see the value of your individual Impact Hours, click <a href="{url}?ihminr={i
             dandelion.param.minimum_accepted_quorum_percentage,
             tooltip='minimum_accepted_quorum_percentage', height=40),
         param_with_tooltip(
-            dandelion.param.vote_duration_days,
-            tooltip='vote_duration_days'),
-        param_with_tooltip(
             dandelion.param.vote_buffer_hours,
             tooltip='vote_buffer_hours'),
         param_with_tooltip(
-            dandelion.param.rage_quit_hours,
-            tooltip='rage_quit_hours'),
-        param_with_tooltip(
             dandelion.param.tollgate_fee_xdai,
             tooltip='tollgate_fee_xdai'),
+        param_with_tooltip(
+            dandelion.param.vote_duration_days,
+            tooltip='vote_duration_days'),
+        param_with_tooltip(
+            dandelion.param.rage_quit_hours,
+            tooltip='rage_quit_hours'),
         run_dandelion
     ))
     tmpl.add_panel('W', dandelion.vote_pass_view)
