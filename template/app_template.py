@@ -143,7 +143,7 @@ def load_app(config_file):
                     "Minimum Quorum (%)",
                     "Vote Duration (days)",
                     "Vote Buffer (hours)",
-                    "Ragequit (hours)",
+                    "Ragequit Delay (hours)",
                     "Tollgate Fee (wxDai)"],
                 'Values': [
                     int(t.target_raise),
