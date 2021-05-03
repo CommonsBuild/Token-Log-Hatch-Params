@@ -468,7 +468,7 @@ class DandelionVoting(param.Parameterized):
         y_fill_quorum = [a for i, a in enumerate(x) if i < self.minimum_accepted_quorum()*len(x)]
         df_fill_q = pd.DataFrame(zip(x, y_fill_quorum))
         total_votes_plot = df_fill.hvplot.area(
-                title="Minimum Support and Quorum Accepted for Proposals to Pass",
+                title="Proposal Acceptance Criteria",
                 x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='green',
                 xlabel='Total Token Votes (%)', ylabel='Yes Token Votes (%)', label='Proposal Passes ✅')
         support_required_plot = df.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='red', label='Proposal Fails 🚫')
