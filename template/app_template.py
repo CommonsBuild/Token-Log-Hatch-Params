@@ -280,8 +280,6 @@ def load_app(config_file):
 
             string_data = """
 
-<h1>Summary</h1>
-
  <h2>Hatch Details</h2>
 
 - Trusted Seed members can send wxDai to the Hatch for {hatch_period_days} days.
@@ -336,6 +334,7 @@ If you have Impact Hours, you can see how much money you will get with my config
                                               simulated_outcomes +
                                               string_comments_tech +
                                               string_comments_dandelion +
+                                              results_header +
                                               string_data +
                                               parameters_data)
             body = urllib.parse.quote(markdown_panel.object, safe='')
