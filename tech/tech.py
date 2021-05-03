@@ -430,7 +430,7 @@ class DandelionVoting(param.Parameterized):
     minimum_accepted_quorum_percentage = param.Number(2, bounds=(1, 100), step=1, label="Minimum Quorum (%)")
     vote_duration_days = param.Integer(3, label="Vote Duration (days)")
     vote_buffer_hours = param.Integer(8, label="Vote Proposal Buffer (hours)")
-    rage_quit_hours = param.Integer(24, label="Ragequit (hours)")
+    rage_quit_hours = param.Integer(24, label="Ragequit Delay (hours)")
     tollgate_fee_xdai = param.Number(3, label="Tollgate Fee (wxDai)")
     action = param.Action(lambda x: x.param.trigger('action'), label='Run Simulation')
 
