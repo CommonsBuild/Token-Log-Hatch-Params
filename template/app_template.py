@@ -191,44 +191,96 @@ def load_app(config_file):
             scenarios = requests.post(url=HCTI_API_ENDPOINT,
                                       data=data_scenarios,
                                       auth=(HCTI_API_USER_ID, HCTI_API_KEY))
+            # Parameters string
+            url_fork = '{url}?ihminr={ihf_minimum_raise}&tgihr={impact_hour_rate_at_target_goal}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}"'.format(tollgate_fee_xdai=dandelion.tollgate_fee_xdai,
+            vote_duration_days=dandelion.vote_duration_days,
+            rage_quit_hours=dandelion.rage_quit_hours,
+            ihf_minimum_raise=int(t.min_raise),
+            impact_hour_rate_at_target_goal=t.impact_hour_rate_at_target_goal,
+            maximum_impact_hour_rate=t.maximum_impact_hour_rate,
+            ihf_target_raise=t.target_raise,
+            ifh_maximum_raise=int(t.max_raise),
+            hatch_oracle_ratio=t.hatch_oracle_ratio,
+            hatch_period_days=t.hatch_period_days,
+            hatch_exchange_rate=t.hatch_exchange_rate,
+            hatch_tribute_percentage=t.hatch_tribute_percentage,
+            support_required=dandelion.support_required_percentage,
+            minimum_accepted_quorum=dandelion.minimum_accepted_quorum_percentage,
+            vote_buffer_hours=dandelion.vote_buffer_hours,
+            max_wxdai_ratio=int(1125*t.hatch_oracle_ratio),
+            total_votes_per_year=int(24/dandelion.vote_buffer_hours*365),
+            single_tech_mint=float(1/t.hatch_exchange_rate),
+            url=config_file['url'])
 
-            output_data = """
+            # Title
+            title = '## Check out my proposal for the Hatch! <a href="' + url_fork + ' target="_blank">Click here to preload the Hatch Configuration Dashboard with my parameters if you think you can do better</a>.'
+            meme_image = """
 
-<h1>Output Charts</h1>
+<a href="https://imgflip.com/i/57zyrl"><img src="https://i.imgflip.com/57zyrl.jpg" title="made at imgflip.com"/></a>
+"""
+            graphical_summary = """
+
+<h1>Graphical Summary</h1>
 
 ![image]({image_charts})
+""".format(image_charts=charts.json()['url'],)
 
-<h1>Output Scenarios</h1>
+
+            graph_descriptions = """
+
+<h2>Graph Descriptions</h2>
+
+- Top Left, <a href="https://github.com/CommonsSwarm/impact-hours-app" target="_blank">Impact Hour Rate vs wxDai Collected in Hatch</a>: The Impact Hour Rate determines Minting Rate for Builders, making 1 Impact Hour equivalent to sending this amount of wxDai to the Hatch, determined by my Hatch Parameters.
+- Top Right, Proposal Acceptance Criteria: Shows the range of possibilities for DAO vote outcomes and whether they succeed or not given my chosen <a href="https://forum.tecommons.org/t/support-required-deep-dive/108" target="_blank">Support Required</a> & <a href="https://forum.tecommons.org/t/minimum-quorum-deep-dive/133" target="_blank">Minimum Quorum</a>.
+- Bottom Left, Backer's Rage Quit % vs wxDai Collected in Hatch: The Backer's Rage Quit % is the percent of wxDai that the Backers sent to the Hatch that would be returned if they decide to Ragequit.  
+- Bottom Right, Redeem-ability of the DAO's wxDai: Who has rights to the wxDai held by the DAO. All of the DAO's funds are collectively governed but some of it can be withdrawn if token holders Ragequit. The pie charts show how this shakes out for my parameter choices at the different goals.
+"""
+            simulated_outcomes = """
+
+<h1>Simulated Outcomes</h1>
 
 ![image]({image_scenarios})
-            """.format(image_charts=charts.json()['url'],
-                       image_scenarios=scenarios.json()['url'])
+            """.format(image_scenarios=scenarios.json()['url'])
 
             parameters_data = """
 
-<h1>Parameters</h1>
+<h1>My Hatch Configuration</h1>
 
-{params_table}
+{params_table}</a>
             """.format(params_table=df.to_markdown(index=False,
                                                    floatfmt=",.2f"))
 
             results_header = "<h1>Summary</h1>"
 
+            default_comment = "<p>To use the defaults... Technocracy for the win</p>"
+            if not comments_tech.value: 
+                print(comments_tech.value)
+                comment_tech = default_comment
+            else:
+                comment_tech = comments_tech.value
+            
+            if not comments_dandelion.value: 
+                comment_dandelion = default_comment
+            else:
+                comment_dandelion = comments_dandelion.value
+
             string_comments_tech = """
 
-<h2>Hatch Comments</h2>
+<h2>Hatch Strategy</h2>
 
 <p>{comments}</p>
-            """.format(comments=comments_tech.value)
+            """.format(comments=comment_tech)
 
             string_comments_dandelion = """
 
-<h2>Dandelion Voting Comments</h2>
+<h2>DAO Strategy</h2>
 
 <p>{comments}</p>
-            """.format(comments=comments_dandelion.value)
+            """.format(comments=comment_dandelion)
 
             string_data = """
+
+<h1>Summary</h1>
 
  <h2>Hatch Details</h2>
 
@@ -250,10 +302,7 @@ def load_app(config_file):
 
 - To prevent griefing attacks, it will cost {tollgate_fee_xdai} wxDai to make a proposal.
 
-
-Play with my parameters <a href="{url}?ihminr={ihf_minimum_raise}&tgihr={impact_hour_rate_at_target_goal}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}" target="_blank">here</a>.
-
-To see the value of your individual Impact Hours, click <a href="{url}?ihminr={ihf_minimum_raise}&tgihr={impact_hour_rate_at_target_goal}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}" target="_blank">here to go to the Hatch Config Dashboard with these parameters</a> and explore the Impact Hour Results table.
+If you have Impact Hours, you can see how much money you will get with my configuration <a href="{url}?ihminr={ihf_minimum_raise}&tgihr={impact_hour_rate_at_target_goal}&maxihr={maximum_impact_hour_rate}&ihtr={ihf_target_raise}&ihmaxr={ifh_maximum_raise}&hor={hatch_oracle_ratio}&hpd={hatch_period_days}&her={hatch_exchange_rate}&ht={hatch_tribute_percentage}&sr={support_required}&maq={minimum_accepted_quorum}&vdd={vote_duration_days}&vbh={vote_buffer_hours}&rqh={rage_quit_hours}&tfx={tollgate_fee_xdai}" target="_blank">here, just check out the Impact Hour Results table.
             """.format(tollgate_fee_xdai=dandelion.tollgate_fee_xdai,
             vote_duration_days=dandelion.vote_duration_days,
             rage_quit_hours=dandelion.rage_quit_hours,
@@ -279,7 +328,16 @@ To see the value of your individual Impact Hours, click <a href="{url}?ihminr={i
                                               string_comments_dandelion +
                                               results_header +
                                               string_data +
-                                              output_data)
+                                              graphical_summary)
+            markdown_panel = pn.pane.Markdown(title +
+                                              meme_image +
+                                              graphical_summary +
+                                              graph_descriptions +
+                                              simulated_outcomes +
+                                              string_comments_tech +
+                                              string_comments_dandelion +
+                                              string_data +
+                                              parameters_data)
             body = urllib.parse.quote(markdown_panel.object, safe='')
             url.value = (config_file['repo'] +
                          "/issues/new?title=Vote%20for%20My%20Params&labels=" +
