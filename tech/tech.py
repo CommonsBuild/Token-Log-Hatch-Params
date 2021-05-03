@@ -105,7 +105,7 @@ class TECH(param.Parameterized):
 
             y = [R * (x / (x + m * H)) for x in x]
             df = pd.DataFrame([x, y]).T
-            df.columns = ['Total wxDai Raised', 'Impact Hour Rate']
+            df.columns = ['Total wxDai Collected', 'Impact Hour Rate']
             return df
 
         else:
@@ -203,22 +203,22 @@ class TECH(param.Parameterized):
         self.bounds_target_raise()
         # Limits the target raise bounds when ploting the charts
         df = self.impact_hours_formula(self.config_bounds['min_max_raise']['bounds'][0], self.max_raise)
-        df_fill_minimum = df[df['Total wxDai Raised'] <= self.min_raise]
+        df_fill_minimum = df[df['Total wxDai Collected'] <= self.min_raise]
 
         try:
-            target_impact_hour_rate = df[df['Total wxDai Raised'] >= self.target_raise].iloc[0]['Impact Hour Rate']
+            target_impact_hour_rate = df[df['Total wxDai Collected'] >= self.target_raise].iloc[0]['Impact Hour Rate']
         except:
             target_impact_hour_rate = 0
 
         impact_hours_plot = df.hvplot.area(title='Impact Hour Rate',
-                                           x='Total wxDai Raised',
+                                           x='Total wxDai Collected',
                                            xformatter='%.0f',
                                            yformatter='%.0f',
                                            hover=True,
                                            xlim=self.config_bounds['min_max_raise']['xlim'],
                                            label='Hatch happens ✅'
                                            ).opts(axiswise=True)
-        minimum_raise_plot = df_fill_minimum.hvplot.area(x='Total wxDai Raised',
+        minimum_raise_plot = df_fill_minimum.hvplot.area(x='Total wxDai Collected',
                                                          xformatter='%.0f',
                                                          yformatter='%.0f',
                                                          color='red',
@@ -251,20 +251,20 @@ class TECH(param.Parameterized):
         # Limits the target raise bounds when ploting the charts
         self.bounds_target_raise()
         df_hatch_params = self.impact_hours_formula(self.config_bounds['min_max_raise']['bounds'][0], self.max_raise)
-        df_hatch_params['Cultural Build Tribute'] = (self.total_impact_hours * df_hatch_params['Impact Hour Rate'])/df_hatch_params['Total wxDai Raised']
+        df_hatch_params['Cultural Build Tribute'] = (self.total_impact_hours * df_hatch_params['Impact Hour Rate'])/df_hatch_params['Total wxDai Collected']
         df_hatch_params['Hatch tribute'] = self.hatch_tribute_percentage / 100
-        df_hatch_params["Backer's RageQuit (%)"] = df_hatch_params['Total wxDai Raised'].apply(self.get_rage_quit_percentage).round(4)
+        df_hatch_params["Backer's RageQuit (%)"] = df_hatch_params['Total wxDai Collected'].apply(self.get_rage_quit_percentage).round(4)
         df_hatch_params['label'] = ""
 
         # Add label case there is already a row with raise value
-        df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == int(self.min_raise), 'label'] = "Min Goal"
-        df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == self.target_raise, 'label'] = "Target Goal"
-        df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] == int(self.max_raise), 'label'] = "Max Goal"
-        df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] < int(self.min_raise), ['Impact Hour Rate',
+        df_hatch_params.loc[df_hatch_params['Total wxDai Collected'] == int(self.min_raise), 'label'] = "Min Goal"
+        df_hatch_params.loc[df_hatch_params['Total wxDai Collected'] == self.target_raise, 'label'] = "Target Goal"
+        df_hatch_params.loc[df_hatch_params['Total wxDai Collected'] == int(self.max_raise), 'label'] = "Max Goal"
+        df_hatch_params.loc[df_hatch_params['Total wxDai Collected'] < int(self.min_raise), ['Impact Hour Rate',
                                                                                           'Cultural Build Tribute',
                                                                                           'Hatch tribute']] = 0
-        df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] < int(self.min_raise), "Backer's RageQuit (%)"] = 1
-        df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] > int(self.max_raise), ['Impact Hour Rate',
+        df_hatch_params.loc[df_hatch_params['Total wxDai Collected'] < int(self.min_raise), "Backer's RageQuit (%)"] = 1
+        df_hatch_params.loc[df_hatch_params['Total wxDai Collected'] > int(self.max_raise), ['Impact Hour Rate',
                                                                                           'Cultural Build Tribute',
                                                                                           'Hatch tribute',
                                                                                           "Backer's RageQuit (%)"]] = np.nan
@@ -275,7 +275,7 @@ class TECH(param.Parameterized):
         with pd.option_context('mode.chained_assignment', None):
             df_hatch_params_to_plot["Backer's RageQuit (%)"] = df_hatch_params_to_plot["Backer's RageQuit (%)"].mul(100)
         redeemable_plot = df_hatch_params_to_plot.hvplot.area(title="Backer's RageQuit (%)",
-                                                              x='Total wxDai Raised',
+                                                              x='Total wxDai Collected',
                                                               y="Backer's RageQuit (%)",
                                                               xformatter='%.0f',
                                                               yformatter='%.0f',
@@ -284,7 +284,7 @@ class TECH(param.Parameterized):
                                                               xlim=self.config_bounds['min_max_raise']['xlim']
                                                               ).opts(axiswise=True)
         try:
-            redeemable_target = df_hatch_params_to_plot[df_hatch_params_to_plot['Total wxDai Raised'] >= self.target_raise].iloc[0]["Backer's RageQuit (%)"]
+            redeemable_target = df_hatch_params_to_plot[df_hatch_params_to_plot['Total wxDai Collected'] >= self.target_raise].iloc[0]["Backer's RageQuit (%)"]
         except:
             redeemable_target = 0
 
@@ -298,11 +298,11 @@ class TECH(param.Parameterized):
 
             df_hatch_params = self.impact_hours_formula(raise_scenarios=self.output_scenario_raise)
             df_hatch_params['Impact Hour Rate'] = df_hatch_params['Impact Hour Rate'].round(2)
-            df_hatch_params['Cultural Build Tribute'] = (H * df_hatch_params['Impact Hour Rate'])/df_hatch_params['Total wxDai Raised']
-            df_hatch_params['Hatch tribute'] = df_hatch_params['Total wxDai Raised'].mul(hatch_tribute)
-            df_hatch_params['Redeemable'] = df_hatch_params['Total wxDai Raised'].apply(self.get_rage_quit_percentage).round(4)
+            df_hatch_params['Cultural Build Tribute'] = (H * df_hatch_params['Impact Hour Rate'])/df_hatch_params['Total wxDai Collected']
+            df_hatch_params['Hatch tribute'] = df_hatch_params['Total wxDai Collected'].mul(hatch_tribute)
+            df_hatch_params['Redeemable'] = df_hatch_params['Total wxDai Collected'].apply(self.get_rage_quit_percentage).round(4)
             df_hatch_params['Total TECH builders'] = df_hatch_params['Impact Hour Rate'] * self.total_impact_hours * self.hatch_exchange_rate
-            df_hatch_params['Total TECH backers'] = df_hatch_params['Total wxDai Raised'] * self.hatch_exchange_rate
+            df_hatch_params['Total TECH backers'] = df_hatch_params['Total wxDai Collected'] * self.hatch_exchange_rate
             df_hatch_params['Total Supply held by Builders (%)'] = (100 * df_hatch_params['Total TECH builders'] / (df_hatch_params['Total TECH builders'] + df_hatch_params['Total TECH backers'])).round(2)
 
             df_hatch_params['label'] = ""
@@ -313,7 +313,7 @@ class TECH(param.Parameterized):
 
             def add_goal_to_table(df, amount_raised, label):
                 # Add label case there is already a row with amount_raised value
-                df.loc[df['Total wxDai Raised'] == amount_raised, 'label'] = label
+                df.loc[df['Total wxDai Collected'] == amount_raised, 'label'] = label
 
                 # Add a new row with amount_raised value case there is no row with its value
                 if label not in df['label']:
@@ -325,14 +325,14 @@ class TECH(param.Parameterized):
                     tech_builders_percentage = round(100 * total_tech_builders / total_tech_minted, 2)
 
                     df = df.append({
-                        'Total wxDai Raised': amount_raised,
+                        'Total wxDai Collected': amount_raised,
                         'Impact Hour Rate': round(impact_hour_rate, 2),
                         'Hatch tribute': amount_raised * hatch_tribute,
                         'Redeemable': round(self.get_rage_quit_percentage(amount_raised), 2),
                         'Total Supply held by Builders (%)': tech_builders_percentage,
                         'label': label},
                                    ignore_index=True)
-                    df = df.sort_values(['Total wxDai Raised'])
+                    df = df.sort_values(['Total wxDai Collected'])
 
                 df_min_raise = df.query("label == '{}'".format(label))
                 if len(df_min_raise) > 1:
@@ -346,23 +346,23 @@ class TECH(param.Parameterized):
 
             # Send to zero the IH rate, cultural build tribute and hatch tribue of
             # amount raises smaller than the min target
-            df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] < minimum_raise, ['Impact Hour Rate',
+            df_hatch_params.loc[df_hatch_params['Total wxDai Collected'] < minimum_raise, ['Impact Hour Rate',
                                                                                         'Hatch tribute',
                                                                                         'Total Supply held by Builders (%)']] = 0
-            df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] < minimum_raise, 'Redeemable'] = 1
+            df_hatch_params.loc[df_hatch_params['Total wxDai Collected'] < minimum_raise, 'Redeemable'] = 1
             df_hatch_params['Redeemable'] = df_hatch_params['Redeemable'].mul(100).round(2)
-            df_hatch_params.loc[df_hatch_params['Total wxDai Raised'] > maximum_raise, ['Impact Hour Rate',
+            df_hatch_params.loc[df_hatch_params['Total wxDai Collected'] > maximum_raise, ['Impact Hour Rate',
                                                                                         'Hatch tribute',
                                                                                         'Redeemable',
                                                                                         'Total Supply held by Builders (%)']] = np.nan
 
             # Format final table columns
-            df_hatch_params = df_hatch_params.rename(columns={'Total wxDai Raised': 'Total wxDai Raised (wxDai)',
+            df_hatch_params = df_hatch_params.rename(columns={'Total wxDai Collected': 'Total wxDai Collected (wxDai)',
                                                               'Impact Hour Rate': 'Impact Hour Rate (wxDai)',
                                                               'Hatch tribute': 'Non-redeemable (wxDai)',
                                                               'Redeemable': "Backer's RageQuit (%)",
                                                               'label': 'Label'})
-            df_hatch_params = df_hatch_params.filter(items=['Total wxDai Raised (wxDai)',
+            df_hatch_params = df_hatch_params.filter(items=['Total wxDai Collected (wxDai)',
                                                             'Impact Hour Rate (wxDai)',
                                                             'Total Supply held by Builders (%)',
                                                             'Non-redeemable (wxDai)',
@@ -387,15 +387,15 @@ class TECH(param.Parameterized):
         chart_data = funding_pools
         p1 = pie_chart(data=pd.Series(chart_data.loc['min_raise', :]),
                        radius=0.65,
-                       title="Min Raise", toolbar_location=None, plot_width=300,
+                       title="Min Goal", toolbar_location=None, plot_width=300,
                        show_legend=False, colors=colors)
         p2 = pie_chart(data=pd.Series(chart_data.loc['target_raise', :]),
                        radius=0.65,
-                       title="Target Raise", toolbar_location=None, plot_width=300,
+                       title="Target Goal", toolbar_location=None, plot_width=300,
                        show_legend=False, colors=colors)
         p3 = pie_chart(data=pd.Series(chart_data.loc['max_raise', :]),
                        radius=0.65,
-                       title="Max Raise", colors=colors)
+                       title="Max Goal", colors=colors)
 
         return pn.Row(p1, p2, p3)
 
@@ -468,7 +468,7 @@ class DandelionVoting(param.Parameterized):
         y_fill_quorum = [a for i, a in enumerate(x) if i < self.minimum_accepted_quorum()*len(x)]
         df_fill_q = pd.DataFrame(zip(x, y_fill_quorum))
         total_votes_plot = df_fill.hvplot.area(
-                title="Minimum Support and Quorum Accepted for Proposals to Pass",
+                title="Proposal Acceptance Criteria",
                 x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='green',
                 xlabel='Total Token Votes (%)', ylabel='Yes Token Votes (%)', label='Proposal Passes ✅')
         support_required_plot = df.hvplot.area(x='0', y='1', xformatter='%.0f', yformatter='%.0f', color='red', label='Proposal Fails 🚫')

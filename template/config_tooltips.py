@@ -37,7 +37,7 @@ tooltips = {
     },
     "support_required_percentage": {
         "href": "https://forum.tecommons.org/t/support-required-deep-dive/108",
-        "text": "Percentage of tokens used to vote that need to vote "yes" for any proposal to pass and be executed.",
+        "text": "Percentage of tokens used to vote that need to vote 'yes' for any proposal to pass and be executed.",
     },
     "minimum_accepted_quorum_percentage": {
         "href": "https://forum.tecommons.org/t/minimum-quorum-required/133",
