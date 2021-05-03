@@ -304,7 +304,7 @@ def load_app(config_file):
             """.format(comments=comment_dandelion)
 
             string_data = """
- ## Hatch Details
+  <h2>Hatch Details</h2>
 
 - Trusted Seed members can send wxDai to the Hatch for {hatch_period_days} days.
 
