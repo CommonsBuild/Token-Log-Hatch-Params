@@ -17,6 +17,7 @@ hatch = {
         },
         "impact_hour_rate_at_target_goal": {
             "value": 150,
+            "ylim": (0, 200),
         },
         "maximum_impact_hour_rate": {
             "value": 500,
@@ -107,6 +108,7 @@ test_hatch = {
         },
         "impact_hour_rate_at_target_goal": {
             "value": 0.005,
+            "ylim": (0, 10),
         },
         "maximum_impact_hour_rate": {
             "value": 0.01,

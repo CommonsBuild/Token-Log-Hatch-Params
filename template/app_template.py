@@ -52,7 +52,7 @@ def load_app(config_file):
                                         name='What is your Dandelion Voting strategy?',
                                         max_length=1024,
                                         placeholder='What intended effects will your Dandelion Voting Parameters have?')
-    share_button = pn.widgets.Button(name='Share your results on GitHub!',
+    share_button = pn.widgets.Button(name='Submit Hatch Config Proposal',
                                      button_type='primary')
     url = pn.widgets.TextInput(name='URL', value='')
     share_button.js_on_click(args={'target': url},
@@ -216,43 +216,69 @@ def load_app(config_file):
             title = '## Check out my proposal for the Hatch! <a href="' + url_fork + ' target="_blank">Click here to preload the Hatch Configuration Dashboard with my parameters if you think you can do better</a>.'
             meme_image = """
 
-<a href="https://imgflip.com/i/57zyrl"><img src="https://i.imgflip.com/57zyrl.jpg" title="made at imgflip.com"/></a>
+![image](https://i.imgflip.com/57zyrl.jpg)
 """
             graphical_summary = """
-
-<h1>Graphical Summary</h1>
+# Graphical Summary
 
 ![image]({image_charts})
 """.format(image_charts=charts.json()['url'],)
 
 
             graph_descriptions = """
+## Graph Descriptions
 
-<h2>Graph Descriptions</h2>
-
-- Top Left, <a href="https://github.com/CommonsSwarm/impact-hours-app" target="_blank">Impact Hour Rate vs wxDai Collected in Hatch</a>: The Impact Hour Rate determines Minting Rate for Builders, making 1 Impact Hour equivalent to sending this amount of wxDai to the Hatch, determined by my Hatch Parameters.
-- Top Right, Proposal Acceptance Criteria: Shows the range of possibilities for DAO vote outcomes and whether they succeed or not given my chosen <a href="https://forum.tecommons.org/t/support-required-deep-dive/108" target="_blank">Support Required</a> & <a href="https://forum.tecommons.org/t/minimum-quorum-deep-dive/133" target="_blank">Minimum Quorum</a>.
-- Bottom Left, Backer's Rage Quit % vs wxDai Collected in Hatch: The Backer's Rage Quit % is the percent of wxDai that the Backers sent to the Hatch that would be returned if they decide to Ragequit.  
-- Bottom Right, Redeem-ability of the DAO's wxDai: Who has rights to the wxDai held by the DAO. All of the DAO's funds are collectively governed but some of it can be withdrawn if token holders Ragequit. The pie charts show how this shakes out for my parameter choices at the different goals.
+- Top Left, **Impact Hour Rate vs wxDai Collected**: The Impact Hour Rate determines the Minting Rate for Builders, making 1 Impact Hour equivalent to sending this amount of wxDai to the Hatch.
+- Top Right, **Proposal Acceptance Criteria**: Shows the range of possibilities for DAO vote outcomes and whether they succeed or not given the Support Required & Minimum Quorum I chose.
+- Bottom Left, **Backer's Rage Quit % vs wxDai Collected**: The Backer's Rage Quit % is the percent of wxDai that the Backers sent to the Hatch that would be returned if they decide to Ragequit.
+- Bottom Right, **Redeem-ability of the DAO's wxDai**: Shows who has rights to the wxDai held by the DAO. All of the DAO's funds are collectively governed but some can be withdrawn if token holders Ragequit. This shows the results of my parameter choices at the 3 different goals.
 """
             simulated_outcomes = """
-
-<h1>Simulated Outcomes</h1>
+# Simulated Outcomes
 
 ![image]({image_scenarios})
             """.format(image_scenarios=scenarios.json()['url'])
 
             parameters_data = """
+# My Hatch Configuration
 
-<h1>My Hatch Configuration</h1>
+| Parameter|Value|
+|:-|-:|
+|Target Goal (wxDai)|{target_goal:,}|
+|Maximum Goal (wxDai)|{max_goal:,}|
+|Minimum Goal (wxDai)|{min_goal:,}|
+|Impact Hour Rate at Target Goal (wxDai/IH)|{ih_rate_tg_goal:,}|
+|Impact Hour Rate at Infinity (wxDai/IH)|{ih_rate_infinity:,}|
+|Hatch Membership Ratio (wxDai/CSTK)|{hatch_membership_ratio:,}|
+|Hatch Period (days)|{hatch_period_days}|
+|Hatch Minting rate (TECH/wxDai)|{hatch_minting_rate:,}|
+|Hatch Tribute (%)|{hatch_tribute}|
+|Support Required (%)|{support_required}|
+|Minimum Quorum (%)|{minimum_quorum}|
+|Vote Duration (days)|{vote_duration_days}|
+|Vote Buffer (hours)|{vote_buffer_hours}|
+|Ragequit (hours)|{ragequit}|
+|Tollgate Fee (wxDai)|{tollgate_fee:,}|</a>""".format(target_goal=t.target_raise,
+           max_goal=t.max_raise,
+           min_goal=t.min_raise,
+           ih_rate_tg_goal=t.impact_hour_rate_at_target_goal,
+           ih_rate_infinity=t.maximum_impact_hour_rate,
+           hatch_membership_ratio=t.hatch_oracle_ratio,
+           hatch_period_days=t.hatch_period_days,
+           hatch_minting_rate=t.hatch_exchange_rate,
+           hatch_tribute=t.hatch_tribute_percentage,
+           support_required=dandelion.support_required_percentage,
+           minimum_quorum=dandelion.minimum_accepted_quorum_percentage,
+           vote_duration_days=dandelion.vote_duration_days,
+           vote_buffer_hours=dandelion.vote_buffer_hours,
+           ragequit=dandelion.rage_quit_hours,
+           tollgate_fee=dandelion.tollgate_fee)
 
-{params_table}</a>
-            """.format(params_table=df.to_markdown(index=False,
-                                                   floatfmt=",.2f"))
+            results_header = """
+# Summary
+"""
 
-            results_header = "<h1>Summary</h1>"
-
-            default_comment = "<p>To use the defaults... Technocracy for the win</p>"
+            default_comment = "To use the defaults... Technocracy for the win"
             if not comments_tech.value: 
                 print(comments_tech.value)
                 comment_tech = default_comment
@@ -265,22 +291,19 @@ def load_app(config_file):
                 comment_dandelion = comments_dandelion.value
 
             string_comments_tech = """
-
-<h2>Hatch Strategy</h2>
+## Hatch Strategy
 
 <p>{comments}</p>
             """.format(comments=comment_tech)
 
             string_comments_dandelion = """
-
-<h2>DAO Strategy</h2>
+## DAO Strategy
 
 <p>{comments}</p>
             """.format(comments=comment_dandelion)
 
             string_data = """
-
- <h2>Hatch Details</h2>
+  <h2>Hatch Details</h2>
 
 - Trusted Seed members can send wxDai to the Hatch for {hatch_period_days} days.
 
