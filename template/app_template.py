@@ -272,8 +272,7 @@ def load_app(config_file):
            vote_duration_days=dandelion.vote_duration_days,
            vote_buffer_hours=dandelion.vote_buffer_hours,
            ragequit=dandelion.rage_quit_hours,
-           tollgate_fee=dandelion.rage_quit_hours)
-                                        #  floatfmt=",.2f"))
+           tollgate_fee=dandelion.tollgate_fee)
 
             results_header = """
 # Summary
