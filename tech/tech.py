@@ -216,6 +216,7 @@ class TECH(param.Parameterized):
                                            yformatter='%.0f',
                                            hover=True,
                                            xlim=self.config_bounds['min_max_raise']['xlim'],
+                                           ylim=self.config_bounds['impact_hour_rate_at_target_goal']['ylim'],
                                            label='Hatch happens ✅'
                                            ).opts(axiswise=True)
         minimum_raise_plot = df_fill_minimum.hvplot.area(x='Total wxDai Collected',
@@ -223,6 +224,7 @@ class TECH(param.Parameterized):
                                                          yformatter='%.0f',
                                                          color='red',
                                                          xlim=self.config_bounds['min_max_raise']['xlim'],
+                                                         ylim=self.config_bounds['impact_hour_rate_at_target_goal']['ylim'],
                                                          label='Hatch fails 🚫'
                                                          ).opts(axiswise=True)
 

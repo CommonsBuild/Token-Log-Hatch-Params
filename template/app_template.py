@@ -52,7 +52,7 @@ def load_app(config_file):
                                         name='What is your Dandelion Voting strategy?',
                                         max_length=1024,
                                         placeholder='What intended effects will your Dandelion Voting Parameters have?')
-    share_button = pn.widgets.Button(name='Share your results on GitHub!',
+    share_button = pn.widgets.Button(name='Submit Hatch Config Proposal',
                                      button_type='primary')
     url = pn.widgets.TextInput(name='URL', value='')
     share_button.js_on_click(args={'target': url},
@@ -272,8 +272,7 @@ def load_app(config_file):
            vote_duration_days=dandelion.vote_duration_days,
            vote_buffer_hours=dandelion.vote_buffer_hours,
            ragequit=dandelion.rage_quit_hours,
-           tollgate_fee=dandelion.rage_quit_hours)
-                                        #  floatfmt=",.2f"))
+           tollgate_fee=dandelion.tollgate_fee_xdai)
 
             results_header = """
 # Summary
