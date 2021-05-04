@@ -52,7 +52,7 @@ def load_app(config_file):
                                         name='What is your Dandelion Voting strategy?',
                                         max_length=1024,
                                         placeholder='What intended effects will your Dandelion Voting Parameters have?')
-    share_button = pn.widgets.Button(name='Share your results on GitHub!',
+    share_button = pn.widgets.Button(name='Submit Hatch Config Proposal',
                                      button_type='primary')
     url = pn.widgets.TextInput(name='URL', value='')
     share_button.js_on_click(args={'target': url},
