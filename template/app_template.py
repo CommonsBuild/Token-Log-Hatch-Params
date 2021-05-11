@@ -43,6 +43,8 @@ def load_app(config_file):
     # DandelionVoting
     dandelion = DandelionVoting(17e6, config=config_file['dandelion_voting'])
 
+    updating_results = pn.widgets.Button(name="Updating", disabled=True)
+
     # Share Button
     comments_tech = pn.widgets.TextAreaInput(
                                         name='What is your Hatch Strategy?',
@@ -53,7 +55,8 @@ def load_app(config_file):
                                         max_length=1024,
                                         placeholder='What intended effects will your Dandelion Voting Parameters have?')
     share_button = pn.widgets.Button(name='Submit Hatch Config Proposal',
-                                     button_type='primary')
+                                     button_type='primary',
+                                     disabled=True)
     url = pn.widgets.TextInput(name='URL', value='')
     share_button.js_on_click(args={'target': url},
                              code='window.open(target.value)')
@@ -104,7 +107,7 @@ def load_app(config_file):
             t.param.trigger('action')  # Update dashboard
             dandelion.param.trigger('action')
 
-    @pn.depends(results_button)
+    @pn.depends(updating_results)
     def update_input_output_pane(results_button_on):
         if results_button_on:
             input_output_pane = pn.pane.GIF('media/inputs_outputs.gif')
@@ -113,7 +116,7 @@ def load_app(config_file):
 
         return input_output_pane
 
-    @pn.depends(results_button)
+    @pn.depends(updating_results)
     def update_output_scenarios(results_button_on):
         if results_button_on:
             output_scenarios = pn.panel(t.output_scenarios_view()
@@ -123,7 +126,7 @@ def load_app(config_file):
 
         return output_scenarios
 
-    @pn.depends(results_button)
+    @pn.depends(updating_results)
     def update_result_score(results_button_on):
         if results_button_on:
             t.param.trigger('action')  # Update dashboard
@@ -222,7 +225,7 @@ def load_app(config_file):
 # Graphical Summary
 
 ![image]({image_charts})
-""".format(image_charts=charts.json()['url'],)
+""".format(image_charts=charts.json()['url'])
 
 
             graph_descriptions = """
@@ -444,7 +447,16 @@ If you have Impact Hours, you can see how much money you will get with my config
 
     def run_simulation_impact_hours(event):
         t.param.trigger('action')
+    
+    def update_results(event):
+        results_button.disabled = True
+        share_button.disabled = True
+        updating_results.value = True
+        share_button.disabled = False
+        results_button.disabled = False
+        updating_results.value = False
 
+    results_button.on_click(update_results)
     run_dandelion.on_click(run_simulation_dandelion)
     run_impact_hours.on_click(run_simulation_impact_hours)
 
